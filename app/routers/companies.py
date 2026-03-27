@@ -456,23 +456,68 @@ async def contact_edit_form(
         return await contacts_list_partial(request, company_id, db, admin)
 
     checked = "checked" if contact.is_primary else ""
+    anrede_opts = ""
+    for a in ["", "Frau", "Herrn"]:
+        sel = "selected" if (contact.anrede or "") == a else ""
+        label = a or "Anrede"
+        anrede_opts += f'<option value="{a}" {sel}>{label}</option>'
+
+    bday = contact.birthday.isoformat() if contact.birthday else ""
+
     return HTMLResponse(f"""
     <tr id="contact-edit-row">
-      <form hx-post="/companies/{company_id}/contacts/{contact_id}/edit" hx-target="#contacts-table-body" hx-swap="innerHTML">
-        <td><input type="text" name="first_name" class="form-control form-control-sm" value="{contact.first_name}" required></td>
-        <td><input type="text" name="last_name" class="form-control form-control-sm" value="{contact.last_name}" required></td>
-        <td><input type="text" name="role" class="form-control form-control-sm" value="{contact.role or ''}"></td>
-        <td><input type="email" name="email" class="form-control form-control-sm" value="{contact.email or ''}"></td>
-        <td><input type="text" name="phone" class="form-control form-control-sm" value="{contact.phone or ''}"></td>
-        <td class="text-center"><input type="checkbox" name="is_primary" value="true" class="form-check-input" {checked}></td>
-        <td>
-          <button type="submit" class="btn btn-success btn-sm me-1"><i class="bi bi-check-lg"></i></button>
-          <button type="button" class="btn btn-secondary btn-sm"
-                  hx-get="/companies/{company_id}/contacts/list" hx-target="#contacts-table-body" hx-swap="innerHTML">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </td>
-      </form>
+      <td colspan="5">
+        <form hx-post="/companies/{company_id}/contacts/{contact_id}/edit" hx-target="#contacts-table-body" hx-swap="innerHTML">
+          <div class="row g-2 p-2 bg-light rounded">
+            <div class="col-md-1">
+              <select name="anrede" class="form-select form-select-sm">{anrede_opts}</select>
+            </div>
+            <div class="col-md-1">
+              <input type="text" name="titel" class="form-control form-control-sm" value="{contact.titel or ''}" placeholder="Titel">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="first_name" class="form-control form-control-sm" value="{contact.first_name}" required placeholder="Vorname">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="last_name" class="form-control form-control-sm" value="{contact.last_name}" required placeholder="Nachname">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="position" class="form-control form-control-sm" value="{contact.position or ''}" placeholder="Position">
+            </div>
+            <div class="col-md-2">
+              <input type="email" name="email" class="form-control form-control-sm" value="{contact.email or ''}" placeholder="E-Mail">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="phone" class="form-control form-control-sm" value="{contact.phone or ''}" placeholder="Telefon">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="phone_direct" class="form-control form-control-sm" value="{contact.phone_direct or ''}" placeholder="Durchwahl">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="phone_mobile" class="form-control form-control-sm" value="{contact.phone_mobile or ''}" placeholder="Mobil">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="abteilung" class="form-control form-control-sm" value="{contact.abteilung or ''}" placeholder="Abteilung">
+            </div>
+            <div class="col-md-2">
+              <input type="date" name="birthday" class="form-control form-control-sm" value="{bday}" placeholder="Geburtstag">
+            </div>
+            <div class="col-md-1 d-flex align-items-center">
+              <div class="form-check">
+                <input type="checkbox" name="is_primary" value="true" class="form-check-input" id="edit_primary" {checked}>
+                <label class="form-check-label small" for="edit_primary">Haupt</label>
+              </div>
+            </div>
+            <div class="col-md-3 d-flex gap-1">
+              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Speichern</button>
+              <button type="button" class="btn btn-secondary btn-sm"
+                      hx-get="/companies/{company_id}/contacts/list" hx-target="#contacts-table-body" hx-swap="innerHTML">
+                <i class="bi bi-x-lg"></i> Abbrechen
+              </button>
+            </div>
+          </div>
+        </form>
+      </td>
     </tr>
     """)
 

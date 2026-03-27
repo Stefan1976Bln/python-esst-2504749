@@ -99,8 +99,8 @@
             <span class="badge bg-secondary">Inaktiv</span>
             {% endif %}
           </td>
-          <td class="text-end">
-            <a href="/companies/{{ company.id }}" class="btn btn-outline-primary btn-sm me-1"
+          <td class="text-end text-nowrap">
+            <a href="/companies/{{ company.id }}" class="btn btn-outline-primary btn-sm"
                title="Details anzeigen">
               <i class="bi bi-eye"></i>
             </a>
@@ -108,6 +108,12 @@
                title="Bearbeiten">
               <i class="bi bi-pencil"></i>
             </a>
+            <form method="post" action="/companies/{{ company.id }}/delete" class="d-inline"
+                  onsubmit="return confirm('{{ company.name }} wirklich loeschen?')">
+              <button type="submit" class="btn btn-outline-danger btn-sm" title="Loeschen">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
           </td>
         </tr>
         {% else %}
