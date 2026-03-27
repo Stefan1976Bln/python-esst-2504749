@@ -1,6 +1,6 @@
-"""Seed script to populate the database with demo data for AG City Berlin.
-Includes REAL City-Talk events from agcity.de + demo member companies.
-Teilnehmerlisten sind leer und koennen per CSV-Upload nachgetragen werden.
+"""Seed script for AG City Berlin.
+Echte City-Talk Events + echte Mitgliedsdaten (anonymisiert).
+Teilnehmerlisten leer - per CSV-Upload nachfuellbar.
 """
 import sys
 import os
@@ -35,101 +35,144 @@ admin = AdminUser(username="admin", password_hash=bcrypt.hash("admin123"), full_
 db.add(admin)
 
 # =====================================================================
-# Demo Companies (placeholder members)
+# ECHTE Mitgliedsunternehmen und Ansprechpartner (aus CRM-Export)
+# Nachnamen anonymisiert
 # =====================================================================
-companies_data = [
-    {"name": "Mueller & Partner Rechtsanwaelte", "branche": "Rechtsberatung", "city": "Berlin", "postal_code": "10115",
-     "address": "Friedrichstrasse 42", "phone": "+49 30 12345678", "email": "info@mueller-partner.de",
-     "website": "www.mueller-partner.de", "company_size": "11-50", "membership_since": date(2020, 1, 15)},
-    {"name": "TechVision GmbH", "branche": "IT & Software", "city": "Berlin", "postal_code": "10178",
-     "address": "Alexanderplatz 7", "phone": "+49 30 98765432", "email": "kontakt@techvision.de",
-     "website": "www.techvision.de", "company_size": "51-200", "membership_since": date(2019, 6, 1)},
-    {"name": "Cafe Sonnenschein", "branche": "Gastronomie", "city": "Berlin", "postal_code": "10243",
-     "address": "Karl-Marx-Allee 15", "phone": "+49 30 55544433", "email": "hallo@cafe-sonnenschein.de",
-     "website": "www.cafe-sonnenschein.de", "company_size": "1-10", "membership_since": date(2021, 3, 10)},
-    {"name": "Berliner Modehaus Schmidt", "branche": "Einzelhandel / Mode", "city": "Berlin", "postal_code": "10719",
-     "address": "Kurfuerstendamm 88", "phone": "+49 30 77788899", "email": "info@modehaus-schmidt.de",
-     "website": "www.modehaus-schmidt.de", "company_size": "11-50", "membership_since": date(2018, 9, 20)},
-    {"name": "Gruene Energie Berlin AG", "branche": "Erneuerbare Energien", "city": "Berlin", "postal_code": "10557",
-     "address": "Invalidenstrasse 31", "phone": "+49 30 33322211", "email": "info@gruene-energie-berlin.de",
-     "website": "www.gruene-energie-berlin.de", "company_size": "51-200", "membership_since": date(2022, 1, 5)},
-    {"name": "Immobilien Krause KG", "branche": "Immobilien", "city": "Berlin", "postal_code": "10785",
-     "address": "Potsdamer Platz 3", "phone": "+49 30 44455566", "email": "kontakt@krause-immobilien.de",
-     "website": "www.krause-immobilien.de", "company_size": "11-50", "membership_since": date(2017, 5, 12)},
-    {"name": "Buchhandlung am Kiez", "branche": "Einzelhandel / Buecher", "city": "Berlin", "postal_code": "10999",
-     "address": "Oranienstrasse 22", "phone": "+49 30 11122233", "email": "info@buchhandlung-kiez.de",
-     "website": "", "company_size": "1-10", "membership_since": date(2023, 2, 1)},
-    {"name": "Dr. Weber Zahnarztpraxis", "branche": "Gesundheit", "city": "Berlin", "postal_code": "10629",
-     "address": "Savignyplatz 5", "phone": "+49 30 66677788", "email": "praxis@dr-weber.de",
-     "website": "www.dr-weber-zahnarzt.de", "company_size": "1-10", "membership_since": date(2020, 8, 15)},
-    {"name": "Kreativ Agentur Funke", "branche": "Marketing & Werbung", "city": "Berlin", "postal_code": "10965",
-     "address": "Bergmannstrasse 19", "phone": "+49 30 88899900", "email": "hello@funke-kreativ.de",
-     "website": "www.funke-kreativ.de", "company_size": "11-50", "membership_since": date(2021, 11, 8)},
-    {"name": "Handwerksbetrieb Hoffmann", "branche": "Handwerk", "city": "Berlin", "postal_code": "12049",
-     "address": "Hermannstrasse 40", "phone": "+49 30 22233344", "email": "info@hoffmann-handwerk.de",
-     "website": "", "company_size": "1-10", "membership_since": date(2019, 4, 20)},
+
+def _d(s):
+    """Parse DD.MM.YYYY date, return None on failure."""
+    if not s or not s.strip():
+        return None
+    try:
+        return datetime.strptime(s.strip(), "%d.%m.%Y").date()
+    except ValueError:
+        return None
+
+# Each entry: (firma, firma2, anrede, titel, vorname, nachname, position,
+#              strasse, plz, ort, staat, telefon, direkt, mobil, privat,
+#              email, geburtstag, beitrag, branche, crm_id, eintrittsdatum)
+members_data = [
+    # Privatpersonen (keine Firma)
+    (None, None, "Frau", None, "Samar", "lllll", None,
+     "Tharandter Strasse 2", "10717", "Berlin", "DEUTSCHLAND",
+     None, None, "0173 609 3080", None, "abc@gmx.de", None,
+     300, "901 Sonstige: Privatpersonen", 25535, "19.06.2025"),
+    (None, None, "Herrn", None, "Gregor", "lllll", None,
+     "Muellerstrasse 65", "12623", "Berlin", "DEUTSCHLAND",
+     "0160 - 80 66 775", None, "0160 - 80 65 775", None, "bcd@gmx.de", None,
+     300, "699 Dienstleistung: Sonstige Dienstleister", 25347, "01.01.2024"),
+    (None, None, "Herrn", None, "Bernd", "mmmmm", None,
+     "Lindenstrasse 60", "14467", "Potsdam", "DEUTSCHLAND",
+     None, None, "0172 620 5642", None, "abc@gmx.de", None,
+     300, None, 25689, "10.11.2025"),
+    (None, None, None, None, "Dirk", "mmmmm", "Bauplanung",
+     "Burgweg 11", "17039", "Neuenkirchen", "DEUTSCHLAND",
+     None, None, "0155 68 46 7878", None, "bcd@gmx.de", None,
+     300, None, 25761, "04.02.2026"),
+    (None, None, "Frau", "Dr.", "Sabine", "rrr", "Aerztin",
+     "Uhlandstrasse 29", "10719", "Berlin", "DEUTSCHLAND",
+     None, None, None, None, "abc@gmx.de", None,
+     300, "602 Dienstleistung: Aerzte, Zahnaerzte, Heilberufe", 25773, "11.03.2026"),
+    (None, None, "Frau", None, "Antje", "lllll", None,
+     "Buddestrasse 9", "13507", "Berlin", None,
+     None, "15118261179", None, None, "bcd@gmx.de", None,
+     300, "Dienstleistung", 24244, "09.10.2023"),
+    # Firmen
+    ("008 Obitz & Grigoriadis GbR", None, "Herrn", None, "Albert", "ooo", "CEO",
+     "Bundesallee 19", "10717", "Berlin", "DEUTSCHLAND",
+     None, "030 373 00000", None, None, "abc@gmx.de", None,
+     600, "609 Dienstleistung: IT, Internet, Telekommunikation", 25635, "20.10.2025"),
+    ("25hours Hotel Company Berlin GmbH", None, "Frau", None, "Francesca", "sss", "General Manager",
+     "Budapester Strasse 40", "10787", "Berlin", None,
+     None, "+49 30 120 221 770", "+176 125 25 312", None, "bcd@gmx.de", "08.02.1966",
+     600, "Hotel", 12030, "11.06.2014"),
+    ("360 Degree World UG (haftungsbeschraenkt)", None, "Herrn", None, "Andreas", "kkk", "GBDO",
+     "Schoenhauser Allee 125", "10437", "Berlin", "DEUTSCHLAND",
+     None, "030 374 33 244", "0172 4777 778", None, "abc@gmx.de", None,
+     600, "607 Dienstleistung: Freizeit, Kultur, Touristik", 25769, "09.03.2026"),
+    ("3B Berlin Premium Hotelservice GmbH", None, "Frau", None, "Petra", "ttt", "Geschaeftsfuehrerin",
+     "Turmstrasse 33", "10551", "Berlin", None,
+     "030.600 316 6-0", None, None, None, "bcd@gmx.de", None,
+     600, "Dienstleistung", 13394, "29.08.2012"),
+    ("adidas AG", "adidas Homecourt Store", "Frau", None, "Nicole", "kkk", "Store Manager",
+     "Tauentzienstrasse 15", "10789", "Berlin", None,
+     None, "030 236 31 944", None, None, "abc@gmx.de", None,
+     600, "Handel", 5493, "02.02.2007"),
+    ("Aengevelt Immobilien GmbH & Co. KG", None, "Frau", None, "Tina", "ssss", "Niederlassungsleiterin Berlin",
+     "Franzoesische Strasse 48", "10117", "Berlin", None,
+     "+49 30 20193-130", None, "+49 172 9804-130", None, "bcd@gmx.de", None,
+     600, "Immobilien", 20003, "17.08.2017"),
+    ("AFC Berlin Adler e.V.", None, "Herrn", None, "Denis", "mmmmm", "Geschaeftsfuehrer / General Manager",
+     "Kurt-Schumacher-Damm 207-214", "13405", "Berlin", "DEUTSCHLAND",
+     "+49 30 32531606", None, "0170 - 210 48 23", None, "abc@gmx.de", None,
+     600, "711 Oeffentliche Organisationen: Vereine", 24405, "25.02.2024"),
 ]
 
 companies = []
-for data in companies_data:
-    c = Company(**data, is_active=True)
-    db.add(c)
-    companies.append(c)
-db.flush()
-
-# =====================================================================
-# Contact Persons
-# =====================================================================
-contacts_data = [
-    (0, "Thomas", "Mueller", "Geschaeftsfuehrer", "t.mueller@mueller-partner.de", "+49 170 1111111", True),
-    (0, "Anna", "Schneider", "Assistenz", "a.schneider@mueller-partner.de", "+49 170 1111112", False),
-    (1, "Stefan", "Wagner", "CTO", "s.wagner@techvision.de", "+49 171 2222222", True),
-    (1, "Lisa", "Becker", "Marketing", "l.becker@techvision.de", "+49 171 2222223", False),
-    (2, "Maria", "Klein", "Inhaberin", "m.klein@cafe-sonnenschein.de", "+49 172 3333333", True),
-    (3, "Heinrich", "Schmidt", "Inhaber", "h.schmidt@modehaus-schmidt.de", "+49 173 4444444", True),
-    (3, "Katrin", "Schmidt", "Einkauf", "k.schmidt@modehaus-schmidt.de", "+49 173 4444445", False),
-    (4, "Dr. Frank", "Neumann", "Vorstand", "f.neumann@gruene-energie-berlin.de", "+49 174 5555555", True),
-    (5, "Michael", "Krause", "Geschaeftsfuehrer", "m.krause@krause-immobilien.de", "+49 175 6666666", True),
-    (6, "Julia", "Braun", "Inhaberin", "j.braun@buchhandlung-kiez.de", "+49 176 7777777", True),
-    (7, "Dr. Peter", "Weber", "Praxisinhaber", "p.weber@dr-weber.de", "+49 177 8888888", True),
-    (8, "Carla", "Funke", "Creative Director", "c.funke@funke-kreativ.de", "+49 178 9999999", True),
-    (8, "Maximilian", "Koch", "Projektmanager", "m.koch@funke-kreativ.de", "+49 178 9999998", False),
-    (9, "Hans", "Hoffmann", "Meister", "h.hoffmann@hoffmann-handwerk.de", "+49 179 0000000", True),
-]
-
 contacts = []
-for comp_idx, first, last, role, email, phone, primary in contacts_data:
+company_map = {}  # name -> Company object
+
+for (firma, firma2, anrede, titel, vorname, nachname, position,
+     strasse, plz, ort, staat, telefon, direkt, mobil, privat,
+     email, geburtstag, beitrag, branche, crm_id, eintrittsdatum) in members_data:
+
+    # Determine company
+    if firma:
+        comp_key = firma
+    else:
+        comp_key = f"Privatperson: {vorname} {nachname}"
+
+    if comp_key not in company_map:
+        comp = Company(
+            name=comp_key,
+            name2=firma2,
+            address=strasse,
+            postal_code=plz,
+            city=ort,
+            staat=staat,
+            branche=branche,
+            beitrag=float(beitrag) if beitrag else None,
+            crm_id=crm_id,
+            membership_since=_d(eintrittsdatum),
+            is_active=True,
+        )
+        db.add(comp)
+        db.flush()
+        company_map[comp_key] = comp
+        companies.append(comp)
+
+    comp = company_map[comp_key]
+    is_first = not any(c.company_id == comp.id for c in contacts)
+
     cp = ContactPerson(
-        company_id=companies[comp_idx].id, first_name=first, last_name=last,
-        role=role, email=email, phone=phone, is_primary=primary,
+        company_id=comp.id,
+        anrede=anrede,
+        titel=titel,
+        first_name=vorname.strip() if vorname else "",
+        last_name=nachname.strip() if nachname else "",
+        position=position,
+        email=email,
+        phone=telefon,
+        phone_direct=direkt,
+        phone_mobile=mobil,
+        phone_private=privat,
+        birthday=_d(geburtstag),
+        is_primary=is_first,
+        crm_id=crm_id,
     )
     db.add(cp)
     contacts.append(cp)
+
 db.flush()
 
 # =====================================================================
-# Dossiers
-# =====================================================================
-dossiers_data = [
-    ("company", companies[0].id, "Erstgespraech", "Herr Mueller ist sehr interessiert an Networking-Events. Kanzlei hat 25 Mitarbeiter und sucht Mandanten im Mittelstand.", "Admin"),
-    ("company", companies[1].id, "Technologie-Partner", "TechVision bietet Cloud-Loesungen fuer KMU an. Koennten als Sponsor fuer Tech-Events gewonnen werden.", "Admin"),
-    ("company", companies[3].id, "Traditionsbetrieb", "Seit 1955 am Ku'damm. Herr Schmidt legt Wert auf persoenliche Kontakte. Sehr aktives Mitglied.", "Admin"),
-    ("company", companies[4].id, "Neues Mitglied", "Schnell wachsendes Unternehmen. Interesse an Nachhaltigkeit und gruener Wirtschaft.", "Admin"),
-    ("contact", contacts[0].id, "Networking-Typ", "Herr Mueller kommt zu fast jeder Veranstaltung und bringt oft Gaeste mit.", "Admin"),
-    ("contact", contacts[2].id, "Tech-Experte", "Stefan Wagner hat auf dem letzten Workshop einen Vortrag zu KI gehalten. Sehr guter Speaker.", "Admin"),
-]
-
-for entity_type, entity_id, title, content, author in dossiers_data:
-    d = Dossier(entity_type=entity_type, entity_id=entity_id, title=title, content=content, author=author)
-    db.add(d)
-
-# =====================================================================
-# Membership Fees
+# Membership Fees (basierend auf echtem Beitrag)
 # =====================================================================
 current_year = date.today().year
 for comp in companies:
-    for year in range(max(comp.membership_since.year if comp.membership_since else current_year - 2, current_year - 2), current_year + 1):
-        amount = 500.0 if comp.company_size in ["51-200", "200+"] else 250.0 if comp.company_size == "11-50" else 150.0
+    start_year = comp.membership_since.year if comp.membership_since else current_year
+    for year in range(max(start_year, current_year - 2), current_year + 1):
+        amount = comp.beitrag or 300.0
         if year < current_year:
             status = "paid"
             paid = amount
@@ -230,6 +273,7 @@ events = []
 for data in citytalk_events:
     data["registration_deadline"] = data["event_date"] - timedelta(days=7)
     data["max_participants"] = 80
+    data["is_published"] = True
     e = Event(**data)
     db.add(e)
     events.append(e)
