@@ -17,30 +17,22 @@
     <a href="mailto:{{ reg.email }}" class="text-decoration-none">{{ reg.email }}</a>
 </td>
 <td class="text-center">
-    {% if reg.combined_ai_score is not none %}
-    {% set score = reg.combined_ai_score %}
-    <span class="badge {% if score >= 7 %}bg-success{% elif score >= 4 %}bg-warning text-dark{% else %}bg-danger{% endif %}"
-          title="Eignung: {{ reg.ai_suitability_score or '-' }} | Zuverlaessigkeit: {{ reg.ai_reliability_score or '-' }}">
-        {{ '%.1f' | format(score) }}
+    {% if reg.priority_score is not none %}
+    {% set score = reg.priority_score %}
+    <span class="badge {% if score >= 70 %}bg-success{% elif score >= 40 %}bg-warning text-dark{% else %}bg-danger{% endif %}"
+          title="{{ reg.priority_reason or '' }}">
+        {{ score|round|int }}/100
     </span>
-    {% if reg.ai_suitability_reason %}
-    <i class="bi bi-info-circle text-muted ms-1" title="{{ reg.ai_suitability_reason }}"
-       data-bs-toggle="tooltip"></i>
-    {% endif %}
+    {% elif reg.ai_suitability_score is not none %}
+    <span class="badge bg-info" title="{{ reg.ai_suitability_reason or '' }}">
+        KI: {{ '%.1f' | format(reg.ai_suitability_score) }}
+    </span>
     {% else %}
     <span class="text-muted">-</span>
     {% endif %}
 </td>
 <td class="text-center">
-    {% if reg.status == 'confirmed' %}
-    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Bestaetigt</span>
-    {% elif reg.status == 'pending' %}
-    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Ausstehend</span>
-    {% elif reg.status == 'rejected' %}
-    <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Abgelehnt</span>
-    {% elif reg.status == 'waitlisted' %}
-    <span class="badge bg-info text-dark"><i class="bi bi-clock me-1"></i>Warteliste</span>
-    {% endif %}
+    <span class="badge bg-{{ reg.status_color }}">{{ reg.status_label }}</span>
 </td>
 {% if event.is_past %}
 <td class="text-center">
@@ -55,8 +47,8 @@
 {% endif %}
 <td class="text-end">
     <div class="btn-group btn-group-sm">
-        {% if reg.status == 'pending' or reg.status == 'waitlisted' %}
-        <button class="btn btn-outline-success" title="Bestaetigen"
+        {% if reg.status in ('angemeldet', 'pending', 'warteliste', 'waitlisted') %}
+        <button class="btn btn-outline-success" title="Zulassen"
                 hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/approve"
                 hx-target="#reg-row-{{ reg.id }}"
                 hx-swap="innerHTML">
@@ -69,7 +61,7 @@
             <i class="bi bi-x-lg"></i>
         </button>
         {% endif %}
-        {% if reg.status == 'confirmed' and event.is_past %}
+        {% if reg.status in ('zugelassen', 'bestaetigt', 'confirmed') and event.is_past %}
         <button class="btn btn-outline-success" title="Anwesend markieren"
                 hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/attendance"
                 hx-vals='{"attendance": "attended"}'
@@ -85,8 +77,8 @@
             <i class="bi bi-person-x"></i>
         </button>
         {% endif %}
-        {% if reg.status == 'confirmed' or reg.status == 'rejected' %}
-        <button class="btn btn-outline-secondary" title="Auf Warteliste setzen"
+        {% if reg.status in ('zugelassen', 'confirmed', 'abgelehnt', 'rejected') %}
+        <button class="btn btn-outline-secondary" title="Auf Warteliste"
                 hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/waitlist"
                 hx-target="#reg-row-{{ reg.id }}"
                 hx-swap="innerHTML">
