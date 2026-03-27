@@ -93,6 +93,15 @@
                         </div>
                     </div>
 
+                    <!-- Wordpress Anmeldelink -->
+                    <div class="mb-3">
+                        <label for="registration_url" class="form-label"><i class="bi bi-wordpress me-1"></i>Anmeldelink (Wordpress)</label>
+                        <input type="url" id="registration_url" name="registration_url" class="form-control"
+                               value="{{ event.registration_url if event and event.registration_url else '' }}"
+                               placeholder="https://agcity.de/registration/...">
+                        <small class="text-muted">Link zur Wordpress-Anmeldeseite. Teilnehmer melden sich dort an, CSV-Export hier importieren.</small>
+                    </div>
+
                     <!-- Participants & Published -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-4">

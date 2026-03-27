@@ -161,6 +161,7 @@ async def event_create(
     event_end_date: str = Form(""),
     max_participants: str = Form(""),
     registration_deadline: str = Form(""),
+    registration_url: str = Form(""),
     is_published: bool = Form(False),
     db: Session = Depends(get_db),
     admin: AdminUser = Depends(require_admin),
@@ -175,6 +176,7 @@ async def event_create(
         event_end_date=datetime.fromisoformat(event_end_date) if event_end_date else None,
         max_participants=int(max_participants) if max_participants else None,
         registration_deadline=datetime.fromisoformat(registration_deadline) if registration_deadline else None,
+        registration_url=registration_url or None,
         is_published=is_published,
     )
     db.add(event)
@@ -275,6 +277,7 @@ async def event_edit(
     event.event_end_date = datetime.fromisoformat(event_end_date) if event_end_date else None
     event.max_participants = int(max_participants) if max_participants else None
     event.registration_deadline = datetime.fromisoformat(registration_deadline) if registration_deadline else None
+    event.registration_url = registration_url or None
     event.is_published = is_published
 
     db.commit()

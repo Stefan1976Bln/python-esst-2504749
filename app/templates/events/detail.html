@@ -118,18 +118,28 @@
             </div>
         </div>
 
-        <!-- Public registration link -->
+        <!-- Wordpress registration link (external) -->
         <div class="card mb-4">
-            <div class="card-header"><i class="bi bi-link-45deg me-2"></i>Oeffentlicher Anmeldelink</div>
+            <div class="card-header"><i class="bi bi-wordpress me-2"></i>Anmeldelink (Wordpress)</div>
             <div class="card-body">
+                {% if event.registration_url %}
                 <div class="input-group">
-                    <input type="text" class="form-control" id="publicUrl" value="{{ public_url }}" readonly>
-                    <button class="btn btn-outline-secondary" type="button" onclick="copyPublicUrl()">
+                    <input type="text" class="form-control" id="publicUrl" value="{{ event.registration_url }}" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('publicUrl').value)">
                         <i class="bi bi-clipboard me-1"></i>Kopieren
                     </button>
+                    <a href="{{ event.registration_url }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>Oeffnen
+                    </a>
                 </div>
+                {% else %}
+                <p class="text-muted mb-2">Kein Anmeldelink hinterlegt. Im Bearbeitungsformular eintragen.</p>
+                <a href="/events/{{ event.id }}/edit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-pencil me-1"></i>Link eintragen
+                </a>
+                {% endif %}
                 <small class="text-muted mt-1 d-block">
-                    Diesen Link koennen Sie an potenzielle Teilnehmer weitergeben.
+                    Anmeldungen laufen ueber Wordpress. CSV-Export hier per WP-Import hochladen.
                 </small>
             </div>
         </div>

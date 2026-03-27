@@ -20,6 +20,7 @@ class Event(Base):
     registration_deadline: Mapped[datetime | None] = mapped_column(DateTime)
     is_published: Mapped[bool] = mapped_column(Boolean, default=False)
     public_token: Mapped[str] = mapped_column(String(64), unique=True, default=lambda: str(uuid.uuid4()))
+    registration_url: Mapped[str | None] = mapped_column(String(500))  # Wordpress Anmeldelink
     ai_summary: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
