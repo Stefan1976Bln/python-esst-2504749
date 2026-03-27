@@ -57,6 +57,27 @@
     </div>
 </div>
 
+<!-- Aktions-Leiste -->
+<div class="card mb-4">
+    <div class="card-body py-2 d-flex flex-wrap gap-2">
+        <a href="/events/{{ event.id }}/wp-import" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-upload me-1"></i>Wordpress CSV Import
+        </a>
+        <a href="/events/{{ event.id }}/checkin" class="btn btn-outline-success btn-sm" target="_blank">
+            <i class="bi bi-qr-code-scan me-1"></i>Check-In Maske
+        </a>
+        <a href="/events/{{ event.id }}/attendance" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-clipboard-check me-1"></i>Teilnahme nachpflegen
+        </a>
+        <a href="/events/{{ event.id }}/scoring" class="btn btn-outline-warning btn-sm">
+            <i class="bi bi-bar-chart me-1"></i>Scoring &amp; Zulassung
+        </a>
+        <a href="/events/{{ event.id }}/analysis" class="btn btn-outline-info btn-sm">
+            <i class="bi bi-graph-up me-1"></i>Analyse
+        </a>
+    </div>
+</div>
+
 <div class="row">
     <!-- Left column: Details -->
     <div class="col-lg-8">
