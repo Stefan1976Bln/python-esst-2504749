@@ -1,0 +1,36 @@
+{% extends "public/base.html" %}
+
+{% block title %}Anmeldung bestaetigt - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 text-center">
+        <div class="card shadow-sm">
+            <div class="card-body py-5">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="mb-3">Vielen Dank fuer Ihre Anmeldung!</h3>
+                <p class="text-muted mb-4">
+                    Ihre Anmeldung zur Veranstaltung <strong>{{ event.title }}</strong> ist erfolgreich eingegangen.
+                </p>
+                <div class="bg-light rounded p-3 mb-4 text-start">
+                    <h6 class="mb-2">Ihre Angaben:</h6>
+                    <p class="mb-1"><strong>Name:</strong> {{ registration.full_name }}</p>
+                    <p class="mb-1"><strong>E-Mail:</strong> {{ registration.email }}</p>
+                    <p class="mb-1"><strong>Veranstaltung:</strong> {{ event.title }}</p>
+                    <p class="mb-0"><strong>Datum:</strong> {{ event.event_date.strftime('%d.%m.%Y, %H:%M') }} Uhr</p>
+                </div>
+                <div class="alert alert-info text-start">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Sie erhalten in Kuerze eine Bestaetigungsmail an <strong>{{ registration.email }}</strong>.
+                    Ihre Anmeldung wird geprueft und Sie werden ueber den Status informiert.
+                </div>
+                <a href="/events" class="btn btn-outline-primary mt-2">
+                    <i class="bi bi-arrow-left me-1"></i>Zurueck zur Veranstaltungsuebersicht
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

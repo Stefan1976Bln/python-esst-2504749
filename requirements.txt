@@ -1,1 +1,16 @@
-# Specify Python package requirements for your project here (e.g., Mako==1.1.1). If your project doesn't require these, you can leave this file unchanged or delete it.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+alembic==1.14.1
+jinja2==3.1.5
+python-multipart==0.0.18
+aiofiles==24.1.0
+httpx==0.28.1
+anthropic==0.42.0
+apscheduler==3.10.4
+aiosmtplib==3.0.2
+python-dotenv==1.0.1
+passlib[bcrypt]==1.7.4
+itsdangerous==2.2.0
+pillow==11.1.0
+bcrypt==4.0.1

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Veranstaltungen{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item active">Veranstaltungen</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-event me-2"></i>Veranstaltungen</h2>
+    <a href="/events/new" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Neue Veranstaltung
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" action="/events" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Suche</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Titel, Ort..." value="{{ q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Typ</label>
+                <select name="event_type" class="form-select">
+                    <option value="">Alle Typen</option>
+                    {% for et in event_types %}
+                    <option value="{{ et }}" {% if event_type == et %}selected{% endif %}>{{ et }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">Alle</option>
+                    <option value="upcoming" {% if status == 'upcoming' %}selected{% endif %}>Bevorstehend</option>
+                    <option value="past" {% if status == 'past' %}selected{% endif %}>Vergangen</option>
+                    <option value="published" {% if status == 'published' %}selected{% endif %}>Veroeffentlicht</option>
+                    <option value="draft" {% if status == 'draft' %}selected{% endif %}>Entwurf</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>Filtern
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results info -->
+<p class="text-muted mb-3">{{ events | length }} Veranstaltung(en) gefunden</p>
+
+<!-- Event cards -->
+{% if events %}
+<div class="row">
+    {% for event in events %}
+    <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        {% if event.event_type %}
+                        <span class="badge bg-info text-dark mb-1">{{ event.event_type }}</span>
+                        {% endif %}
+                        {% if event.is_past %}
+                        <span class="badge bg-secondary mb-1">Vergangen</span>
+                        {% else %}
+                        <span class="badge bg-success mb-1">Bevorstehend</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if event.is_published %}
+                        <span class="badge bg-primary"><i class="bi bi-globe me-1"></i>Online</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark"><i class="bi bi-file-earmark me-1"></i>Entwurf</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h5 class="card-title">
+                    <a href="/events/{{ event.id }}" class="text-decoration-none text-dark">{{ event.title }}</a>
+                </h5>
+
+                <div class="text-muted small mb-3">
+                    <div><i class="bi bi-calendar me-1"></i>{{ event.event_date.strftime('%d.%m.%Y %H:%M') }}</div>
+                    {% if event.location %}
+                    <div><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</div>
+                    {% endif %}
+                </div>
+
+                {% if event.description %}
+                <p class="card-text text-muted small">{{ event.description[:120] }}{% if event.description|length > 120 %}...{% endif %}</p>
+                {% endif %}
+
+                <div class="d-flex gap-3 text-muted small">
+                    <span title="Bestaetigt">
+                        <i class="bi bi-person-check text-success me-1"></i>{{ event.confirmed_count }}
+                    </span>
+                    <span title="Ausstehend">
+                        <i class="bi bi-hourglass-split text-warning me-1"></i>{{ event.pending_count }}
+                    </span>
+                    <span title="Gesamt">
+                        <i class="bi bi-people me-1"></i>{{ event.registrations | length }}
+                        {% if event.max_participants %}/ {{ event.max_participants }}{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="d-flex gap-2">
+                    <a href="/events/{{ event.id }}" class="btn btn-sm btn-outline-primary flex-fill">
+                        <i class="bi bi-eye me-1"></i>Details
+                    </a>
+                    <a href="/events/{{ event.id }}/edit" class="btn btn-sm btn-outline-secondary flex-fill">
+                        <i class="bi bi-pencil me-1"></i>Bearbeiten
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
+    <p>Keine Veranstaltungen gefunden.</p>
+    <a href="/events/new" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Erste Veranstaltung erstellen
+    </a>
+</div>
+{% endif %}
+{% endblock %}

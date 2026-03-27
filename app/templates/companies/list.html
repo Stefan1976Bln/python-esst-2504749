@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Unternehmen{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item active">Unternehmen</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="mb-0"><i class="bi bi-buildings me-2"></i>Unternehmen</h3>
+  <a href="/companies/new" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Neues Unternehmen
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="/companies" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label">Suche</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" class="form-control" placeholder="Name, Stadt, E-Mail ..."
+                 value="{{ q }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Branche</label>
+        <select name="branche" class="form-select">
+          <option value="">Alle Branchen</option>
+          {% for b in branches %}
+          <option value="{{ b }}" {% if branche == b %}selected{% endif %}>{{ b }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+          <option value="">Alle</option>
+          <option value="active" {% if status == 'active' %}selected{% endif %}>Aktiv</option>
+          <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inaktiv</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">
+          <i class="bi bi-funnel me-1"></i>Filtern
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <span><strong>{{ companies | length }}</strong> Unternehmen gefunden</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Stadt</th>
+          <th>Branche</th>
+          <th>Telefon</th>
+          <th>Status</th>
+          <th class="text-end">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for company in companies %}
+        <tr>
+          <td>
+            <a href="/companies/{{ company.id }}" class="text-decoration-none fw-semibold">
+              {{ company.name }}
+            </a>
+          </td>
+          <td>{{ company.city or '' }}</td>
+          <td>{{ company.branche or '' }}</td>
+          <td>{{ company.phone or '' }}</td>
+          <td>
+            {% if company.is_active %}
+            <span class="badge bg-success">Aktiv</span>
+            {% else %}
+            <span class="badge bg-secondary">Inaktiv</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="/companies/{{ company.id }}" class="btn btn-outline-primary btn-sm me-1"
+               title="Details anzeigen">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="/companies/{{ company.id }}/edit" class="btn btn-outline-secondary btn-sm"
+               title="Bearbeiten">
+              <i class="bi bi-pencil"></i>
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            Keine Unternehmen gefunden.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Veranstaltung bearbeiten' if event else 'Neue Veranstaltung' }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+        {% if event %}
+        <li class="breadcrumb-item"><a href="/events/{{ event.id }}">{{ event.title }}</a></li>
+        <li class="breadcrumb-item active">Bearbeiten</li>
+        {% else %}
+        <li class="breadcrumb-item active">Neue Veranstaltung</li>
+        {% endif %}
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-{{ 'pencil' if event else 'plus-lg' }} me-2"></i>
+                    {{ 'Veranstaltung bearbeiten' if event else 'Neue Veranstaltung erstellen' }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post"
+                      action="{{ '/events/' ~ event.id ~ '/edit' if event else '/events/new' }}">
+
+                    <!-- Title & Type -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label for="title" class="form-label">Titel <span class="text-danger">*</span></label>
+                            <input type="text" id="title" name="title" class="form-control"
+                                   value="{{ event.title if event else '' }}" required
+                                   placeholder="z.B. Fruehjahrsgala 2026">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="event_type" class="form-label">Veranstaltungstyp</label>
+                            <select id="event_type" name="event_type" class="form-select">
+                                <option value="">-- Typ waehlen --</option>
+                                {% for et in event_types %}
+                                <option value="{{ et }}"
+                                        {% if event and event.event_type == et %}selected{% endif %}>{{ et }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Beschreibung</label>
+                        <textarea id="description" name="description" class="form-control" rows="5"
+                                  placeholder="Beschreiben Sie die Veranstaltung...">{{ event.description if event and event.description else '' }}</textarea>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="location" class="form-label">Veranstaltungsort</label>
+                            <input type="text" id="location" name="location" class="form-control"
+                                   value="{{ event.location if event and event.location else '' }}"
+                                   placeholder="z.B. Congress Center">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="address" class="form-label">Adresse</label>
+                            <input type="text" id="address" name="address" class="form-control"
+                                   value="{{ event.address if event and event.address else '' }}"
+                                   placeholder="Strasse, PLZ Ort">
+                        </div>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label for="event_date" class="form-label">Beginn <span class="text-danger">*</span></label>
+                            <input type="datetime-local" id="event_date" name="event_date" class="form-control"
+                                   value="{{ event.event_date.strftime('%Y-%m-%dT%H:%M') if event else '' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="event_end_date" class="form-label">Ende</label>
+                            <input type="datetime-local" id="event_end_date" name="event_end_date" class="form-control"
+                                   value="{{ event.event_end_date.strftime('%Y-%m-%dT%H:%M') if event and event.event_end_date else '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="registration_deadline" class="form-label">Anmeldefrist</label>
+                            <input type="datetime-local" id="registration_deadline" name="registration_deadline" class="form-control"
+                                   value="{{ event.registration_deadline.strftime('%Y-%m-%dT%H:%M') if event and event.registration_deadline else '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Participants & Published -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="max_participants" class="form-label">Max. Teilnehmer</label>
+                            <input type="number" id="max_participants" name="max_participants" class="form-control"
+                                   value="{{ event.max_participants if event and event.max_participants else '' }}"
+                                   min="1" placeholder="Leer = unbegrenzt">
+                        </div>
+                        <div class="col-md-8 d-flex align-items-end">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_published" name="is_published"
+                                       value="true"
+                                       {% if event and event.is_published %}checked{% endif %}>
+                                <label class="form-check-label" for="is_published">
+                                    Veranstaltung veroeffentlichen
+                                    <br><small class="text-muted">Oeffentliche Anmeldeseite wird aktiviert</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ '/events/' ~ event.id if event else '/events' }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Abbrechen
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>{{ 'Speichern' if event else 'Erstellen' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

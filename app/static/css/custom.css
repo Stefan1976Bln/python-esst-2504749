@@ -1,0 +1,76 @@
+/* AG City Custom Styles */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f5f6fa;
+}
+
+#sidebar .nav-link {
+    padding: 0.6rem 1rem;
+    margin: 2px 0;
+    transition: background 0.2s;
+}
+
+#sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-radius: 10px;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+.stat-card {
+    transition: transform 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.badge-pending { background-color: #f39c12; }
+.badge-confirmed { background-color: #27ae60; }
+.badge-rejected { background-color: #e74c3c; }
+.badge-waitlisted { background-color: #3498db; }
+.badge-attended { background-color: #27ae60; }
+.badge-no_show { background-color: #e74c3c; }
+
+.ai-score {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+.ai-score-high { background: #d4edda; color: #155724; }
+.ai-score-medium { background: #fff3cd; color: #856404; }
+.ai-score-low { background: #f8d7da; color: #721c24; }
+
+.htmx-indicator {
+    display: none;
+}
+.htmx-request .htmx-indicator {
+    display: inline-block;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.dossier-entry {
+    border-left: 3px solid #3498db;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}

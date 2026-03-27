@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}{{ company.name }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/companies">Unternehmen</a></li>
+    <li class="breadcrumb-item active">{{ company.name }}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h3 class="mb-1">
+      <i class="bi bi-building me-2"></i>{{ company.name }}
+      {% if company.is_active %}
+      <span class="badge bg-success fs-6 ms-2">Aktiv</span>
+      {% else %}
+      <span class="badge bg-secondary fs-6 ms-2">Inaktiv</span>
+      {% endif %}
+    </h3>
+    {% if company.city %}
+    <p class="text-muted mb-0"><i class="bi bi-geo-alt me-1"></i>{{ company.postal_code }} {{ company.city }}</p>
+    {% endif %}
+  </div>
+  <div>
+    <a href="/companies/{{ company.id }}/edit" class="btn btn-outline-primary me-1">
+      <i class="bi bi-pencil me-1"></i>Bearbeiten
+    </a>
+    <form method="post" action="/companies/{{ company.id }}/delete" class="d-inline"
+          onsubmit="return confirm('Unternehmen wirklich loeschen? Alle zugehoerigen Daten werden ebenfalls geloescht.')">
+      <button type="submit" class="btn btn-outline-danger">
+        <i class="bi bi-trash me-1"></i>Loeschen
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'info' %}active{% endif %}" href="/companies/{{ company.id }}?tab=info">
+      <i class="bi bi-info-circle me-1"></i>Uebersicht
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'contacts' %}active{% endif %}" href="/companies/{{ company.id }}?tab=contacts">
+      <i class="bi bi-people me-1"></i>Ansprechpartner
+      <span class="badge bg-secondary ms-1">{{ company.contacts | length }}</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'dossiers' %}active{% endif %}" href="/companies/{{ company.id }}?tab=dossiers">
+      <i class="bi bi-journal-text me-1"></i>Dossier
+      <span class="badge bg-secondary ms-1">{{ company.dossiers | length }}</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'fees' %}active{% endif %}" href="/companies/{{ company.id }}?tab=fees">
+      <i class="bi bi-cash-coin me-1"></i>Beitraege
+      <span class="badge bg-secondary ms-1">{{ company.fees | length }}</span>
+    </a>
+  </li>
+</ul>
+
+<!-- Tab: Info -->
+{% if tab == 'info' %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-4">
+      <div class="card-header bg-white"><strong><i class="bi bi-building me-1"></i>Stammdaten</strong></div>
+      <div class="card-body">
+        <table class="table table-borderless mb-0">
+          <tr>
+            <th class="text-muted" style="width:40%">Name</th>
+            <td>{{ company.name }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted">Adresse</th>
+            <td>{{ company.address or '&mdash;' }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted">PLZ / Stadt</th>
+            <td>{{ company.postal_code or '' }} {{ company.city or '&mdash;' }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted">Branche</th>
+            <td>{{ company.branche or '&mdash;' }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted">Unternehmensgroesse</th>
+            <td>{{ company.company_size or '&mdash;' }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted">Mitglied seit</th>
+            <td>{{ company.membership_since.strftime('%d.%m.%Y') if company.membership_since else '&mdash;' }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-4">
+      <div class="card-header bg-white"><strong><i class="bi bi-envelope me-1"></i>Kontaktdaten</strong></div>
+      <div class="card-body">
+        <table class="table table-borderless mb-0">
+          <tr>
+            <th class="text-muted" style="width:40%">Telefon</th>
+            <td>{{ company.phone or '&mdash;' }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted">E-Mail</th>
+            <td>
+              {% if company.email %}
+              <a href="mailto:{{ company.email }}">{{ company.email }}</a>
+              {% else %}
+              &mdash;
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-muted">Website</th>
+            <td>
+              {% if company.website %}
+              <a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website }}</a>
+              {% else %}
+              &mdash;
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="card mb-4">
+      <div class="card-header bg-white"><strong><i class="bi bi-bar-chart me-1"></i>Kurzuebersicht</strong></div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-4">
+            <div class="fs-4 fw-bold text-primary">{{ company.contacts | length }}</div>
+            <small class="text-muted">Kontakte</small>
+          </div>
+          <div class="col-4">
+            <div class="fs-4 fw-bold text-primary">{{ company.dossiers | length }}</div>
+            <small class="text-muted">Dossier</small>
+          </div>
+          <div class="col-4">
+            <div class="fs-4 fw-bold {% if company.outstanding_fees > 0 %}text-danger{% else %}text-success{% endif %}">
+              {{ "%.2f"|format(company.outstanding_fees) }} &euro;
+            </div>
+            <small class="text-muted">Offen</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent dossier entries on info tab -->
+{% if company.dossiers %}
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <strong><i class="bi bi-journal-text me-1"></i>Letzte Dossier-Eintraege</strong>
+    <a href="/companies/{{ company.id }}?tab=dossiers" class="btn btn-sm btn-outline-primary">
+      Alle anzeigen
+    </a>
+  </div>
+  <div class="card-body">
+    {% for d in company.dossiers[:3] %}
+    <div class="{% if not loop.last %}border-bottom pb-3 mb-3{% endif %}">
+      <div class="d-flex justify-content-between">
+        <strong>{{ d.title }}</strong>
+        <small class="text-muted">{{ d.created_at.strftime('%d.%m.%Y %H:%M') if d.created_at else '' }}</small>
+      </div>
+      <p class="mb-1">{{ d.content[:200] }}{% if d.content | length > 200 %}...{% endif %}</p>
+      <small class="text-muted"><i class="bi bi-person me-1"></i>{{ d.author or 'System' }}</small>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+<!-- Tab: Contacts -->
+{% if tab == 'contacts' %}
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <strong><i class="bi bi-people me-1"></i>Ansprechpartner</strong>
+    <button class="btn btn-primary btn-sm"
+            hx-get="/companies/{{ company.id }}/contacts/new"
+            hx-target="#contacts-table-body"
+            hx-swap="afterbegin">
+      <i class="bi bi-plus-lg me-1"></i>Neuer Kontakt
+    </button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Vorname</th>
+          <th>Nachname</th>
+          <th>Funktion</th>
+          <th>E-Mail</th>
+          <th>Telefon</th>
+          <th class="text-center">Hauptkontakt</th>
+          <th>Aktionen</th>
+        </tr>
+      </thead>
+      <tbody id="contacts-table-body">
+        {% for contact in company.contacts %}
+        <tr>
+          <td>{{ contact.first_name }}</td>
+          <td>{{ contact.last_name }}</td>
+          <td>{{ contact.role or '' }}</td>
+          <td>
+            {% if contact.email %}
+            <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+            {% endif %}
+          </td>
+          <td>{{ contact.phone or '' }}</td>
+          <td class="text-center">
+            {% if contact.is_primary %}
+            <i class="bi bi-check-circle-fill text-success"></i>
+            {% endif %}
+          </td>
+          <td>
+            <button class="btn btn-outline-primary btn-sm me-1"
+                    hx-get="/companies/{{ company.id }}/contacts/{{ contact.id }}/edit"
+                    hx-target="#contacts-table-body"
+                    hx-swap="innerHTML">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-outline-danger btn-sm"
+                    hx-post="/companies/{{ company.id }}/contacts/{{ contact.id }}/delete"
+                    hx-target="#contacts-table-body"
+                    hx-swap="innerHTML"
+                    hx-confirm="Ansprechpartner wirklich loeschen?">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            Noch keine Ansprechpartner hinterlegt.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Tab: Dossiers -->
+{% if tab == 'dossiers' %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0"><i class="bi bi-journal-text me-2"></i>Dossier</h5>
+  <button class="btn btn-primary btn-sm"
+          hx-get="/companies/{{ company.id }}/dossiers/new"
+          hx-target="#dossier-timeline"
+          hx-swap="afterbegin">
+    <i class="bi bi-plus-lg me-1"></i>Neuer Eintrag
+  </button>
+</div>
+
+<div id="dossier-timeline">
+  {% for d in company.dossiers %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="card-title mb-1">{{ d.title }}</h6>
+          <p class="card-text">{{ d.content }}</p>
+        </div>
+        <button class="btn btn-outline-danger btn-sm ms-2"
+                hx-post="/companies/{{ company.id }}/dossiers/{{ d.id }}/delete"
+                hx-target="#dossier-timeline"
+                hx-swap="innerHTML"
+                hx-confirm="Eintrag wirklich loeschen?">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+      <small class="text-muted">
+        <i class="bi bi-person me-1"></i>{{ d.author or 'System' }}
+        <i class="bi bi-clock ms-2 me-1"></i>{{ d.created_at.strftime('%d.%m.%Y %H:%M') if d.created_at else '' }}
+      </small>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-muted">Noch keine Eintraege vorhanden.</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Tab: Fees -->
+{% if tab == 'fees' %}
+<div class="card">
+  <div class="card-header bg-white">
+    <strong><i class="bi bi-cash-coin me-1"></i>Mitgliedsbeitraege</strong>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Jahr</th>
+          <th class="text-end">Betrag</th>
+          <th class="text-end">Bezahlt</th>
+          <th class="text-end">Offen</th>
+          <th>Status</th>
+          <th>Faellig am</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fee in company.fees | sort(attribute='year', reverse=True) %}
+        <tr>
+          <td><strong>{{ fee.year }}</strong></td>
+          <td class="text-end">{{ "%.2f"|format(fee.amount_due) }} &euro;</td>
+          <td class="text-end">{{ "%.2f"|format(fee.amount_paid) }} &euro;</td>
+          <td class="text-end">
+            {% set offen = fee.amount_due - fee.amount_paid %}
+            <span class="{% if offen > 0 %}text-danger fw-bold{% else %}text-success{% endif %}">
+              {{ "%.2f"|format(offen) }} &euro;
+            </span>
+          </td>
+          <td>
+            {% if fee.status == 'paid' %}
+            <span class="badge bg-success">Bezahlt</span>
+            {% elif fee.status == 'partial' %}
+            <span class="badge bg-warning text-dark">Teilweise</span>
+            {% elif fee.status == 'overdue' %}
+            <span class="badge bg-danger">Ueberfaellig</span>
+            {% else %}
+            <span class="badge bg-secondary">Ausstehend</span>
+            {% endif %}
+          </td>
+          <td>{{ fee.due_date.strftime('%d.%m.%Y') if fee.due_date else '&mdash;' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            Keine Beitraege vorhanden.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if company.fees %}
+  <div class="card-footer bg-white text-end">
+    <strong>Gesamt offen:
+      <span class="{% if company.outstanding_fees > 0 %}text-danger{% else %}text-success{% endif %}">
+        {{ "%.2f"|format(company.outstanding_fees) }} &euro;
+      </span>
+    </strong>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

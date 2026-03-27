@@ -1,0 +1,126 @@
+{% extends "public/base.html" %}
+
+{% block title %}Anmeldung{% if event %} - {{ event.title }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+        </div>
+        <a href="/events" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i>Zurueck zur Uebersicht
+        </a>
+        {% elif event %}
+        <!-- Event Details -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title">{{ event.title }}</h3>
+                {% if event.event_type %}
+                <span class="badge bg-primary mb-2">{{ event.event_type }}</span>
+                {% endif %}
+                <div class="row mt-3">
+                    <div class="col-sm-6">
+                        <p class="mb-1">
+                            <i class="bi bi-calendar me-2 text-muted"></i>
+                            <strong>{{ event.event_date.strftime('%d.%m.%Y') }}</strong>
+                        </p>
+                        <p class="mb-1">
+                            <i class="bi bi-clock me-2 text-muted"></i>
+                            {{ event.event_date.strftime('%H:%M') }} Uhr
+                            {% if event.event_end_date %}
+                            - {{ event.event_end_date.strftime('%H:%M') }} Uhr
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-sm-6">
+                        {% if event.location %}
+                        <p class="mb-1">
+                            <i class="bi bi-geo-alt me-2 text-muted"></i>{{ event.location }}
+                        </p>
+                        {% endif %}
+                        {% if event.max_participants %}
+                        <p class="mb-1">
+                            <i class="bi bi-people me-2 text-muted"></i>Max. {{ event.max_participants }} Teilnehmer
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if event.description %}
+                <hr>
+                <p class="text-muted mb-0">{{ event.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if deadline_passed %}
+        <div class="alert alert-warning">
+            <i class="bi bi-clock-history me-2"></i>
+            Die Anmeldefrist fuer diese Veranstaltung ist leider abgelaufen.
+        </div>
+        {% elif full %}
+        <div class="alert alert-warning">
+            <i class="bi bi-people-fill me-2"></i>
+            Diese Veranstaltung ist leider bereits ausgebucht.
+        </div>
+        {% else %}
+        <!-- Registration Form -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Anmeldung</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/e/{{ event.public_token }}/register">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">Vorname <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Nachname <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">E-Mail <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="organization" class="form-label">Organisation / Unternehmen</label>
+                            <input type="text" class="form-control" id="organization" name="organization">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="branche" class="form-label">Branche</label>
+                            <input type="text" class="form-control" id="branche" name="branche">
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_member" name="is_member" value="true">
+                                <label class="form-check-label" for="is_member">
+                                    Ich bin Mitglied bei AG City
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="motivation" class="form-label">Warum moechten Sie teilnehmen?</label>
+                            <textarea class="form-control" id="motivation" name="motivation" rows="3"
+                                      placeholder="Bitte teilen Sie uns kurz mit, warum Sie an dieser Veranstaltung teilnehmen moechten..."></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-send me-1"></i>Anmeldung absenden
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

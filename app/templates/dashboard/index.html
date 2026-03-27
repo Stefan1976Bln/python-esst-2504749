@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<i class="bi bi-speedometer2 me-1"></i> Dashboard
+{% endblock %}
+
+{% block content %}
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-lg">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Unternehmen</h6>
+                        <h3 class="mb-0">{{ total_companies }}</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-buildings fs-4 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Aktive Mitglieder</h6>
+                        <h3 class="mb-0">{{ active_members }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-people-fill fs-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Kommende Events</h6>
+                        <h3 class="mb-0">{{ upcoming_events }}</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-calendar-event fs-4 text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Offene Anmeldungen</h6>
+                        <h3 class="mb-0">{{ pending_registrations }}</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Ausstehende Beitraege</h6>
+                        <h3 class="mb-0">{{ "%.2f"|format(outstanding_total) }} &euro;</h3>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-cash-coin fs-4 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Registrations -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Letzte Anmeldungen</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Veranstaltung</th>
+                                <th>Organisation</th>
+                                <th>Status</th>
+                                <th>Datum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in recent_registrations %}
+                            <tr>
+                                <td>{{ reg.full_name }}</td>
+                                <td>
+                                    {% if reg.event %}
+                                    {{ reg.event.title }}
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ reg.organization or '-' }}</td>
+                                <td>
+                                    {% if reg.status == 'confirmed' %}
+                                    <span class="badge bg-success">Bestaetigt</span>
+                                    {% elif reg.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Ausstehend</span>
+                                    {% elif reg.status == 'rejected' %}
+                                    <span class="badge bg-danger">Abgelehnt</span>
+                                    {% elif reg.status == 'waitlisted' %}
+                                    <span class="badge bg-secondary">Warteliste</span>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark">{{ reg.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ reg.registered_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Keine Anmeldungen vorhanden</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Fee Status + AI Widgets -->
+    <div class="col-lg-4">
+        <!-- Fee Collection Status -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Beitragseinzug</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Gesamtfortschritt</span>
+                    <strong>{{ fee_collection_pct }}%</strong>
+                </div>
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar"
+                         style="width: {{ fee_collection_pct }}%"
+                         aria-valuenow="{{ fee_collection_pct }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ "%.2f"|format(total_paid) }} &euro;
+                    </div>
+                </div>
+                <small class="text-muted d-block mb-3">
+                    {{ "%.2f"|format(total_paid) }} &euro; von {{ "%.2f"|format(total_due) }} &euro; eingezogen
+                </small>
+
+                <h6 class="text-muted mb-2">Status-Verteilung</h6>
+                <!-- Paid -->
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-2" style="width: 80px;">Bezahlt</span>
+                    <div class="progress flex-grow-1" style="height: 12px;">
+                        <div class="progress-bar bg-success" style="width: {{ (fees_paid_count / fees_total_count * 100)|round(1) }}%"></div>
+                    </div>
+                    <span class="ms-2 text-muted small">{{ fees_paid_count }}</span>
+                </div>
+                <!-- Partial -->
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-info me-2" style="width: 80px;">Teilweise</span>
+                    <div class="progress flex-grow-1" style="height: 12px;">
+                        <div class="progress-bar bg-info" style="width: {{ (fees_partial_count / fees_total_count * 100)|round(1) }}%"></div>
+                    </div>
+                    <span class="ms-2 text-muted small">{{ fees_partial_count }}</span>
+                </div>
+                <!-- Outstanding -->
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-warning text-dark me-2" style="width: 80px;">Offen</span>
+                    <div class="progress flex-grow-1" style="height: 12px;">
+                        <div class="progress-bar bg-warning" style="width: {{ (fees_outstanding_count / fees_total_count * 100)|round(1) }}%"></div>
+                    </div>
+                    <span class="ms-2 text-muted small">{{ fees_outstanding_count }}</span>
+                </div>
+                <!-- Overdue -->
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-danger me-2" style="width: 80px;">Ueberfaellig</span>
+                    <div class="progress flex-grow-1" style="height: 12px;">
+                        <div class="progress-bar bg-danger" style="width: {{ (fees_overdue_count / fees_total_count * 100)|round(1) }}%"></div>
+                    </div>
+                    <span class="ms-2 text-muted small">{{ fees_overdue_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Widget: Engagement Scores -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0"><i class="bi bi-robot me-2"></i>KI: Engagement-Scores</h5>
+            </div>
+            <div class="card-body"
+                 hx-get="/ai/widget/engagement"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+                <div class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <p class="text-muted small mt-2 mb-0">Lade Engagement-Daten...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Widget: Churn Alerts -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>KI: Abwanderungsrisiko</h5>
+            </div>
+            <div class="card-body"
+                 hx-get="/ai/widget/churn"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+                <div class="text-center py-3">
+                    <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+                    <p class="text-muted small mt-2 mb-0">Lade Churn-Analyse...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

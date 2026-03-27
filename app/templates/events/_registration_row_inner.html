@@ -1,0 +1,97 @@
+<td>
+    <strong>{{ reg.full_name }}</strong>
+    {% if reg.is_member %}
+    <span class="badge bg-primary ms-1" title="Mitglied">M</span>
+    {% endif %}
+    {% if reg.phone %}
+    <br><small class="text-muted"><i class="bi bi-telephone me-1"></i>{{ reg.phone }}</small>
+    {% endif %}
+</td>
+<td>
+    {{ reg.organization or '-' }}
+    {% if reg.branche %}
+    <br><small class="text-muted">{{ reg.branche }}</small>
+    {% endif %}
+</td>
+<td>
+    <a href="mailto:{{ reg.email }}" class="text-decoration-none">{{ reg.email }}</a>
+</td>
+<td class="text-center">
+    {% if reg.combined_ai_score is not none %}
+    {% set score = reg.combined_ai_score %}
+    <span class="badge {% if score >= 7 %}bg-success{% elif score >= 4 %}bg-warning text-dark{% else %}bg-danger{% endif %}"
+          title="Eignung: {{ reg.ai_suitability_score or '-' }} | Zuverlaessigkeit: {{ reg.ai_reliability_score or '-' }}">
+        {{ '%.1f' | format(score) }}
+    </span>
+    {% if reg.ai_suitability_reason %}
+    <i class="bi bi-info-circle text-muted ms-1" title="{{ reg.ai_suitability_reason }}"
+       data-bs-toggle="tooltip"></i>
+    {% endif %}
+    {% else %}
+    <span class="text-muted">-</span>
+    {% endif %}
+</td>
+<td class="text-center">
+    {% if reg.status == 'confirmed' %}
+    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Bestaetigt</span>
+    {% elif reg.status == 'pending' %}
+    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Ausstehend</span>
+    {% elif reg.status == 'rejected' %}
+    <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Abgelehnt</span>
+    {% elif reg.status == 'waitlisted' %}
+    <span class="badge bg-info text-dark"><i class="bi bi-clock me-1"></i>Warteliste</span>
+    {% endif %}
+</td>
+{% if event.is_past %}
+<td class="text-center">
+    {% if reg.attendance == 'attended' %}
+    <span class="badge bg-success">Anwesend</span>
+    {% elif reg.attendance == 'no_show' %}
+    <span class="badge bg-danger">Nicht ersch.</span>
+    {% else %}
+    <span class="text-muted">-</span>
+    {% endif %}
+</td>
+{% endif %}
+<td class="text-end">
+    <div class="btn-group btn-group-sm">
+        {% if reg.status == 'pending' or reg.status == 'waitlisted' %}
+        <button class="btn btn-outline-success" title="Bestaetigen"
+                hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/approve"
+                hx-target="#reg-row-{{ reg.id }}"
+                hx-swap="innerHTML">
+            <i class="bi bi-check-lg"></i>
+        </button>
+        <button class="btn btn-outline-danger" title="Ablehnen"
+                hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/reject"
+                hx-target="#reg-row-{{ reg.id }}"
+                hx-swap="innerHTML">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        {% endif %}
+        {% if reg.status == 'confirmed' and event.is_past %}
+        <button class="btn btn-outline-success" title="Anwesend markieren"
+                hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/attendance"
+                hx-vals='{"attendance": "attended"}'
+                hx-target="#reg-row-{{ reg.id }}"
+                hx-swap="innerHTML">
+            <i class="bi bi-person-check"></i>
+        </button>
+        <button class="btn btn-outline-danger" title="Nicht erschienen"
+                hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/attendance"
+                hx-vals='{"attendance": "no_show"}'
+                hx-target="#reg-row-{{ reg.id }}"
+                hx-swap="innerHTML">
+            <i class="bi bi-person-x"></i>
+        </button>
+        {% endif %}
+        {% if reg.status == 'confirmed' or reg.status == 'rejected' %}
+        <button class="btn btn-outline-secondary" title="Auf Warteliste setzen"
+                hx-post="/events/{{ event.id }}/registrations/{{ reg.id }}/waitlist"
+                hx-target="#reg-row-{{ reg.id }}"
+                hx-swap="innerHTML">
+            <i class="bi bi-clock"></i>
+        </button>
+        {% endif %}
+    </div>
+</td>

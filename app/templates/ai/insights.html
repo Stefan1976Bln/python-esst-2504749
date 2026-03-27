@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}KI-Analysen{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item active">KI-Analysen</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-robot me-2"></i>KI-Analysen & Empfehlungen</h4>
+
+<div class="row">
+    <!-- Reliability Check -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-person-check me-2"></i>Zuverlaessigkeits-Check
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Pruefen Sie die Zuverlaessigkeit eines Teilnehmers anhand seiner Anmeldehistorie.</p>
+                <form hx-post="/ai/reliability" hx-target="#reliability-result" hx-swap="innerHTML">
+                    <div class="input-group mb-3">
+                        <input type="email" name="email" class="form-control" placeholder="E-Mail-Adresse eingeben" required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>Pruefen
+                        </button>
+                    </div>
+                </form>
+                <div id="reliability-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engagement Scores -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-graph-up me-2"></i>Engagement-Analyse
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Analysieren Sie das Engagement eines Mitgliedsunternehmens.</p>
+                <div class="mb-3">
+                    {% for company in companies[:10] %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <span>{{ company.name }}</span>
+                        <button class="btn btn-sm btn-outline-primary"
+                                hx-post="/ai/engagement/{{ company.id }}"
+                                hx-target="#engagement-results"
+                                hx-swap="afterbegin">
+                            <i class="bi bi-robot"></i> Analysieren
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="engagement-results"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Churn Risk -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-exclamation-triangle me-2"></i>Churn-Risiko Analyse
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Identifizieren Sie Mitglieder mit Abwanderungsrisiko.</p>
+                <div class="mb-3">
+                    {% for company in companies[:10] %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <span>{{ company.name }}</span>
+                        <button class="btn btn-sm btn-outline-warning"
+                                hx-post="/ai/churn/{{ company.id }}"
+                                hx-target="#churn-results"
+                                hx-swap="afterbegin">
+                            <i class="bi bi-robot"></i> Pruefen
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="churn-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Summaries -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-file-text me-2"></i>Veranstaltungs-Zusammenfassungen
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Generieren Sie KI-basierte Zusammenfassungen vergangener Veranstaltungen.</p>
+                <div class="mb-3">
+                    {% for event in events %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <div>
+                            <strong>{{ event.title }}</strong><br>
+                            <small class="text-muted">{{ event.event_date.strftime('%d.%m.%Y') }}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-info"
+                                hx-post="/ai/summary/{{ event.id }}"
+                                hx-target="#summary-results"
+                                hx-swap="afterbegin">
+                            <i class="bi bi-robot"></i> Zusammenfassung
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="summary-results"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

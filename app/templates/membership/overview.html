@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Mitgliedsbeitraege{% endblock %}
+
+{% block breadcrumb %}
+<i class="bi bi-cash-coin me-1"></i> Mitgliedsbeitraege
+{% endblock %}
+
+{% block content %}
+<!-- Year Filter & Summary -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Beitragsuebersicht {{ year }}</h4>
+    <form method="get" class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 me-1">Jahr:</label>
+        <select name="year" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+            {% for y in available_years %}
+            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-1">Gesamtforderung</h6>
+                <h4 class="text-primary mb-0">{{ "%.2f"|format(total_due) }} &euro;</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-1">Eingegangen</h6>
+                <h4 class="text-success mb-0">{{ "%.2f"|format(total_paid) }} &euro;</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-1">Ausstehend</h6>
+                <h4 class="text-danger mb-0">{{ "%.2f"|format(total_outstanding) }} &euro;</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-1">Einzugsquote</h6>
+                <h4 class="mb-0">{{ collection_pct }}%</h4>
+                <div class="progress mt-2" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: {{ collection_pct }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fees Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Beitraege {{ year }}</h5>
+        <span class="badge bg-secondary">{{ fees|length }} Eintraege</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Unternehmen</th>
+                        <th>Betrag</th>
+                        <th>Bezahlt</th>
+                        <th>Offen</th>
+                        <th>Status</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fee in fees %}
+                    <tr id="fee-row-{{ fee.id }}">
+                        <td>
+                            <strong>{{ fee.company.name }}</strong>
+                            {% if fee.due_date %}
+                            <br><small class="text-muted">Faellig: {{ fee.due_date.strftime('%d.%m.%Y') }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ "%.2f"|format(fee.amount_due) }} &euro;</td>
+                        <td>{{ "%.2f"|format(fee.amount_paid) }} &euro;</td>
+                        <td>
+                            {% set remaining = fee.amount_due - fee.amount_paid %}
+                            {% if remaining > 0 %}
+                            <span class="text-danger">{{ "%.2f"|format(remaining) }} &euro;</span>
+                            {% else %}
+                            <span class="text-success">0.00 &euro;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if fee.status == 'paid' %}
+                            <span class="badge bg-success">Bezahlt</span>
+                            {% elif fee.status == 'partial' %}
+                            <span class="badge bg-info">Teilweise</span>
+                            {% elif fee.status == 'outstanding' %}
+                            <span class="badge bg-warning text-dark">Offen</span>
+                            {% elif fee.status == 'overdue' %}
+                            <span class="badge bg-danger">Ueberfaellig</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ fee.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if fee.status != 'paid' %}
+                            <button class="btn btn-sm btn-outline-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#paymentModal"
+                                    onclick="document.getElementById('modal_fee_id').value='{{ fee.id }}';
+                                             document.getElementById('modal_company_name').textContent='{{ fee.company.name }}';
+                                             document.getElementById('modal_remaining').textContent='{{ "%.2f"|format(fee.amount_due - fee.amount_paid) }}';">
+                                <i class="bi bi-plus-circle"></i> Zahlung
+                            </button>
+                            {% else %}
+                            <span class="text-muted"><i class="bi bi-check-circle"></i></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            Keine Beitraege fuer {{ year }} vorhanden.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-cash me-2"></i>Zahlung erfassen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form hx-post="/fees/record-payment" hx-target="#paymentResult" hx-swap="innerHTML">
+                <div class="modal-body">
+                    <input type="hidden" id="modal_fee_id" name="fee_id">
+                    <div class="alert alert-info">
+                        <strong id="modal_company_name"></strong><br>
+                        <small>Offener Betrag: <span id="modal_remaining"></span> &euro;</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Betrag (&euro;) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" id="amount" name="amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_date" class="form-label">Zahlungsdatum <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="payment_date" name="payment_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Zahlungsart</label>
+                        <select class="form-select" id="payment_method" name="payment_method">
+                            <option value="">-- Bitte waehlen --</option>
+                            <option value="bank_transfer">Ueberweisung</option>
+                            <option value="cash">Bar</option>
+                            <option value="direct_debit">Lastschrift</option>
+                            <option value="other">Sonstige</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reference" class="form-label">Referenz / Verwendungszweck</label>
+                        <input type="text" class="form-control" id="reference" name="reference">
+                    </div>
+                    <div id="paymentResult"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>Zahlung erfassen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default payment date to today
+    const dateInput = document.getElementById('payment_date');
+    if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
+    // Reload page after successful payment to update table
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.detail.target.id === 'paymentResult') {
+            setTimeout(function() {
+                location.reload();
+            }, 1500);
+        }
+    });
+});
+</script>
+{% endblock %}

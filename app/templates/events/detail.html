@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+        <li class="breadcrumb-item active">{{ event.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h2 class="mb-1">{{ event.title }}</h2>
+        <div class="d-flex gap-2 align-items-center">
+            {% if event.event_type %}
+            <span class="badge bg-info text-dark">{{ event.event_type }}</span>
+            {% endif %}
+            {% if event.is_past %}
+            <span class="badge bg-secondary">Vergangen</span>
+            {% else %}
+            <span class="badge bg-success">Bevorstehend</span>
+            {% endif %}
+            {% if event.is_published %}
+            <span class="badge bg-primary"><i class="bi bi-globe me-1"></i>Veroeffentlicht</span>
+            {% else %}
+            <span class="badge bg-warning text-dark"><i class="bi bi-file-earmark me-1"></i>Entwurf</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <form method="post" action="/events/{{ event.id }}/toggle-publish" class="d-inline">
+            {% if event.is_published %}
+            <button type="submit" class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-eye-slash me-1"></i>Verbergen
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-globe me-1"></i>Veroeffentlichen
+            </button>
+            {% endif %}
+        </form>
+        <a href="/events/{{ event.id }}/edit" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i>Bearbeiten
+        </a>
+        <form method="post" action="/events/{{ event.id }}/delete"
+              onsubmit="return confirm('Veranstaltung wirklich loeschen?');" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i>Loeschen
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left column: Details -->
+    <div class="col-lg-8">
+        <!-- Event info card -->
+        <div class="card mb-4">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Veranstaltungsdetails</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <strong class="text-muted d-block small">Datum &amp; Uhrzeit</strong>
+                        {{ event.event_date.strftime('%d.%m.%Y %H:%M') }}
+                        {% if event.event_end_date %}
+                        <br><span class="text-muted">bis {{ event.event_end_date.strftime('%d.%m.%Y %H:%M') }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong class="text-muted d-block small">Ort</strong>
+                        {{ event.location or '-' }}
+                        {% if event.address %}
+                        <br><span class="text-muted small">{{ event.address }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong class="text-muted d-block small">Max. Teilnehmer</strong>
+                        {{ event.max_participants or 'Unbegrenzt' }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong class="text-muted d-block small">Anmeldefrist</strong>
+                        {{ event.registration_deadline.strftime('%d.%m.%Y %H:%M') if event.registration_deadline else 'Keine' }}
+                    </div>
+                    {% if event.description %}
+                    <div class="col-12">
+                        <strong class="text-muted d-block small">Beschreibung</strong>
+                        <div class="mt-1">{{ event.description | replace('\n', '<br>') | safe }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Public registration link -->
+        <div class="card mb-4">
+            <div class="card-header"><i class="bi bi-link-45deg me-2"></i>Oeffentlicher Anmeldelink</div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="publicUrl" value="{{ public_url }}" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyPublicUrl()">
+                        <i class="bi bi-clipboard me-1"></i>Kopieren
+                    </button>
+                </div>
+                <small class="text-muted mt-1 d-block">
+                    Diesen Link koennen Sie an potenzielle Teilnehmer weitergeben.
+                </small>
+            </div>
+        </div>
+
+        <!-- Images -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-images me-2"></i>Bilder ({{ event.images | length }})</span>
+            </div>
+            <div class="card-body">
+                {% if event.images %}
+                <div class="row g-3 mb-3">
+                    {% for img in event.images %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="{{ img.file_path }}" class="card-img-top" alt="{{ img.caption or 'Eventbild' }}"
+                                 style="height: 180px; object-fit: cover;">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        {% if img.is_primary %}
+                                        <span class="badge bg-primary">Titelbild</span>
+                                        {% endif %}
+                                        {{ img.caption or '' }}
+                                    </small>
+                                    <div class="btn-group btn-group-sm">
+                                        {% if not img.is_primary %}
+                                        <form method="post" action="/events/{{ event.id }}/images/{{ img.id }}/primary" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" title="Als Titelbild setzen">
+                                                <i class="bi bi-star"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="post" action="/events/{{ event.id }}/images/{{ img.id }}/delete"
+                                              onsubmit="return confirm('Bild loeschen?');" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Loeschen">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" action="/events/{{ event.id }}/images" enctype="multipart/form-data">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-6">
+                            <label class="form-label">Bild hochladen</label>
+                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Beschriftung (optional)</label>
+                            <input type="text" name="caption" class="form-control" placeholder="Beschriftung...">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-upload me-1"></i>Hochladen
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Registrations table -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people me-2"></i>Anmeldungen ({{ event.registrations | length }})</span>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="badge bg-success">{{ event.confirmed_count }} Bestaetigt</span>
+                    <span class="badge bg-warning text-dark">{{ event.pending_count }} Ausstehend</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if event.registrations %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Organisation</th>
+                                <th>E-Mail</th>
+                                <th class="text-center">KI-Score</th>
+                                <th class="text-center">Status</th>
+                                {% if event.is_past %}
+                                <th class="text-center">Anwesenheit</th>
+                                {% endif %}
+                                <th class="text-end">Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in event.registrations | sort(attribute='registered_at', reverse=True) %}
+                            <tr id="reg-row-{{ reg.id }}">
+                                {% include "events/_registration_row_inner.html" %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-people display-6 d-block mb-2"></i>
+                    Noch keine Anmeldungen vorhanden.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI Summary -->
+        {% if event.is_past %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-robot me-2"></i>KI-Zusammenfassung</span>
+                <form method="post" action="/events/{{ event.id }}/generate-summary" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-repeat me-1"></i>{{ 'Neu generieren' if event.ai_summary else 'Generieren' }}
+                    </button>
+                </form>
+            </div>
+            <div class="card-body">
+                {% if event.ai_summary %}
+                <div class="bg-light p-3 rounded">
+                    {{ event.ai_summary | replace('\n', '<br>') | safe }}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">
+                    Noch keine Zusammenfassung vorhanden. Klicken Sie auf "Generieren", um eine KI-Zusammenfassung zu erstellen.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right column: Stats -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header"><i class="bi bi-bar-chart me-2"></i>Statistiken</div>
+            <div class="card-body">
+                <div class="row g-3 text-center">
+                    <div class="col-6">
+                        <div class="border rounded p-3">
+                            <div class="display-6 fw-bold text-primary">{{ event.registrations | length }}</div>
+                            <small class="text-muted">Anmeldungen</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3">
+                            <div class="display-6 fw-bold text-success">{{ event.confirmed_count }}</div>
+                            <small class="text-muted">Bestaetigt</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3">
+                            <div class="display-6 fw-bold text-warning">{{ event.pending_count }}</div>
+                            <small class="text-muted">Ausstehend</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3">
+                            <div class="display-6 fw-bold text-dark">{{ event.max_participants or '-' }}</div>
+                            <small class="text-muted">Max. Plaetze</small>
+                        </div>
+                    </div>
+                </div>
+
+                {% if event.max_participants %}
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Auslastung</span>
+                        <span>{{ event.confirmed_count }}/{{ event.max_participants }}</span>
+                    </div>
+                    {% set pct = (event.confirmed_count / event.max_participants * 100) | int if event.max_participants else 0 %}
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar {% if pct >= 90 %}bg-danger{% elif pct >= 70 %}bg-warning{% else %}bg-success{% endif %}"
+                             style="width: {{ pct }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if event.is_past %}
+        <div class="card mb-4">
+            <div class="card-header"><i class="bi bi-check2-circle me-2"></i>Anwesenheit</div>
+            <div class="card-body">
+                {% set attended = event.registrations | selectattr('attendance', 'equalto', 'attended') | list | length %}
+                {% set no_show = event.registrations | selectattr('attendance', 'equalto', 'no_show') | list | length %}
+                {% set unmarked = event.confirmed_count - attended - no_show %}
+                <div class="row g-2 text-center">
+                    <div class="col-4">
+                        <div class="fw-bold text-success">{{ attended }}</div>
+                        <small class="text-muted">Anwesend</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold text-danger">{{ no_show }}</div>
+                        <small class="text-muted">Nicht ersch.</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold text-secondary">{{ unmarked }}</div>
+                        <small class="text-muted">Offen</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Zeitplan</div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Erstellt</small>
+                        {{ event.created_at.strftime('%d.%m.%Y %H:%M') }}
+                    </li>
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Veranstaltungsbeginn</small>
+                        {{ event.event_date.strftime('%d.%m.%Y %H:%M') }}
+                    </li>
+                    {% if event.event_end_date %}
+                    <li class="mb-2">
+                        <small class="text-muted d-block">Veranstaltungsende</small>
+                        {{ event.event_end_date.strftime('%d.%m.%Y %H:%M') }}
+                    </li>
+                    {% endif %}
+                    {% if event.registration_deadline %}
+                    <li>
+                        <small class="text-muted d-block">Anmeldefrist</small>
+                        {{ event.registration_deadline.strftime('%d.%m.%Y %H:%M') }}
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyPublicUrl() {
+    const input = document.getElementById('publicUrl');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(function() {
+        const btn = input.nextElementSibling;
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check me-1"></i>Kopiert!';
+        btn.classList.replace('btn-outline-secondary', 'btn-success');
+        setTimeout(function() {
+            btn.innerHTML = original;
+            btn.classList.replace('btn-success', 'btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
