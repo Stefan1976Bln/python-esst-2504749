@@ -110,7 +110,7 @@ def parse_wp_row(values: list[str]) -> list[dict]:
     persons = []
 
     coming = values[8].strip()
-    status = "zugelassen" if coming == "1" else "storniert"
+    status = "angemeldet" if coming == "1" else "storniert"
 
     # Primary person
     primary = {
