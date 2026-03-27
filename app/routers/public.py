@@ -9,13 +9,13 @@ from app.database import get_db
 from app.models import Event, EventRegistration
 from app.services.email import send_email, registration_confirmation_html
 
-router = APIRouter(tags=["public"])
+router = APIRouter(prefix="/p", tags=["public"])
 templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/events")
 async def public_event_list(request: Request, db: Session = Depends(get_db)):
-    """Public listing of upcoming published events."""
+    """Public listing of upcoming published events. URL: /p/events"""
     events = (
         db.query(Event)
         .filter(Event.is_published == True, Event.event_date >= datetime.utcnow())

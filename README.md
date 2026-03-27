@@ -1,26 +1,79 @@
-# Python für Nicht-Programmierer:innen
+# AG City - Mitglieder- & Veranstaltungsverwaltung
 
-Dies ist das Repository für den **LinkedIn Learning** Kurs `Python für Nicht-Programmierer:innen`. Den gesamten Kurs finden Sie auf [LinkedIn Learning][lil-course-url].
+Prototyp fuer die Verwaltung von Mitgliedsunternehmen, Ansprechpartnern, Veranstaltungen und KI-gestuetzte Analysen.
 
-![Python Lernen][lil-thumbnail-url] 
+## Quick Start (Lokal / DGX Spark)
 
-Lernen Sie mit Dr. Julia Imlauer, einer erfahrenen Robotikerin und Expertin im Bereich des maschinellen Lernens, Python zu programmieren. Mit seiner einfachen Syntax und intuitiven Schreibweise eignet sich Python perfekt für Einsteiger:innen oder auch nur Neugierige, die wissen wollen, wie Programmierung und Programmiersprachen funktionieren. Sie lernen die wichtigsten Elemente der Sprache kennen und Sie erfahren, wie Sie Code schreiben und ausführen können. Am Ende des Kurses werden Sie selbst kleine Spiele programmieren!<br><br>
+```bash
+git clone <repo-url>
+cd python-esst-2504749
 
-Von Anfang an können Sie einfach mitprogrammieren und in kleinen Aufgaben Ihr Wissen testen, denn dieser Kurs zeichnet sich durch eine nahtlose Integration in GitHub Codespaces, einer cloudbasierten Entwicklungsumgebung (IDE), aus. Sie müssen keinen lokalen Rechner einrichten und können direkt zu jeder Zeit praktische Übungen durchführen.
-Sehen Sie sich das Video "Wie verwende ich GitHub Codespaces mit diesem Kurs?" an, um zu erfahren, wie Sie anfangen können. 
+# Einzeiler-Start (Port 8500):
+bash start.sh
 
-## Anleitung
+# Oder mit anderem Port:
+PORT=9000 bash start.sh
+```
 
-Dieses Repository hat einen Lösungsordner, der die Code Dateien für jede Aufgabe, unterteilt nach Modulen. Sie finden diese Dateien unter dem Ordner `loesungen`.
+Dann im Browser: **http://localhost:8500**
+Login: `admin` / `admin123`
 
-### Autorin
+## Features
 
-**Dr. Julia Imlauer**
+- **Unternehmensverwaltung**: CRUD mit Kontaktdaten, Ansprechpartnern, Dossiers
+- **Mitgliedsbeitraege**: Jahresbeitraege, Zahlungen, Status-Tracking
+- **Veranstaltungsmanagement**: Anlage, Bilder, Typen, oeffentlicher Anmeldelink
+- **Oeffentliche Anmeldung**: Per Link (ohne Login), automatische Eingangsbestaetigung
+- **Genehmigungs-Workflow**: Manuelles Bestaetigen/Ablehnen von Anmeldungen
+- **Teilnahme-Tracking**: Anwesenheit / No-Show Historie
+- **KI-Analysen** (Claude API):
+  - Zuverlaessigkeits-Score (No-Show-Verhalten)
+  - Passungs-Score (Teilnehmer <-> Veranstaltung)
+  - Engagement-Score pro Unternehmen
+  - Churn-Risiko-Prognose
+  - Automatische Veranstaltungs-Zusammenfassungen
+  - Personalisierte Veranstaltungsempfehlungen
 
-_Robotikerin_ | _ML-Expertin_ | _AI-Enthusiastin_
+## Tech-Stack
 
-Sehen Sie sich andere Kurse der Autorin auf [LinkedIn Learning](https://www.linkedin.com/learning/instructors/julia-imlauer) an.
+- **Backend**: Python, FastAPI, SQLAlchemy, SQLite
+- **Frontend**: Jinja2, Bootstrap 5, HTMX
+- **KI**: Claude API (Anthropic)
+- **Deployment**: Docker + Nginx oder lokal via uvicorn
 
-[0]: # (Replace these placeholder URLs with actual course URLs)
-[lil-course-url]: https://www.linkedin.com/learning/python-fur-nicht-programmierer-innen
-[lil-thumbnail-url]: https://media.licdn.com/dms/image/D560DAQHy88_RfLwlJw/learning-public-crop_675_1200/0/1687258117518?e=2147483647&v=beta&t=Dfk6Yk8Uljvd9UtwpxGyhpWhx_UF31ccWdm8XXuCIMI
+## Konfiguration
+
+Kopiere `.env.example` nach `.env` und passe die Werte an:
+
+```bash
+cp .env.example .env
+```
+
+Wichtige Variablen:
+- `PORT` - Server-Port (Standard: 8500)
+- `CLAUDE_API_KEY` - Fuer KI-Features (optional, funktioniert auch ohne)
+- `SMTP_*` - Fuer E-Mail-Versand (optional, wird geloggt wenn nicht konfiguriert)
+
+## Docker Deployment (Hetzner Server)
+
+```bash
+cp .env.example .env
+# .env anpassen
+docker compose up -d --build
+```
+
+## Projektstruktur
+
+```
+app/
+  main.py            # FastAPI App
+  config.py          # Konfiguration
+  database.py        # SQLAlchemy Setup
+  models/            # Datenbank-Modelle
+  routers/           # API Routes (admin + public)
+  services/          # Email, KI-Analyse
+  templates/         # Jinja2 HTML Templates
+  static/            # CSS, JS
+scripts/
+  seed_data.py       # Demo-Daten
+```
