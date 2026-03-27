@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse - {{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+    <li class="breadcrumb-item"><a href="/events/{{ event.id }}">{{ event.title }}</a></li>
+    <li class="breadcrumb-item active">Analyse</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="mb-1"><i class="bi bi-graph-up me-2"></i>Veranstaltungs-Analyse</h3>
+    <p class="text-muted mb-0">{{ event.title }} - {{ event.event_date.strftime('%d.%m.%Y') }}</p>
+  </div>
+  <a href="/events/{{ event.id }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Zurueck
+  </a>
+</div>
+
+<!-- KPIs -->
+<div class="row mb-4">
+  <div class="col-md-2">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6">{{ analytics.total_registrations }}</div>
+        <small class="text-muted">Anmeldungen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6">{{ analytics.confirmed }}</div>
+        <small class="text-muted">Zugelassen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-success">{{ analytics.attended }}</div>
+        <small class="text-muted">Teilgenommen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-danger">{{ analytics.no_shows }}</div>
+        <small class="text-muted">No-Shows</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-{{ 'success' if analytics.attendance_rate > 80 else 'warning' if analytics.attendance_rate > 60 else 'danger' }}">
+          {{ analytics.attendance_rate }}%
+        </div>
+        <small class="text-muted">Teilnahmequote</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-{{ 'success' if analytics.no_show_rate < 10 else 'warning' if analytics.no_show_rate < 25 else 'danger' }}">
+          {{ analytics.no_show_rate }}%
+        </div>
+        <small class="text-muted">No-Show-Quote</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Branchen-Verteilung -->
+  <div class="col-md-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <i class="bi bi-pie-chart me-2"></i><strong>Branchen-Verteilung</strong>
+      </div>
+      <div class="card-body">
+        {% for branche, count in analytics.branchen.items() %}
+        <div class="mb-2">
+          <div class="d-flex justify-content-between small">
+            <span>{{ branche }}</span>
+            <span>{{ count }}</span>
+          </div>
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar" style="width: {{ (count / analytics.total_registrations * 100)|round }}%; background: var(--agc-red);"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Mitglieder vs Gaeste -->
+  <div class="col-md-3 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <i class="bi bi-people me-2"></i><strong>Mitglieder / Gaeste</strong>
+      </div>
+      <div class="card-body text-center">
+        <div class="display-4 mb-2">{{ analytics.member_ratio }}%</div>
+        <p class="text-muted">Mitglieder-Anteil</p>
+        <div class="progress mb-3" style="height: 20px;">
+          <div class="progress-bar bg-success" style="width: {{ analytics.member_ratio }}%">
+            {{ analytics.members }} Mitglieder
+          </div>
+          <div class="progress-bar bg-secondary" style="width: {{ 100 - analytics.member_ratio }}%">
+            {{ analytics.guests }} Gaeste
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No-Show Unternehmen -->
+  <div class="col-md-3 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-white">
+        <i class="bi bi-exclamation-triangle me-2 text-danger"></i><strong>No-Show Unternehmen</strong>
+      </div>
+      <div class="card-body">
+        {% if analytics.no_show_companies %}
+        <ul class="list-unstyled mb-0">
+          {% for company, count in analytics.no_show_companies.items() %}
+          <li class="d-flex justify-content-between py-1 border-bottom">
+            <span class="small">{{ company }}</span>
+            <span class="badge bg-danger">{{ count }}x</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center mb-0">Keine No-Shows</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Links -->
+<div class="card">
+  <div class="card-body d-flex gap-2">
+    <a href="/events/{{ event.id }}/attendance" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-clipboard-check me-1"></i>Teilnahme nachpflegen
+    </a>
+    <a href="/events/{{ event.id }}/scoring" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-bar-chart me-1"></i>Scoring & Zulassung
+    </a>
+    <a href="/events/{{ event.id }}/checkin" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-qr-code me-1"></i>Check-In Maske
+    </a>
+  </div>
+</div>
+{% endblock %}

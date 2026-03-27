@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Scoring - {{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+    <li class="breadcrumb-item"><a href="/events/{{ event.id }}">{{ event.title }}</a></li>
+    <li class="breadcrumb-item active">Scoring & Zulassung</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="mb-1"><i class="bi bi-bar-chart me-2"></i>Scoring & Zulassung</h3>
+    <p class="text-muted mb-0">{{ event.title }} - {{ event.event_date.strftime('%d.%m.%Y') }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    {% if ranked %}
+    <form method="post" action="/events/{{ event.id }}/approve-top" class="d-flex gap-2">
+      <input type="number" name="count" value="{{ event.max_participants or 10 }}" class="form-control form-control-sm" style="width: 80px;">
+      <button type="submit" class="btn btn-agc btn-sm" onclick="return confirm('Top-Anmeldungen zulassen?')">
+        <i class="bi bi-check-all me-1"></i>Top N zulassen
+      </button>
+    </form>
+    {% endif %}
+    <a href="/events/{{ event.id }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Zurueck
+    </a>
+  </div>
+</div>
+
+{% if ranked %}
+<!-- Legende -->
+<div class="card mb-4">
+  <div class="card-body py-2">
+    <small class="text-muted">
+      <strong>Score-Zusammensetzung (max 100):</strong>
+      Zuverlaessigkeit (30) + Mitgliedsstatus (25) + Engagement (20) + Fairness (15) + Branchen-Diversitaet (10)
+    </small>
+  </div>
+</div>
+
+<!-- Offene Anmeldungen - Rangfolge -->
+<div class="card mb-4">
+  <div class="card-header bg-white d-flex justify-content-between">
+    <span><i class="bi bi-sort-numeric-down me-2"></i><strong>Offene Anmeldungen</strong> ({{ ranked|length }})</span>
+    <span class="text-muted">Sortiert nach Score</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 40px">#</th>
+          <th>Name</th>
+          <th>Unternehmen</th>
+          <th>Score</th>
+          <th>Zusammenfassung</th>
+          <th>Details</th>
+          <th class="text-end">Aktion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in ranked %}
+        {% set reg = item.registration %}
+        {% set score = item.score %}
+        <tr id="score-row-{{ reg.id }}">
+          <td class="text-muted">{{ loop.index }}</td>
+          <td><strong>{{ reg.full_name }}</strong></td>
+          <td>{{ reg.organization or '' }}</td>
+          <td>
+            {% if score >= 70 %}
+            <span class="badge bg-success fs-6">{{ score }}/100</span>
+            {% elif score >= 40 %}
+            <span class="badge bg-warning text-dark fs-6">{{ score }}/100</span>
+            {% else %}
+            <span class="badge bg-danger fs-6">{{ score }}/100</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">{{ item.summary }}</td>
+          <td>
+            <button class="btn btn-outline-secondary btn-sm"
+                    hx-post="/events/{{ event.id }}/score/{{ reg.id }}"
+                    hx-target="#score-detail-{{ reg.id }}"
+                    hx-swap="innerHTML">
+              <i class="bi bi-info-circle"></i>
+            </button>
+          </td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-success"
+                      hx-post="/events/{{ event.id }}/approve/{{ reg.id }}"
+                      hx-target="#score-row-{{ reg.id }}" hx-swap="outerHTML">
+                <i class="bi bi-check-lg"></i> Zulassen
+              </button>
+              <button class="btn btn-outline-danger"
+                      hx-post="/events/{{ event.id }}/reject/{{ reg.id }}"
+                      hx-target="#score-row-{{ reg.id }}" hx-swap="outerHTML">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr id="score-detail-row-{{ reg.id }}" class="d-none">
+          <td colspan="7" id="score-detail-{{ reg.id }}"></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>Keine offenen Anmeldungen zum Bewerten vorhanden.
+</div>
+{% endif %}
+
+{% if approved %}
+<!-- Bereits zugelassene -->
+<div class="card">
+  <div class="card-header bg-white">
+    <i class="bi bi-check-circle me-2 text-success"></i><strong>Bereits zugelassen</strong> ({{ approved|length }})
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Unternehmen</th>
+          <th>Status</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reg in approved %}
+        <tr class="table-success">
+          <td>{{ reg.full_name }}</td>
+          <td>{{ reg.organization or '' }}</td>
+          <td><span class="badge bg-success">{{ reg.status_label }}</span></td>
+          <td>{{ reg.priority_score or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% block scripts %}
+<script>
+// Show/hide score detail rows
+document.body.addEventListener('htmx:afterSwap', function(evt) {
+    const target = evt.detail.target;
+    if (target.id && target.id.startsWith('score-detail-')) {
+        target.closest('tr').classList.remove('d-none');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

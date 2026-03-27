@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Wordpress Import - {{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+        <li class="breadcrumb-item"><a href="/events/{{ event.id }}">{{ event.title }}</a></li>
+        <li class="breadcrumb-item active">Wordpress Import</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        {% if flash_message %}
+        <div class="alert alert-{{ flash_type or 'info' }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <!-- Upload Form -->
+        {% if not show_results %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-wordpress me-2"></i>Wordpress Event-Export importieren</span>
+                <span class="badge bg-secondary">{{ event.title }}</span>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" action="/events/{{ event.id }}/wp-import">
+                    <div class="mb-4">
+                        <label for="csv_file" class="form-label fw-bold">CSV-Datei auswaehlen</label>
+                        <input type="file" name="csv_file" id="csv_file" class="form-control" accept=".csv,.txt" required>
+                        <div class="form-text">
+                            Wordpress Event-Registrierungs-Export (Semikolon-getrennt).
+                            Unterstuetzt UTF-8, UTF-8-BOM und Latin-1.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-agc">
+                        <i class="bi bi-upload me-2"></i>Importieren & Abgleichen
+                    </button>
+                    <a href="/events/{{ event.id }}" class="btn btn-outline-secondary ms-2">Abbrechen</a>
+                </form>
+
+                <hr>
+
+                <h6 class="mt-4"><i class="bi bi-info-circle me-1"></i> Erwartetes CSV-Format (Wordpress Export)</h6>
+                <p class="text-muted small">Semikolon-getrennte Datei mit folgendem Aufbau:</p>
+                <pre class="bg-light p-3 rounded small" style="overflow-x: auto;">Company;Appellation;Title;First Name;Surname;Position;Email;Phone;Coming?;Additional Person's Company;Additional Person's Appellation;Additional Person's Title;Additional Person's First Name;Additional Person's Surname;Additional Person's Position;Additional Person's Email;Additional Person's Phone;Info</pre>
+                <ul class="small text-muted">
+                    <li><strong>Coming?</strong> = 1 (zugesagt), 0 (abgesagt)</li>
+                    <li>Spalten 10-17: Optionale Begleitperson</li>
+                    <li>Firmennamen werden per Fuzzy-Matching mit der CRM-Datenbank abgeglichen</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Results Section -->
+        {% if show_results %}
+
+        <!-- Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-bar-chart me-2"></i>Import-Zusammenfassung
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 rounded" style="background: #d4edda;">
+                            <h3 class="mb-0 text-success">{{ matched|length }}</h3>
+                            <small class="text-muted">Zugeordnet & importiert</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 rounded" style="background: #fff3cd;">
+                            <h3 class="mb-0 text-warning">{{ unmatched|length }}</h3>
+                            <small class="text-muted">Manuelle Zuordnung noetig</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 rounded" style="background: #e2e3e5;">
+                            <h3 class="mb-0 text-secondary">{{ skipped|length }}</h3>
+                            <small class="text-muted">Uebersprungen (Duplikate)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matched (Green) -->
+        {% if matched %}
+        <div class="card mb-4 border-success">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-check-circle me-2"></i>Erfolgreich zugeordnet ({{ matched|length }})
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Original-Firma</th>
+                                <th>Zugeordnet zu</th>
+                                <th>Kontakt</th>
+                                <th>Status</th>
+                                <th>Uebereinstimmung</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in matched %}
+                            <tr>
+                                <td>{{ entry.person.first_name }} {{ entry.person.last_name }}</td>
+                                <td><small class="text-muted">{{ entry.person.company }}</small></td>
+                                <td>
+                                    {% if entry.company_match %}
+                                    <a href="/companies/{{ entry.company_match.id }}">{{ entry.company_match.name }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.contact_person %}
+                                    <i class="bi bi-person-check text-success me-1"></i>{{ entry.contact_person.full_name }}
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.person.status == 'confirmed' %}
+                                    <span class="badge bg-success">Zugesagt</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Abgesagt</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">{{ "%.0f"|format(entry.match_ratio * 100) }}%</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Unmatched (Yellow) - Manual Assignment -->
+        {% if unmatched %}
+        <div class="card mb-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle me-2"></i>Manuelle Zuordnung erforderlich ({{ unmatched|length }})
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Fuer diese Eintraege konnte keine eindeutige Firma zugeordnet werden.
+                    Bitte waehlen Sie die passende Firma aus oder lassen Sie das Feld leer.
+                </p>
+                <form method="post" action="/events/{{ event.id }}/wp-import/assign">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>E-Mail</th>
+                                    <th>Original-Firma</th>
+                                    <th>Status</th>
+                                    <th>Firma zuordnen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in unmatched %}
+                                <tr>
+                                    <td>
+                                        {{ entry.person.first_name }} {{ entry.person.last_name }}
+                                        <input type="hidden" name="first_name_{{ loop.index0 }}" value="{{ entry.person.first_name }}">
+                                        <input type="hidden" name="last_name_{{ loop.index0 }}" value="{{ entry.person.last_name }}">
+                                        <input type="hidden" name="email_{{ loop.index0 }}" value="{{ entry.person.email }}">
+                                        <input type="hidden" name="phone_{{ loop.index0 }}" value="{{ entry.person.phone }}">
+                                        <input type="hidden" name="organization_{{ loop.index0 }}" value="{{ entry.person.company }}">
+                                        <input type="hidden" name="status_{{ loop.index0 }}" value="{{ entry.person.status }}">
+                                    </td>
+                                    <td><small>{{ entry.person.email }}</small></td>
+                                    <td><small class="text-muted">{{ entry.person.company }}</small></td>
+                                    <td>
+                                        {% if entry.person.status == 'confirmed' %}
+                                        <span class="badge bg-success">Zugesagt</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Abgesagt</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <select name="company_id_{{ loop.index0 }}" class="form-select form-select-sm">
+                                            <option value="">-- Ohne Zuordnung --</option>
+                                            {% for company in all_companies %}
+                                            <option value="{{ company.id }}">{{ company.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-agc">
+                            <i class="bi bi-check2-all me-2"></i>Ausgewaehlte importieren
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Skipped (Grey) -->
+        {% if skipped %}
+        <div class="card mb-4">
+            <div class="card-header bg-light text-muted">
+                <i class="bi bi-skip-forward me-2"></i>Uebersprungen - bereits registriert ({{ skipped|length }})
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Firma</th>
+                                <th>E-Mail</th>
+                                <th>Grund</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in skipped %}
+                            <tr class="text-muted">
+                                <td>{{ entry.person.first_name }} {{ entry.person.last_name }}</td>
+                                <td>{{ entry.person.company }}</td>
+                                <td><small>{{ entry.person.email }}</small></td>
+                                <td><span class="badge bg-secondary">{{ entry.reason }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-3 mb-4">
+            <a href="/events/{{ event.id }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Zurueck zur Veranstaltung
+            </a>
+            <a href="/events/{{ event.id }}/wp-import" class="btn btn-outline-primary ms-2">
+                <i class="bi bi-arrow-repeat me-1"></i>Erneut importieren
+            </a>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

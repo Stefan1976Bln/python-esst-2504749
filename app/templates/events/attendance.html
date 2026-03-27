@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Teilnahme - {{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+    <li class="breadcrumb-item"><a href="/events/{{ event.id }}">{{ event.title }}</a></li>
+    <li class="breadcrumb-item active">Teilnahme nachpflegen</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="mb-1"><i class="bi bi-clipboard-check me-2"></i>Teilnahme nachpflegen</h3>
+    <p class="text-muted mb-0">{{ event.title }} - {{ event.event_date.strftime('%d.%m.%Y') }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    {% if untracked > 0 %}
+    <form method="post" action="/events/{{ event.id }}/mark-all-noshow"
+          onsubmit="return confirm('Alle {{ untracked }} unmarkierten als No-Show markieren?')">
+      <button type="submit" class="btn btn-outline-danger btn-sm">
+        <i class="bi bi-x-circle me-1"></i>Restliche als No-Show markieren
+      </button>
+    </form>
+    {% endif %}
+    <a href="/events/{{ event.id }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Zurueck
+    </a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-success">{{ attended }}</div>
+        <small class="text-muted">Teilgenommen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-danger">{{ no_shows }}</div>
+        <small class="text-muted">No-Show</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6 text-warning">{{ untracked }}</div>
+        <small class="text-muted">Offen</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card">
+      <div class="card-body text-center">
+        <div class="display-6">{{ registrations|length }}</div>
+        <small class="text-muted">Gesamt</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Teilnehmer-Tabelle -->
+<div class="card">
+  <div class="card-header bg-white">
+    <strong>Anmeldungen</strong>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Unternehmen</th>
+          <th>Status</th>
+          <th class="text-center">Teilnahme</th>
+          <th>Aktion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reg in registrations %}
+        <tr id="att-row-{{ reg.id }}">
+          <td>{{ reg.full_name }}</td>
+          <td>{{ reg.organization or '' }}</td>
+          <td><span class="badge bg-{{ reg.status_color }}">{{ reg.status_label }}</span></td>
+          <td class="text-center">
+            {% if reg.attendance == 'attended' %}
+            <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Teilgenommen</span>
+            {% elif reg.attendance == 'no_show' %}
+            <span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> No-Show</span>
+            {% else %}
+            <span class="badge bg-secondary">Offen</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-{{ 'success' if reg.attendance == 'attended' else 'outline-success' }}"
+                      hx-post="/events/{{ event.id }}/attendance/{{ reg.id }}"
+                      hx-target="#att-row-{{ reg.id }}" hx-swap="outerHTML"
+                      hx-vals='{"attendance": "attended"}'>
+                <i class="bi bi-check-lg"></i> Teilgenommen
+              </button>
+              <button class="btn btn-{{ 'danger' if reg.attendance == 'no_show' else 'outline-danger' }}"
+                      hx-post="/events/{{ event.id }}/attendance/{{ reg.id }}"
+                      hx-target="#att-row-{{ reg.id }}" hx-swap="outerHTML"
+                      hx-vals='{"attendance": "no_show"}'>
+                <i class="bi bi-x-lg"></i> No-Show
+              </button>
+              <button class="btn btn-outline-secondary"
+                      hx-post="/events/{{ event.id }}/attendance/{{ reg.id }}"
+                      hx-target="#att-row-{{ reg.id }}" hx-swap="outerHTML"
+                      hx-vals='{"attendance": ""}'>
+                <i class="bi bi-dash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

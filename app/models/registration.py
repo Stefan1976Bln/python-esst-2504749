@@ -20,18 +20,26 @@ class EventRegistration(Base):
     organization: Mapped[str | None] = mapped_column(String(255))
     branche: Mapped[str | None] = mapped_column(String(100))
     is_member: Mapped[bool] = mapped_column(Boolean, default=False)
-    motivation: Mapped[str | None] = mapped_column(Text)  # "Why do you want to attend?"
+    motivation: Mapped[str | None] = mapped_column(Text)
 
-    # Status workflow: pending -> confirmed/rejected/waitlisted
-    status: Mapped[str] = mapped_column(String(20), default="pending")
-    # Attendance: null -> attended / no_show
+    # Status workflow:
+    #   angemeldet -> zugelassen / abgelehnt / warteliste
+    #   (legacy: pending/confirmed/rejected/waitlisted still supported)
+    # Valid values: angemeldet, zugelassen, bestaetigt, abgelehnt, warteliste, storniert
+    status: Mapped[str] = mapped_column(String(20), default="angemeldet")
+
+    # Attendance: null = not yet tracked, attended = was there, no_show = didn't come
     attendance: Mapped[str | None] = mapped_column(String(20))
+    checked_in_at: Mapped[datetime | None] = mapped_column(DateTime)
     admin_notes: Mapped[str | None] = mapped_column(Text)
 
-    # AI fields
+    # Scoring fields
     ai_suitability_score: Mapped[float | None] = mapped_column(Float)
     ai_suitability_reason: Mapped[str | None] = mapped_column(Text)
     ai_reliability_score: Mapped[float | None] = mapped_column(Float)
+    ai_reliability_reason: Mapped[str | None] = mapped_column(Text)
+    priority_score: Mapped[float | None] = mapped_column(Float)  # Combined ranking score 0-100
+    priority_reason: Mapped[str | None] = mapped_column(Text)  # Human-readable explanation
 
     registered_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime)
@@ -46,11 +54,37 @@ class EventRegistration(Base):
         return f"{self.first_name} {self.last_name}"
 
     @property
-    def combined_ai_score(self) -> float | None:
-        scores = [s for s in [self.ai_suitability_score, self.ai_reliability_score] if s is not None]
-        if not scores:
-            return None
-        return sum(scores) / len(scores)
+    def status_label(self) -> str:
+        labels = {
+            "angemeldet": "Angemeldet",
+            "zugelassen": "Zugelassen",
+            "bestaetigt": "Bestaetigt",
+            "abgelehnt": "Abgelehnt",
+            "warteliste": "Warteliste",
+            "storniert": "Storniert",
+            # Legacy
+            "pending": "Angemeldet",
+            "confirmed": "Zugelassen",
+            "rejected": "Abgelehnt",
+            "waitlisted": "Warteliste",
+        }
+        return labels.get(self.status, self.status)
+
+    @property
+    def status_color(self) -> str:
+        colors = {
+            "angemeldet": "info",
+            "zugelassen": "success",
+            "bestaetigt": "success",
+            "abgelehnt": "danger",
+            "warteliste": "warning",
+            "storniert": "secondary",
+            "pending": "info",
+            "confirmed": "success",
+            "rejected": "danger",
+            "waitlisted": "warning",
+        }
+        return colors.get(self.status, "secondary")
 
 
 from app.models.event import Event  # noqa: E402
