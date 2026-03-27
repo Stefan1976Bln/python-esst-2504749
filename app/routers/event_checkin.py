@@ -110,7 +110,7 @@ def parse_wp_row(values: list[str]) -> list[dict]:
     persons = []
 
     coming = values[8].strip()
-    status = "confirmed" if coming == "1" else "rejected"
+    status = "zugelassen" if coming == "1" else "storniert"
 
     # Primary person
     primary = {
@@ -188,7 +188,19 @@ async def wp_import_upload(
     content = await csv_file.read()
     text = decode_csv_content(content)
 
-    reader = csv.reader(io.StringIO(text), delimiter=";")
+    # Strip Excel "sep=," hint line
+    lines = text.strip().split("\n")
+    if lines and lines[0].strip().lower().startswith("sep="):
+        text = "\n".join(lines[1:])
+
+    # Auto-detect delimiter: semicolon or comma
+    first_line = text.strip().split("\n")[0] if text.strip() else ""
+    if first_line.count(";") > first_line.count(","):
+        delimiter = ";"
+    else:
+        delimiter = ","
+
+    reader = csv.reader(io.StringIO(text), delimiter=delimiter)
     rows = list(reader)
 
     if not rows:
