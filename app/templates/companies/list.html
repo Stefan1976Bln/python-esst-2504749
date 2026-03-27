@@ -14,9 +14,14 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h3 class="mb-0"><i class="bi bi-buildings me-2"></i>Unternehmen</h3>
-  <a href="/companies/new" class="btn btn-primary">
-    <i class="bi bi-plus-lg me-1"></i>Neues Unternehmen
-  </a>
+  <div class="d-flex gap-2">
+    <a href="/import" class="btn btn-outline-secondary">
+      <i class="bi bi-upload me-1"></i>CSV Import
+    </a>
+    <a href="/companies/new" class="btn btn-agc">
+      <i class="bi bi-plus-lg me-1"></i>Neues Unternehmen
+    </a>
+  </div>
 </div>
 
 <!-- Filters -->
@@ -69,7 +74,8 @@
           <th>Name</th>
           <th>Stadt</th>
           <th>Branche</th>
-          <th>Telefon</th>
+          <th>Beitrag</th>
+          <th>Mitglied seit</th>
           <th>Status</th>
           <th class="text-end">Aktionen</th>
         </tr>
@@ -83,8 +89,9 @@
             </a>
           </td>
           <td>{{ company.city or '' }}</td>
-          <td>{{ company.branche or '' }}</td>
-          <td>{{ company.phone or '' }}</td>
+          <td class="small">{{ company.branche or '' }}</td>
+          <td>{% if company.beitrag %}{{ "%.0f"|format(company.beitrag) }} &euro;{% endif %}</td>
+          <td class="small">{{ company.membership_since.strftime('%d.%m.%Y') if company.membership_since else '' }}</td>
           <td>
             {% if company.is_active %}
             <span class="badge bg-success">Aktiv</span>
@@ -105,7 +112,7 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="6" class="text-center text-muted py-4">
+          <td colspan="7" class="text-center text-muted py-4">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
             Keine Unternehmen gefunden.
           </td>

@@ -98,30 +98,46 @@ async def company_new(
 async def company_create(
     request: Request,
     name: str = Form(...),
+    name2: str = Form(""),
+    name3: str = Form(""),
     address: str = Form(""),
     postal_code: str = Form(""),
     city: str = Form(""),
+    staat: str = Form(""),
     phone: str = Form(""),
     email: str = Form(""),
     website: str = Form(""),
     branche: str = Form(""),
     company_size: str = Form(""),
     membership_since: str = Form(""),
+    membership_end: str = Form(""),
+    beitrag: str = Form(""),
+    crm_id: str = Form(""),
+    frei1: str = Form(""),
+    rechnungstext: str = Form(""),
     is_active: bool = Form(True),
     db: Session = Depends(get_db),
     admin: AdminUser = Depends(require_admin),
 ):
     company = Company(
         name=name,
+        name2=name2 or None,
+        name3=name3 or None,
         address=address or None,
         postal_code=postal_code or None,
         city=city or None,
+        staat=staat or None,
         phone=phone or None,
         email=email or None,
         website=website or None,
         branche=branche or None,
         company_size=company_size or None,
         membership_since=datetime.strptime(membership_since, "%Y-%m-%d").date() if membership_since else None,
+        membership_end=datetime.strptime(membership_end, "%Y-%m-%d").date() if membership_end else None,
+        beitrag=float(beitrag) if beitrag else None,
+        crm_id=int(crm_id) if crm_id else None,
+        frei1=frei1 or None,
+        rechnungstext=rechnungstext or None,
         is_active=is_active,
     )
     db.add(company)
@@ -198,15 +214,23 @@ async def company_update(
     request: Request,
     company_id: int,
     name: str = Form(...),
+    name2: str = Form(""),
+    name3: str = Form(""),
     address: str = Form(""),
     postal_code: str = Form(""),
     city: str = Form(""),
+    staat: str = Form(""),
     phone: str = Form(""),
     email: str = Form(""),
     website: str = Form(""),
     branche: str = Form(""),
     company_size: str = Form(""),
     membership_since: str = Form(""),
+    membership_end: str = Form(""),
+    beitrag: str = Form(""),
+    crm_id: str = Form(""),
+    frei1: str = Form(""),
+    rechnungstext: str = Form(""),
     is_active: bool = Form(False),
     db: Session = Depends(get_db),
     admin: AdminUser = Depends(require_admin),
@@ -216,9 +240,12 @@ async def company_update(
         return RedirectResponse(url="/companies", status_code=303)
 
     company.name = name
+    company.name2 = name2 or None
+    company.name3 = name3 or None
     company.address = address or None
     company.postal_code = postal_code or None
     company.city = city or None
+    company.staat = staat or None
     company.phone = phone or None
     company.email = email or None
     company.website = website or None
@@ -227,6 +254,13 @@ async def company_update(
     company.membership_since = (
         datetime.strptime(membership_since, "%Y-%m-%d").date() if membership_since else None
     )
+    company.membership_end = (
+        datetime.strptime(membership_end, "%Y-%m-%d").date() if membership_end else None
+    )
+    company.beitrag = float(beitrag) if beitrag else None
+    company.crm_id = int(crm_id) if crm_id else None
+    company.frei1 = frei1 or None
+    company.rechnungstext = rechnungstext or None
     company.is_active = is_active
 
     db.commit()
@@ -264,21 +298,60 @@ async def contact_new_form(
     """Return an inline form for adding a new contact."""
     return HTMLResponse(f"""
     <tr id="contact-form-row">
-      <form hx-post="/companies/{company_id}/contacts" hx-target="#contacts-table-body" hx-swap="innerHTML">
-        <td><input type="text" name="first_name" class="form-control form-control-sm" placeholder="Vorname" required></td>
-        <td><input type="text" name="last_name" class="form-control form-control-sm" placeholder="Nachname" required></td>
-        <td><input type="text" name="role" class="form-control form-control-sm" placeholder="Funktion"></td>
-        <td><input type="email" name="email" class="form-control form-control-sm" placeholder="E-Mail"></td>
-        <td><input type="text" name="phone" class="form-control form-control-sm" placeholder="Telefon"></td>
-        <td class="text-center"><input type="checkbox" name="is_primary" value="true" class="form-check-input"></td>
-        <td>
-          <button type="submit" class="btn btn-success btn-sm me-1"><i class="bi bi-check-lg"></i></button>
-          <button type="button" class="btn btn-secondary btn-sm"
-                  hx-get="/companies/{company_id}/contacts/list" hx-target="#contacts-table-body" hx-swap="innerHTML">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </td>
-      </form>
+      <td colspan="6">
+        <form hx-post="/companies/{company_id}/contacts" hx-target="#contacts-table-body" hx-swap="innerHTML">
+          <div class="row g-2 p-2 bg-light rounded">
+            <div class="col-md-1">
+              <select name="anrede" class="form-select form-select-sm">
+                <option value="">Anrede</option><option>Frau</option><option>Herrn</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <input type="text" name="titel" class="form-control form-control-sm" placeholder="Titel">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="first_name" class="form-control form-control-sm" placeholder="Vorname" required>
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="last_name" class="form-control form-control-sm" placeholder="Nachname" required>
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="position" class="form-control form-control-sm" placeholder="Position">
+            </div>
+            <div class="col-md-2">
+              <input type="email" name="email" class="form-control form-control-sm" placeholder="E-Mail">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="phone" class="form-control form-control-sm" placeholder="Telefon">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="phone_direct" class="form-control form-control-sm" placeholder="Durchwahl">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="phone_mobile" class="form-control form-control-sm" placeholder="Mobil">
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="abteilung" class="form-control form-control-sm" placeholder="Abteilung">
+            </div>
+            <div class="col-md-2">
+              <input type="date" name="birthday" class="form-control form-control-sm" placeholder="Geburtstag">
+            </div>
+            <div class="col-md-1 d-flex align-items-center">
+              <div class="form-check">
+                <input type="checkbox" name="is_primary" value="true" class="form-check-input" id="new_primary">
+                <label class="form-check-label small" for="new_primary">Haupt</label>
+              </div>
+            </div>
+            <div class="col-md-3 d-flex gap-1">
+              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i> Speichern</button>
+              <button type="button" class="btn btn-secondary btn-sm"
+                      hx-get="/companies/{company_id}/contacts/list" hx-target="#contacts-table-body" hx-swap="innerHTML">
+                <i class="bi bi-x-lg"></i> Abbrechen
+              </button>
+            </div>
+          </div>
+        </form>
+      </td>
     </tr>
     """)
 
@@ -299,15 +372,16 @@ async def contacts_list_partial(
     )
     rows = ""
     for c in contacts:
-        primary_badge = '<span class="badge bg-primary">Hauptkontakt</span>' if c.is_primary else ""
+        primary_badge = '<span class="badge bg-primary ms-1">Hauptkontakt</span>' if c.is_primary else ""
+        anrede_titel = " ".join(filter(None, [c.anrede, c.titel])) or ""
+        phones = " / ".join(filter(None, [c.phone, c.phone_direct, c.phone_mobile])) or ""
         rows += f"""
         <tr>
-          <td>{c.first_name}</td>
+          <td><small class="text-muted">{anrede_titel}</small> {c.first_name}</td>
           <td>{c.last_name}</td>
-          <td>{c.role or ""} {primary_badge}</td>
-          <td>{c.email or ""}</td>
-          <td>{c.phone or ""}</td>
-          <td class="text-center">{"<i class='bi bi-check-circle-fill text-success'></i>" if c.is_primary else ""}</td>
+          <td>{c.position or c.role or ""}{primary_badge}</td>
+          <td><a href="mailto:{c.email}" class="text-decoration-none">{c.email or ""}</a></td>
+          <td class="small">{phones}</td>
           <td>
             <button class="btn btn-outline-primary btn-sm me-1"
                     hx-get="/companies/{company_id}/contacts/{c.id}/edit"
@@ -332,9 +406,17 @@ async def contact_create(
     company_id: int,
     first_name: str = Form(...),
     last_name: str = Form(...),
+    anrede: str = Form(""),
+    titel: str = Form(""),
+    position: str = Form(""),
+    abteilung: str = Form(""),
     role: str = Form(""),
     email: str = Form(""),
     phone: str = Form(""),
+    phone_direct: str = Form(""),
+    phone_mobile: str = Form(""),
+    phone_private: str = Form(""),
+    birthday: str = Form(""),
     is_primary: bool = Form(False),
     db: Session = Depends(get_db),
     admin: AdminUser = Depends(require_admin),
@@ -343,14 +425,21 @@ async def contact_create(
         company_id=company_id,
         first_name=first_name,
         last_name=last_name,
+        anrede=anrede or None,
+        titel=titel or None,
+        position=position or None,
+        abteilung=abteilung or None,
         role=role or None,
         email=email or None,
         phone=phone or None,
+        phone_direct=phone_direct or None,
+        phone_mobile=phone_mobile or None,
+        phone_private=phone_private or None,
+        birthday=datetime.strptime(birthday, "%Y-%m-%d").date() if birthday else None,
         is_primary=is_primary,
     )
     db.add(contact)
     db.commit()
-    # Return updated list
     return await contacts_list_partial(request, company_id, db, admin)
 
 
@@ -395,9 +484,17 @@ async def contact_update(
     contact_id: int,
     first_name: str = Form(...),
     last_name: str = Form(...),
+    anrede: str = Form(""),
+    titel: str = Form(""),
+    position: str = Form(""),
+    abteilung: str = Form(""),
     role: str = Form(""),
     email: str = Form(""),
     phone: str = Form(""),
+    phone_direct: str = Form(""),
+    phone_mobile: str = Form(""),
+    phone_private: str = Form(""),
+    birthday: str = Form(""),
     is_primary: bool = Form(False),
     db: Session = Depends(get_db),
     admin: AdminUser = Depends(require_admin),
@@ -406,9 +503,17 @@ async def contact_update(
     if contact:
         contact.first_name = first_name
         contact.last_name = last_name
+        contact.anrede = anrede or None
+        contact.titel = titel or None
+        contact.position = position or None
+        contact.abteilung = abteilung or None
         contact.role = role or None
         contact.email = email or None
         contact.phone = phone or None
+        contact.phone_direct = phone_direct or None
+        contact.phone_mobile = phone_mobile or None
+        contact.phone_private = phone_private or None
+        contact.birthday = datetime.strptime(birthday, "%Y-%m-%d").date() if birthday else None
         contact.is_primary = is_primary
         db.commit()
     return await contacts_list_partial(request, company_id, db, admin)

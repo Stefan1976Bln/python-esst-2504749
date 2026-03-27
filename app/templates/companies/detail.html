@@ -75,31 +75,46 @@
     <div class="card mb-4">
       <div class="card-header bg-white"><strong><i class="bi bi-building me-1"></i>Stammdaten</strong></div>
       <div class="card-body">
-        <table class="table table-borderless mb-0">
+        <table class="table table-borderless table-sm mb-0">
           <tr>
-            <th class="text-muted" style="width:40%">Name</th>
+            <th class="text-muted" style="width:40%">Firma</th>
             <td>{{ company.name }}</td>
           </tr>
+          {% if company.name2 %}
+          <tr><th class="text-muted">Firma 2</th><td>{{ company.name2 }}</td></tr>
+          {% endif %}
+          {% if company.name3 %}
+          <tr><th class="text-muted">Firma 3</th><td>{{ company.name3 }}</td></tr>
+          {% endif %}
           <tr>
-            <th class="text-muted">Adresse</th>
+            <th class="text-muted">Strasse</th>
             <td>{{ company.address or '&mdash;' }}</td>
           </tr>
           <tr>
-            <th class="text-muted">PLZ / Stadt</th>
+            <th class="text-muted">PLZ / Ort</th>
             <td>{{ company.postal_code or '' }} {{ company.city or '&mdash;' }}</td>
           </tr>
+          {% if company.staat %}
+          <tr><th class="text-muted">Staat</th><td>{{ company.staat }}</td></tr>
+          {% endif %}
           <tr>
             <th class="text-muted">Branche</th>
             <td>{{ company.branche or '&mdash;' }}</td>
           </tr>
           <tr>
-            <th class="text-muted">Unternehmensgroesse</th>
-            <td>{{ company.company_size or '&mdash;' }}</td>
-          </tr>
-          <tr>
-            <th class="text-muted">Mitglied seit</th>
+            <th class="text-muted">Eintrittsdatum</th>
             <td>{{ company.membership_since.strftime('%d.%m.%Y') if company.membership_since else '&mdash;' }}</td>
           </tr>
+          {% if company.membership_end %}
+          <tr><th class="text-muted">Austrittsdatum</th><td>{{ company.membership_end.strftime('%d.%m.%Y') }}</td></tr>
+          {% endif %}
+          <tr>
+            <th class="text-muted">Beitrag</th>
+            <td>{% if company.beitrag %}{{ "%.0f"|format(company.beitrag) }} &euro;{% else %}&mdash;{% endif %}</td>
+          </tr>
+          {% if company.crm_id %}
+          <tr><th class="text-muted">CRM-ID</th><td>{{ company.crm_id }}</td></tr>
+          {% endif %}
         </table>
       </div>
     </div>
@@ -203,31 +218,29 @@
     <table class="table table-hover mb-0 align-middle">
       <thead class="table-light">
         <tr>
-          <th>Vorname</th>
-          <th>Nachname</th>
-          <th>Funktion</th>
+          <th>Name</th>
+          <th>Position</th>
           <th>E-Mail</th>
           <th>Telefon</th>
-          <th class="text-center">Hauptkontakt</th>
           <th>Aktionen</th>
         </tr>
       </thead>
       <tbody id="contacts-table-body">
         {% for contact in company.contacts %}
         <tr>
-          <td>{{ contact.first_name }}</td>
-          <td>{{ contact.last_name }}</td>
-          <td>{{ contact.role or '' }}</td>
           <td>
-            {% if contact.email %}
-            <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
-            {% endif %}
+            {% if contact.is_primary %}<i class="bi bi-star-fill text-warning me-1" title="Hauptkontakt"></i>{% endif %}
+            <small class="text-muted">{{ contact.anrede or '' }} {{ contact.titel or '' }}</small>
+            <strong>{{ contact.first_name }} {{ contact.last_name }}</strong>
           </td>
-          <td>{{ contact.phone or '' }}</td>
-          <td class="text-center">
-            {% if contact.is_primary %}
-            <i class="bi bi-check-circle-fill text-success"></i>
-            {% endif %}
+          <td class="small">{{ contact.position or contact.role or '' }}{% if contact.abteilung %}<br><span class="text-muted">{{ contact.abteilung }}</span>{% endif %}</td>
+          <td>
+            {% if contact.email %}<a href="mailto:{{ contact.email }}" class="text-decoration-none">{{ contact.email }}</a>{% endif %}
+          </td>
+          <td class="small">
+            {% if contact.phone %}Tel: {{ contact.phone }}<br>{% endif %}
+            {% if contact.phone_direct %}Direkt: {{ contact.phone_direct }}<br>{% endif %}
+            {% if contact.phone_mobile %}Mobil: {{ contact.phone_mobile }}{% endif %}
           </td>
           <td>
             <button class="btn btn-outline-primary btn-sm me-1"
@@ -247,7 +260,7 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="7" class="text-center text-muted py-4">
+          <td colspan="5" class="text-center text-muted py-4">
             Noch keine Ansprechpartner hinterlegt.
           </td>
         </tr>

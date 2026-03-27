@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}CSV Import{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/companies">Unternehmen</a></li>
+    <li class="breadcrumb-item active">CSV Import</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="mb-0"><i class="bi bi-upload me-2"></i>CSV Import</h3>
+  <a href="/companies" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Zurueck zur Liste
+  </a>
+</div>
+
+{% if results %}
+<!-- ================================================================== -->
+<!-- Import Results                                                      -->
+<!-- ================================================================== -->
+<div class="card mb-4">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Import-Ergebnis</h5>
+  </div>
+  <div class="card-body">
+    <div class="row text-center mb-3">
+      <div class="col-md-4">
+        <div class="border rounded p-3">
+          <div class="fs-2 fw-bold text-success">{{ results.companies_created }}</div>
+          <div class="text-muted">Unternehmen erstellt</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="border rounded p-3">
+          <div class="fs-2 fw-bold text-primary">{{ results.companies_updated }}</div>
+          <div class="text-muted">Unternehmen aktualisiert</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="border rounded p-3">
+          <div class="fs-2 fw-bold text-info">{{ results.contacts_added }}</div>
+          <div class="text-muted">Kontakte hinzugefuegt</div>
+        </div>
+      </div>
+    </div>
+
+    {% if results.errors %}
+    <div class="alert alert-danger">
+      <h6 class="alert-heading"><i class="bi bi-exclamation-triangle me-1"></i>Fehler ({{ results.errors|length }})</h6>
+      <ul class="mb-0">
+        {% for error in results.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if results.warnings %}
+    <div class="alert alert-warning">
+      <h6 class="alert-heading"><i class="bi bi-info-circle me-1"></i>Hinweise ({{ results.warnings|length }})</h6>
+      <ul class="mb-0">
+        {% for warning in results.warnings %}
+        <li>{{ warning }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if not results.errors and not results.warnings %}
+    <div class="alert alert-success mb-0">
+      <i class="bi bi-check-circle me-1"></i>Import erfolgreich abgeschlossen - keine Fehler oder Hinweise.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ================================================================== -->
+<!-- Upload Form                                                         -->
+<!-- ================================================================== -->
+<div class="card mb-4">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>CSV-Datei hochladen</h5>
+  </div>
+  <div class="card-body">
+    <form action="/import/companies" method="post" enctype="multipart/form-data" id="import-form">
+      <!-- Drag & Drop Zone -->
+      <div class="border border-2 border-dashed rounded p-5 text-center mb-3" id="drop-zone"
+           style="cursor: pointer; transition: all 0.2s ease;">
+        <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+        <p class="mt-2 mb-1 fw-semibold">CSV-Datei hierher ziehen</p>
+        <p class="text-muted small mb-2">oder klicken, um eine Datei auszuwaehlen</p>
+        <input type="file" name="file" id="file-input" accept=".csv,.txt" class="d-none" required>
+        <div id="file-name" class="text-primary fw-semibold mt-2" style="display: none;"></div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+        <i class="bi bi-play-fill me-1"></i>Import starten
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- Instructions                                                        -->
+<!-- ================================================================== -->
+<div class="card">
+  <div class="card-header bg-white">
+    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Hinweise zum CSV-Format</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <h6>Allgemein</h6>
+        <ul>
+          <li>Trennzeichen: <strong>Semikolon (;)</strong></li>
+          <li>Kodierung: <strong>UTF-8 oder Latin-1</strong></li>
+          <li>Datumsformat: <strong>TT.MM.JJJJ</strong> (z.B. 15.03.2024)</li>
+          <li>Jede Zeile entspricht einem Ansprechpartner</li>
+          <li>Ist das Feld <em>Firma</em> leer, wird eine Privatperson angelegt</li>
+          <li>Existiert eine Firma bereits (gleicher Name oder CRM-ID), wird der Kontakt zugeordnet</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h6>Erwartete Spalten</h6>
+        <div class="bg-light rounded p-3" style="font-size: 0.8rem; max-height: 200px; overflow-y: auto;">
+          <code>Firma;Firma2;Firma3;Abteilung;AnPerson;Titel;Vorname;Name;Position;ZustellStrasse;ZustellPLZ;ZustellOrt;Staat;Telefon;Direkt;Mobil;Privat;E-Mail;Geburtstag;Eintrittsdatum-Ort;Austrittsdatum-Ort;Beitrag ?;Branche;Frei 1;Rechnungstext;BAttr:Vorname;BAttr:Nachname;BAttr:Postfach;BAttr:Land;ID;Eintrittsdatum</code>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h6>Zuordnung der Spalten</h6>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered">
+        <thead class="table-light">
+          <tr><th>CSV-Spalte</th><th>Ziel</th><th>Beschreibung</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Firma</td><td>Unternehmen: Name</td><td>Firmenname (leer = Privatperson)</td></tr>
+          <tr><td>Firma2 / Firma3</td><td>Unternehmen: Name 2/3</td><td>Zusaetzliche Namenszeilen</td></tr>
+          <tr><td>Vorname / Name</td><td>Kontakt: Vorname / Nachname</td><td>Ansprechpartner</td></tr>
+          <tr><td>AnPerson</td><td>Kontakt: Anrede</td><td>z.B. Herrn, Frau</td></tr>
+          <tr><td>Titel</td><td>Kontakt: Titel</td><td>z.B. Dr., Prof.</td></tr>
+          <tr><td>Position</td><td>Kontakt: Position</td><td>Funktion im Unternehmen</td></tr>
+          <tr><td>Abteilung</td><td>Kontakt: Abteilung</td><td></td></tr>
+          <tr><td>Telefon / Direkt / Mobil / Privat</td><td>Kontakt: Telefonnummern</td><td></td></tr>
+          <tr><td>E-Mail</td><td>Kontakt: E-Mail</td><td></td></tr>
+          <tr><td>Geburtstag</td><td>Kontakt: Geburtstag</td><td>Format TT.MM.JJJJ</td></tr>
+          <tr><td>ZustellStrasse / ZustellPLZ / ZustellOrt</td><td>Unternehmen: Adresse</td><td></td></tr>
+          <tr><td>Staat</td><td>Unternehmen: Land</td><td></td></tr>
+          <tr><td>Branche</td><td>Unternehmen: Branche</td><td></td></tr>
+          <tr><td>Beitrag ?</td><td>Unternehmen: Beitrag</td><td>Mitgliedsbeitrag in EUR</td></tr>
+          <tr><td>Eintrittsdatum</td><td>Unternehmen: Eintrittsdatum</td><td>Format TT.MM.JJJJ</td></tr>
+          <tr><td>Austrittsdatum-Ort</td><td>Unternehmen: Austrittsdatum</td><td>Format TT.MM.JJJJ</td></tr>
+          <tr><td>ID</td><td>CRM-ID</td><td>Eindeutige ID aus dem CRM-System</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileName = document.getElementById('file-name');
+  const submitBtn = document.getElementById('submit-btn');
+
+  // Click to open file dialog
+  dropZone.addEventListener('click', function() {
+    fileInput.click();
+  });
+
+  // File selected via dialog
+  fileInput.addEventListener('change', function() {
+    if (fileInput.files.length > 0) {
+      showFile(fileInput.files[0]);
+    }
+  });
+
+  // Drag & Drop events
+  dropZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dropZone.classList.add('border-primary', 'bg-light');
+  });
+
+  dropZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    dropZone.classList.remove('border-primary', 'bg-light');
+  });
+
+  dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropZone.classList.remove('border-primary', 'bg-light');
+    if (e.dataTransfer.files.length > 0) {
+      fileInput.files = e.dataTransfer.files;
+      showFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  function showFile(file) {
+    fileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+    fileName.style.display = 'block';
+    submitBtn.disabled = false;
+  }
+
+  // Disable button after submit to prevent double-click
+  document.getElementById('import-form').addEventListener('submit', function() {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Import laeuft...';
+  });
+})();
+</script>
+{% endblock %}

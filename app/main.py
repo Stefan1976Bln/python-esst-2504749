@@ -62,6 +62,7 @@ from app.routers.dashboard import router as dashboard_router  # noqa: E402
 from app.routers.public import router as public_router  # noqa: E402
 from app.routers.fees import router as fees_router  # noqa: E402
 from app.routers.ai_api import router as ai_router  # noqa: E402
+from app.routers.csv_import import router as import_router  # noqa: E402
 
 app.include_router(auth_router)
 app.include_router(dashboard_router)
@@ -70,6 +71,7 @@ app.include_router(events_router)
 app.include_router(public_router)
 app.include_router(fees_router)
 app.include_router(ai_router)
+app.include_router(import_router)
 
 
 @app.exception_handler(RedirectException)
