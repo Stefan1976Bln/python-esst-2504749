@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}CSV Import - {{ event.title }}{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/events">Veranstaltungen</a></li>
+        <li class="breadcrumb-item"><a href="/events/{{ event.id }}">{{ event.title }}</a></li>
+        <li class="breadcrumb-item active">CSV Import</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        {% if flash_message %}
+        <div class="alert alert-{{ flash_type or 'info' }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-earmark-spreadsheet me-2"></i>Teilnehmerliste importieren</span>
+                <span class="badge bg-secondary">{{ event.title }}</span>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" action="/events/{{ event.id }}/csv-upload">
+                    <div class="mb-4">
+                        <label for="csv_file" class="form-label fw-bold">CSV-Datei auswaehlen</label>
+                        <input type="file" name="csv_file" id="csv_file" class="form-control" accept=".csv,.txt" required>
+                        <div class="form-text">Unterstuetzte Formate: CSV mit Semikolon (;) oder Komma (,) als Trennzeichen. UTF-8 oder Latin-1.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-agc">
+                        <i class="bi bi-upload me-2"></i>Importieren
+                    </button>
+                    <a href="/events/{{ event.id }}" class="btn btn-outline-secondary ms-2">Abbrechen</a>
+                </form>
+
+                <hr>
+
+                <h6 class="mt-4"><i class="bi bi-info-circle me-1"></i> Erwartetes CSV-Format</h6>
+                <p class="text-muted small">Die Spaltenkoepfe werden automatisch erkannt. Folgende Bezeichnungen werden unterstuetzt:</p>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Feld</th>
+                                <th>Erkannte Spaltenkoepfe</th>
+                                <th>Pflicht</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Vorname</td>
+                                <td><code>Vorname</code>, <code>First_Name</code>, <code>FirstName</code></td>
+                                <td>Empfohlen</td>
+                            </tr>
+                            <tr>
+                                <td>Nachname</td>
+                                <td><code>Nachname</code>, <code>Last_Name</code>, <code>LastName</code>, <code>Name</code></td>
+                                <td><strong>Ja</strong></td>
+                            </tr>
+                            <tr>
+                                <td>E-Mail</td>
+                                <td><code>E-Mail</code>, <code>Email</code>, <code>Mail</code></td>
+                                <td>Empfohlen</td>
+                            </tr>
+                            <tr>
+                                <td>Telefon</td>
+                                <td><code>Telefon</code>, <code>Phone</code>, <code>Tel</code></td>
+                                <td>Optional</td>
+                            </tr>
+                            <tr>
+                                <td>Unternehmen</td>
+                                <td><code>Unternehmen</code>, <code>Firma</code>, <code>Organisation</code>, <code>Company</code></td>
+                                <td>Optional</td>
+                            </tr>
+                            <tr>
+                                <td>Branche</td>
+                                <td><code>Branche</code>, <code>Industry</code></td>
+                                <td>Optional</td>
+                            </tr>
+                            <tr>
+                                <td>Teilnahme</td>
+                                <td><code>Teilnahme</code>, <code>Status</code>, <code>Attendance</code></td>
+                                <td>Optional (Ja/Nein)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6 class="mt-3">Beispiel:</h6>
+                <pre class="bg-light p-3 rounded small">Vorname;Nachname;E-Mail;Unternehmen;Teilnahme
+Thomas;Mueller;t.mueller@example.de;Mueller & Partner;Ja
+Anna;Schneider;a.schneider@example.de;TechVision GmbH;Ja
+Stefan;Wagner;s.wagner@example.de;TechVision GmbH;Nein</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

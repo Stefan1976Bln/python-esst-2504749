@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
+  <circle cx="62" cy="28" r="25" fill="#c0392b"/>
+  <text x="18" y="40" font-family="Arial, sans-serif" font-size="32" fill="#ccc" font-weight="400">ag</text>
+  <text x="48" y="40" font-family="Arial, sans-serif" font-size="32" fill="#fff" font-weight="700">city</text>
+  <text x="98" y="40" font-family="Arial, sans-serif" font-size="32" fill="#ccc" font-weight="400">berlin</text>
+</svg>

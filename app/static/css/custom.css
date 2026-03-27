@@ -1,25 +1,128 @@
-/* AG City Custom Styles */
+/* ============================================================
+   AG City Berlin - Custom Styles
+   Brand Colors: Red #c0392b, Dark Grey #2c2c2c, Light Grey #999
+   ============================================================ */
+
+:root {
+    --agc-red: #c0392b;
+    --agc-red-dark: #a93226;
+    --agc-red-light: #e74c3c;
+    --agc-dark: #2c2c2c;
+    --agc-grey: #999;
+    --agc-bg: #f5f6fa;
+    --sidebar-width: 250px;
+}
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f5f6fa;
+    background: var(--agc-bg);
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* ---- Berlin skyline background ---- */
+.berlin-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        /* Subtle Berlin skyline silhouette at bottom */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200'%3E%3Cpath d='M0 200 L0 120 L30 120 L30 100 L50 100 L50 80 L55 50 L60 80 L70 80 L70 60 L80 60 L80 80 L100 80 L100 120 L130 120 L130 90 L140 90 L140 70 L160 70 L160 90 L170 90 L170 120 L200 120 L200 100 L210 100 L210 80 L220 70 L230 80 L230 100 L240 100 L240 120 L280 120 L280 60 L290 60 L290 40 L295 20 L300 40 L310 40 L310 60 L320 60 L320 120 L360 120 L360 95 L380 95 L380 75 L400 75 L400 95 L420 95 L420 120 L450 120 L450 110 L460 90 L465 60 L470 90 L480 110 L480 120 L520 120 L520 80 L530 80 L530 60 L550 60 L550 80 L560 80 L560 120 L600 120 L600 100 L620 100 L620 85 L640 85 L640 100 L660 100 L660 120 L700 120 L700 110 L710 90 L720 90 L720 110 L730 110 L730 120 L780 120 L780 70 L790 70 L790 50 L795 25 L800 50 L810 50 L810 70 L820 70 L820 120 L860 120 L860 95 L880 95 L880 120 L920 120 L920 100 L930 80 L940 80 L940 100 L950 100 L950 120 L1000 120 L1000 90 L1010 90 L1010 70 L1020 60 L1030 70 L1030 90 L1040 90 L1040 120 L1080 120 L1080 100 L1100 100 L1100 85 L1120 85 L1120 100 L1140 100 L1140 120 L1200 120 L1200 80 L1210 80 L1210 55 L1215 30 L1220 55 L1230 55 L1230 80 L1240 80 L1240 120 L1300 120 L1300 100 L1320 100 L1320 90 L1340 90 L1340 100 L1360 100 L1360 120 L1400 120 L1400 110 L1420 95 L1440 95 L1440 110 L1460 110 L1460 120 L1500 120 L1500 100 L1520 100 L1520 80 L1530 70 L1540 80 L1540 100 L1560 100 L1560 120 L1600 120 L1600 200 Z' fill='%23e8e8e8' opacity='0.3'/%3E%3C/svg%3E") no-repeat bottom center / cover;
+    opacity: 0.5;
+}
+
+/* ---- Sidebar ---- */
+#sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: var(--agc-dark);
+    color: #fff;
+    position: relative;
+    z-index: 10;
+}
+
+.sidebar-brand {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+}
+
+.sidebar-logo {
+    width: 180px;
+    height: auto;
+    margin-bottom: 4px;
+}
+
+.sidebar-tagline {
+    display: block;
+    color: var(--agc-grey);
+    font-size: 0.75em;
 }
 
 #sidebar .nav-link {
     padding: 0.6rem 1rem;
     margin: 2px 0;
-    transition: background 0.2s;
+    color: rgba(255,255,255,0.8);
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-size: 0.9em;
 }
 
 #sidebar .nav-link:hover {
     background: rgba(255,255,255,0.1);
-    border-radius: 6px;
+    color: #fff;
 }
 
+#sidebar .nav-link.active {
+    background: var(--agc-red);
+    color: #fff;
+    font-weight: 600;
+}
+
+#sidebar .nav-link-muted {
+    color: rgba(255,255,255,0.4);
+}
+
+.sidebar-divider {
+    border-color: rgba(255,255,255,0.1);
+    margin: 0.3rem 0.5rem;
+}
+
+/* ---- Main content area ---- */
+.main-content {
+    position: relative;
+    z-index: 5;
+    min-height: 100vh;
+}
+
+/* ---- Top bar ---- */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1.5rem;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 2px solid var(--agc-red);
+    font-size: 0.9em;
+}
+
+.topbar-breadcrumb {
+    color: #666;
+}
+
+.topbar-user {
+    color: var(--agc-grey);
+}
+
+/* ---- Cards ---- */
 .card {
     border: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     border-radius: 10px;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(4px);
 }
 
 .card-header {
@@ -28,13 +131,37 @@ body {
     font-weight: 600;
 }
 
+/* ---- Stat cards ---- */
 .stat-card {
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-top: 3px solid var(--agc-red);
 }
 .stat-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
+/* ---- Buttons: AG City red ---- */
+.btn-agc {
+    background: var(--agc-red);
+    color: #fff;
+    border: none;
+}
+.btn-agc:hover {
+    background: var(--agc-red-dark);
+    color: #fff;
+}
+
+.btn-outline-agc {
+    color: var(--agc-red);
+    border-color: var(--agc-red);
+}
+.btn-outline-agc:hover {
+    background: var(--agc-red);
+    color: #fff;
+}
+
+/* ---- Badges ---- */
 .badge-pending { background-color: #f39c12; }
 .badge-confirmed { background-color: #27ae60; }
 .badge-rejected { background-color: #e74c3c; }
@@ -42,6 +169,7 @@ body {
 .badge-attended { background-color: #27ae60; }
 .badge-no_show { background-color: #e74c3c; }
 
+/* ---- AI Score badges ---- */
 .ai-score {
     display: inline-flex;
     align-items: center;
@@ -55,13 +183,11 @@ body {
 .ai-score-medium { background: #fff3cd; color: #856404; }
 .ai-score-low { background: #f8d7da; color: #721c24; }
 
-.htmx-indicator {
-    display: none;
-}
-.htmx-request .htmx-indicator {
-    display: inline-block;
-}
+/* ---- HTMX indicator ---- */
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator { display: inline-block; }
 
+/* ---- Tables ---- */
 .table th {
     font-weight: 600;
     font-size: 0.85em;
@@ -69,8 +195,54 @@ body {
     color: #6c757d;
 }
 
+/* ---- Dossier entries ---- */
 .dossier-entry {
-    border-left: 3px solid #3498db;
+    border-left: 3px solid var(--agc-red);
     padding-left: 1rem;
     margin-bottom: 1rem;
+}
+
+/* ---- Login page ---- */
+.login-bg {
+    background:
+        linear-gradient(135deg, rgba(44,44,44,0.85), rgba(192,57,43,0.75)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 200'%3E%3Cpath d='M0 200 L0 120 L30 120 L30 100 L50 100 L50 80 L55 50 L60 80 L70 80 L70 60 L80 60 L80 80 L100 80 L100 120 L130 120 L130 90 L140 90 L140 70 L160 70 L160 90 L170 90 L170 120 L200 120 L200 100 L210 100 L210 80 L220 70 L230 80 L230 100 L240 100 L240 120 L280 120 L280 60 L290 60 L290 40 L295 20 L300 40 L310 40 L310 60 L320 60 L320 120 L360 120 L360 95 L380 95 L380 75 L400 75 L400 95 L420 95 L420 120 L450 120 L450 110 L460 90 L465 60 L470 90 L480 110 L480 120 L520 120 L520 80 L530 80 L530 60 L550 60 L550 80 L560 80 L560 120 L600 120 L600 100 L620 100 L620 85 L640 85 L640 100 L660 100 L660 120 L700 120 L700 110 L710 90 L720 90 L720 110 L730 110 L730 120 L780 120 L780 70 L790 70 L790 50 L795 25 L800 50 L810 50 L810 70 L820 70 L820 120 L860 120 L860 95 L880 95 L880 120 L920 120 L920 100 L930 80 L940 80 L940 100 L950 100 L950 120 L1600 120 L1600 200 Z' fill='%23fff' opacity='0.05'/%3E%3C/svg%3E") no-repeat bottom center / cover;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.login-btn {
+    background: var(--agc-red);
+    border: none;
+    padding: 0.6rem;
+    font-weight: 600;
+}
+.login-btn:hover {
+    background: var(--agc-red-dark);
+}
+
+/* ---- Event type badges ---- */
+.event-type-citytalk { background: var(--agc-red); color: #fff; }
+.event-type-stammtisch { background: #2c3e50; color: #fff; }
+.event-type-kts { background: #e67e22; color: #fff; }
+.event-type-workshop { background: #2980b9; color: #fff; }
+.event-type-networking { background: #27ae60; color: #fff; }
+.event-type-seminar { background: #8e44ad; color: #fff; }
+.event-type-gala { background: #f1c40f; color: #2c2c2c; }
+.event-type-konferenz { background: #1abc9c; color: #fff; }
+.event-type-messe { background: #34495e; color: #fff; }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+    #sidebar { width: 60px; }
+    .sidebar-logo { width: 40px; }
+    .sidebar-tagline { display: none; }
+    #sidebar .nav-link span { display: none; }
 }

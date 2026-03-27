@@ -18,7 +18,7 @@ from app.models import Event, EventImage, EventRegistration, AdminUser
 router = APIRouter(prefix="/events", tags=["events"])
 templates = Jinja2Templates(directory="app/templates")
 
-EVENT_TYPES = ["Workshop", "Networking", "Seminar", "Gala", "Konferenz", "Messe"]
+EVENT_TYPES = ["City-Talk", "Stammtisch", "KTS Fruehstueck", "Workshop", "Networking", "Seminar", "Gala", "Konferenz", "Messe"]
 
 MAX_IMAGE_SIZE = (1920, 1080)
 THUMB_SIZE = (400, 300)
@@ -516,3 +516,139 @@ async def toggle_publish(
         event.is_published = not event.is_published
         db.commit()
     return RedirectResponse(url=f"/events/{event_id}", status_code=303)
+
+
+# ---------------------------------------------------------------------------
+# CSV Upload for participant lists
+# ---------------------------------------------------------------------------
+
+@router.get("/{event_id}/csv-upload", response_class=HTMLResponse)
+async def csv_upload_form(
+    request: Request,
+    event_id: int,
+    db: Session = Depends(get_db),
+    admin: AdminUser = Depends(require_admin),
+):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        return RedirectResponse(url="/events", status_code=303)
+    return templates.TemplateResponse("events/csv_upload.html", {
+        "request": request,
+        "event": event,
+        "active_page": "events",
+        "admin_user": admin.username,
+    })
+
+
+@router.post("/{event_id}/csv-upload", response_class=HTMLResponse)
+async def csv_upload(
+    request: Request,
+    event_id: int,
+    csv_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    admin: AdminUser = Depends(require_admin),
+):
+    import csv
+    import io
+
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        return RedirectResponse(url="/events", status_code=303)
+
+    content = await csv_file.read()
+    try:
+        text = content.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = content.decode("latin-1")
+
+    reader = csv.DictReader(io.StringIO(text), delimiter=";")
+    fieldnames = reader.fieldnames or []
+    if len(fieldnames) <= 1:
+        reader = csv.DictReader(io.StringIO(text), delimiter=",")
+        fieldnames = reader.fieldnames or []
+
+    imported = 0
+
+    header_map = {
+        "vorname": "first_name", "first_name": "first_name", "firstname": "first_name",
+        "nachname": "last_name", "last_name": "last_name", "lastname": "last_name", "name": "last_name",
+        "e-mail": "email", "email": "email", "mail": "email",
+        "telefon": "phone", "phone": "phone", "tel": "phone",
+        "unternehmen": "organization", "firma": "organization", "organisation": "organization",
+        "organization": "organization", "company": "organization",
+        "branche": "branche", "industry": "branche",
+        "status": "attendance", "teilnahme": "attendance", "attendance": "attendance",
+    }
+
+    normalized_fields = {}
+    for f in fieldnames:
+        key = f.strip().lower().replace("\u00e4", "ae").replace("\u00f6", "oe").replace("\u00fc", "ue")
+        if key in header_map:
+            normalized_fields[f] = header_map[key]
+
+    for i, row in enumerate(reader, start=2):
+        mapped = {}
+        for orig_col, target_col in normalized_fields.items():
+            mapped[target_col] = (row.get(orig_col) or "").strip()
+
+        first_name = mapped.get("first_name", "")
+        last_name = mapped.get("last_name", "")
+        email = mapped.get("email", "")
+
+        if not last_name and not email:
+            continue
+
+        if not first_name:
+            parts = last_name.split(" ", 1)
+            if len(parts) == 2:
+                first_name, last_name = parts
+
+        if not email:
+            email = f"import-{event_id}-{i}@placeholder.local"
+
+        existing = (
+            db.query(EventRegistration)
+            .filter(EventRegistration.event_id == event_id, EventRegistration.email == email)
+            .first()
+        )
+        if existing:
+            attendance = mapped.get("attendance", "").lower()
+            if attendance in ("ja", "yes", "attended", "teilgenommen", "1"):
+                existing.attendance = "attended"
+            elif attendance in ("nein", "no", "no_show", "nicht erschienen", "0"):
+                existing.attendance = "no_show"
+            db.commit()
+            continue
+
+        reg = EventRegistration(
+            event_id=event_id,
+            first_name=first_name or "Unbekannt",
+            last_name=last_name or "Unbekannt",
+            email=email,
+            phone=mapped.get("phone"),
+            organization=mapped.get("organization"),
+            branche=mapped.get("branche"),
+            is_member=False,
+            status="confirmed",
+        )
+
+        attendance = mapped.get("attendance", "").lower()
+        if attendance in ("ja", "yes", "attended", "teilgenommen", "1"):
+            reg.attendance = "attended"
+        elif attendance in ("nein", "no", "no_show", "nicht erschienen", "0"):
+            reg.attendance = "no_show"
+
+        db.add(reg)
+        imported += 1
+
+    db.commit()
+
+    return templates.TemplateResponse("events/csv_upload.html", {
+        "request": request,
+        "event": event,
+        "active_page": "events",
+        "admin_user": admin.username,
+        "flash_message": f"{imported} Teilnehmer erfolgreich importiert.",
+        "flash_type": "success",
+        "imported": imported,
+    })

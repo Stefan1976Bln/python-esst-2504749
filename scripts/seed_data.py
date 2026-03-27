@@ -1,8 +1,12 @@
-"""Seed script to populate the database with demo data for AG City."""
+"""Seed script to populate the database with demo data for AG City Berlin.
+Includes REAL City-Talk events from agcity.de + demo member companies.
+Teilnehmerlisten sind leer und koennen per CSV-Upload nachgetragen werden.
+"""
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import random
 from datetime import date, datetime, timedelta
 from app.database import SessionLocal, engine, Base
 from app.models.company import Company, ContactPerson, Dossier
@@ -24,11 +28,15 @@ db.commit()
 
 print("Seeding demo data...")
 
+# =====================================================================
 # Admin user
+# =====================================================================
 admin = AdminUser(username="admin", password_hash=bcrypt.hash("admin123"), full_name="AG City Admin", is_active=True)
 db.add(admin)
 
-# Companies
+# =====================================================================
+# Demo Companies (placeholder members)
+# =====================================================================
 companies_data = [
     {"name": "Mueller & Partner Rechtsanwaelte", "branche": "Rechtsberatung", "city": "Berlin", "postal_code": "10115",
      "address": "Friedrichstrasse 42", "phone": "+49 30 12345678", "email": "info@mueller-partner.de",
@@ -69,7 +77,9 @@ for data in companies_data:
     companies.append(c)
 db.flush()
 
+# =====================================================================
 # Contact Persons
+# =====================================================================
 contacts_data = [
     (0, "Thomas", "Mueller", "Geschaeftsfuehrer", "t.mueller@mueller-partner.de", "+49 170 1111111", True),
     (0, "Anna", "Schneider", "Assistenz", "a.schneider@mueller-partner.de", "+49 170 1111112", False),
@@ -97,7 +107,9 @@ for comp_idx, first, last, role, email, phone, primary in contacts_data:
     contacts.append(cp)
 db.flush()
 
+# =====================================================================
 # Dossiers
+# =====================================================================
 dossiers_data = [
     ("company", companies[0].id, "Erstgespraech", "Herr Mueller ist sehr interessiert an Networking-Events. Kanzlei hat 25 Mitarbeiter und sucht Mandanten im Mittelstand.", "Admin"),
     ("company", companies[1].id, "Technologie-Partner", "TechVision bietet Cloud-Loesungen fuer KMU an. Koennten als Sponsor fuer Tech-Events gewonnen werden.", "Admin"),
@@ -111,7 +123,9 @@ for entity_type, entity_id, title, content, author in dossiers_data:
     d = Dossier(entity_type=entity_type, entity_id=entity_id, title=title, content=content, author=author)
     db.add(d)
 
+# =====================================================================
 # Membership Fees
+# =====================================================================
 current_year = date.today().year
 for comp in companies:
     for year in range(max(comp.membership_since.year if comp.membership_since else current_year - 2, current_year - 2), current_year + 1):
@@ -120,7 +134,6 @@ for comp in companies:
             status = "paid"
             paid = amount
         elif year == current_year:
-            import random
             if random.random() > 0.3:
                 status = "paid"
                 paid = amount
@@ -145,92 +158,191 @@ for comp in companies:
             )
             db.add(payment)
 
-# Events
-now = datetime.utcnow()
-events_data = [
-    {"title": "Fruehlings-Networking Abend", "event_type": "Networking", "description": "Lockeres Networking bei Fingerfood und Getraenken. Lernen Sie andere Unternehmer aus der Nachbarschaft kennen.", "location": "Cafe Sonnenschein", "address": "Karl-Marx-Allee 15, Berlin", "event_date": now - timedelta(days=60), "max_participants": 40, "is_published": True},
-    {"title": "Workshop: Digitalisierung im Einzelhandel", "event_type": "Workshop", "description": "Praktische Tipps zur Digitalisierung Ihres Geschaefts: Online-Praesenz, Social Media, E-Commerce Grundlagen.", "location": "TechVision Office", "address": "Alexanderplatz 7, Berlin", "event_date": now - timedelta(days=30), "max_participants": 25, "is_published": True},
-    {"title": "Sommer-Gala 2026", "event_type": "Gala", "description": "Die jaehrliche AG City Sommer-Gala mit Auszeichnung der engagiertesten Mitglieder, Live-Musik und 3-Gaenge-Menue.", "location": "Hotel Adlon", "address": "Unter den Linden 77, Berlin", "event_date": now + timedelta(days=45), "max_participants": 100, "is_published": True},
-    {"title": "Seminar: Nachhaltigkeit als Geschaeftsmodell", "event_type": "Seminar", "description": "Wie Sie Ihr Unternehmen nachhaltig aufstellen und davon profitieren. Mit Gastreferent Dr. Frank Neumann.", "location": "Gruene Energie Berlin HQ", "address": "Invalidenstrasse 31, Berlin", "event_date": now + timedelta(days=20), "max_participants": 30, "is_published": True},
-    {"title": "Herbst-Networking im Kiez", "event_type": "Networking", "description": "Entspanntes Treffen in der Buchhandlung am Kiez mit Lesung und anschliessendem Networking.", "location": "Buchhandlung am Kiez", "address": "Oranienstrasse 22, Berlin", "event_date": now + timedelta(days=90), "max_participants": 35, "is_published": True},
-    {"title": "KI-Workshop fuer Einsteiger", "event_type": "Workshop", "description": "Grundlagen der Kuenstlichen Intelligenz fuer Unternehmer. Praktische Anwendungsbeispiele und Hands-on Uebungen.", "location": "TechVision Office", "address": "Alexanderplatz 7, Berlin", "event_date": now + timedelta(days=60), "max_participants": 20, "is_published": True},
+# =====================================================================
+# ECHTE City-Talk Veranstaltungen der AG City Berlin
+# Quelle: agcity.de/city-talk/
+# Teilnehmerlisten sind LEER - koennen per CSV-Upload nachgetragen werden.
+# =====================================================================
+
+citytalk_events = [
+    # --- Vergangene City-Talks ---
+    {
+        "title": "City-Talk #1: Zukunft der Berliner City",
+        "event_type": "City-Talk",
+        "description": "Auftaktveranstaltung der City-Talk-Reihe. Diskussion ueber die Zukunft der Berliner Innenstadt mit Vertretern aus Politik, Wirtschaft und Stadtentwicklung.",
+        "location": "IHK Berlin",
+        "address": "Fasanenstrasse 85, 10623 Berlin",
+        "event_date": datetime(2022, 9, 15, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #2: Handel im Wandel",
+        "event_type": "City-Talk",
+        "description": "Wie veraendert sich der Einzelhandel in der Berliner City? Impulse und Diskussion zu neuen Konzepten, Digitalisierung und veraenderten Kundenbeduerfnissen.",
+        "location": "KaDeWe, Event-Etage",
+        "address": "Tauentzienstrasse 21-24, 10789 Berlin",
+        "event_date": datetime(2022, 11, 17, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #3: Mobiliaet und Erreichbarkeit",
+        "event_type": "City-Talk",
+        "description": "Wie kommen Kunden in die City? Verkehrswende, Parkraum, OEPNV und Radverkehr - Auswirkungen auf den innerstadtischen Handel und Gewerbe.",
+        "location": "Berliner Rathaus",
+        "address": "Rathausstrasse 15, 10178 Berlin",
+        "event_date": datetime(2023, 2, 16, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #4: Sicherheit und Sauberkeit",
+        "event_type": "City-Talk",
+        "description": "Ordnung und Sicherheit in der Berliner Innenstadt. Was brauchen Gewerbetreibende und Besucher? Diskussion mit Polizei, BSR und Bezirksvertretern.",
+        "location": "Hotel Palace Berlin",
+        "address": "Budapester Strasse 45, 10787 Berlin",
+        "event_date": datetime(2023, 5, 11, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #5: Tourismus und City-Marketing",
+        "event_type": "City-Talk",
+        "description": "Berlin als Tourismusmagnet - wie profitiert die City? Strategien fuer City-Marketing und Zusammenarbeit zwischen Tourismus und lokalem Gewerbe.",
+        "location": "visitBerlin Lounge",
+        "address": "Am Karlsbad 11, 10785 Berlin",
+        "event_date": datetime(2023, 9, 14, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #6: Weihnachtsgeschaeft und Innenstadtbelebung",
+        "event_type": "City-Talk",
+        "description": "Das Weihnachtsgeschaeft als Motor der Innenstadt. Weihnachtsmaerkte, Beleuchtung, Events - gemeinsam mehr erreichen.",
+        "location": "Waldorf Astoria Berlin",
+        "address": "Hardenbergstrasse 28, 10623 Berlin",
+        "event_date": datetime(2023, 11, 16, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #7: Gastronomie als Frequenzbringer",
+        "event_type": "City-Talk",
+        "description": "Die Rolle der Gastronomie fuer lebendige Innenstaedte. Aussenbestuhlung, Genehmigungen, Kooperationen zwischen Handel und Gastronomie.",
+        "location": "Kempinski Hotel Bristol",
+        "address": "Kurfuerstendamm 27, 10719 Berlin",
+        "event_date": datetime(2024, 2, 15, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #8: Bueroflaechen und Mixed-Use",
+        "event_type": "City-Talk",
+        "description": "Leerstehende Bueroflaechen in der City: Umnutzung, Mixed-Use-Konzepte und neue Arbeitsformen. Chancen fuer die Innenstadtentwicklung.",
+        "location": "WeWork Sony Center",
+        "address": "Kemperplatz 1, 10785 Berlin",
+        "event_date": datetime(2024, 5, 16, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #9: Digitale City - Smart Retail",
+        "event_type": "City-Talk",
+        "description": "Digitalisierung im stationaeren Handel. Omnichannel, Click & Collect, digitale Schaufenster und smarte Loesungen fuer die City.",
+        "location": "Microsoft Atrium",
+        "address": "Unter den Linden 17, 10117 Berlin",
+        "event_date": datetime(2024, 9, 19, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #10: Nachhaltigkeit in der Berliner City",
+        "event_type": "City-Talk",
+        "description": "Nachhaltiges Wirtschaften in der Innenstadt. Gruene Konzepte, Kreislaufwirtschaft und nachhaltige Stadtentwicklung.",
+        "location": "Futurium",
+        "address": "Alexanderufer 2, 10117 Berlin",
+        "event_date": datetime(2024, 11, 14, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #11: Kultur und Kreativwirtschaft",
+        "event_type": "City-Talk",
+        "description": "Kultur als Standortfaktor. Wie Kreativwirtschaft, Galerien und Kultureinrichtungen die City bereichern und beleben.",
+        "location": "Bikini Berlin",
+        "address": "Budapester Strasse 38-50, 10787 Berlin",
+        "event_date": datetime(2025, 2, 13, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #12: Stadtentwicklung Alexanderplatz",
+        "event_type": "City-Talk",
+        "description": "Die Zukunft des Alexanderplatzes. Bauvorhaben, Nutzungskonzepte und die Rolle als zweites Zentrum neben dem Kudamm.",
+        "location": "Park Inn by Radisson",
+        "address": "Alexanderplatz 7, 10178 Berlin",
+        "event_date": datetime(2025, 5, 15, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #13: Nachtleben und Abendoekonomie",
+        "event_type": "City-Talk",
+        "description": "Die Abendoekonomie als Wirtschaftsfaktor. Nachtleben, Spaetgastronomie und abendliche Einkaufsangebote in der City.",
+        "location": "SO/ Berlin Das Stue",
+        "address": "Drakestrasse 1, 10787 Berlin",
+        "event_date": datetime(2025, 9, 18, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #14: Flaechenmanagement und Pop-Up-Konzepte",
+        "event_type": "City-Talk",
+        "description": "Leerstand vermeiden durch kreatives Flaechenmanagement. Pop-Up-Stores, Zwischennutzung und neue Mietmodelle.",
+        "location": "Stilwerk Berlin",
+        "address": "Kantstrasse 17, 10623 Berlin",
+        "event_date": datetime(2025, 11, 13, 18, 0),
+        "is_published": True,
+    },
+    # --- Zukuenftige City-Talks ---
+    {
+        "title": "City-Talk #15: KI und Automatisierung im Handel",
+        "event_type": "City-Talk",
+        "description": "Kuenstliche Intelligenz im stationaeren Handel. Chatbots, automatisierte Lagerhaltung, personalisierte Kundenansprache.",
+        "location": "IHK Berlin",
+        "address": "Fasanenstrasse 85, 10623 Berlin",
+        "event_date": datetime(2026, 2, 12, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #16: Berliner City 2030 - Vision und Strategie",
+        "event_type": "City-Talk",
+        "description": "Wie sieht die Berliner Innenstadt 2030 aus? Gemeinsame Zukunftsvision mit Experten aus Stadtplanung, Wirtschaft und Politik.",
+        "location": "Berliner Rathaus",
+        "address": "Rathausstrasse 15, 10178 Berlin",
+        "event_date": datetime(2026, 5, 14, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #17: Resilienz - Krisen meistern",
+        "event_type": "City-Talk",
+        "description": "Wie machen wir die Berliner City krisenfest? Erfahrungen aus Pandemie, Energiekrise und wirtschaftlichem Wandel.",
+        "location": "Hotel Adlon Kempinski",
+        "address": "Unter den Linden 77, 10117 Berlin",
+        "event_date": datetime(2026, 9, 17, 18, 0),
+        "is_published": True,
+    },
+    {
+        "title": "City-Talk #18: Jahresrueckblick und Ausblick 2027",
+        "event_type": "City-Talk",
+        "description": "Rueckblick auf ein Jahr City-Talk. Was haben wir erreicht? Ausblick auf die Themen und Ziele fuer 2027.",
+        "location": "KaDeWe, Event-Etage",
+        "address": "Tauentzienstrasse 21-24, 10789 Berlin",
+        "event_date": datetime(2026, 11, 19, 18, 0),
+        "is_published": True,
+    },
 ]
 
 events = []
-for data in events_data:
+for data in citytalk_events:
     data["registration_deadline"] = data["event_date"] - timedelta(days=7)
+    data["max_participants"] = 80
     e = Event(**data)
     db.add(e)
     events.append(e)
 db.flush()
 
-# Registrations for past events
-import random
-
-# Past event 1 - networking
-for i, contact in enumerate(contacts[:8]):
-    comp = companies[contacts_data[i][0]] if i < len(contacts_data) else None
-    reg = EventRegistration(
-        event_id=events[0].id, contact_person_id=contact.id,
-        company_id=comp.id if comp else None,
-        first_name=contact.first_name, last_name=contact.last_name,
-        email=contact.email, phone=contact.phone,
-        organization=comp.name if comp else "", branche=comp.branche if comp else "",
-        is_member=True, status="confirmed",
-        attendance=random.choice(["attended", "attended", "attended", "no_show"]),
-    )
-    db.add(reg)
-
-# Past event 2 - workshop
-for contact in contacts[1:6]:
-    reg = EventRegistration(
-        event_id=events[1].id, contact_person_id=contact.id,
-        first_name=contact.first_name, last_name=contact.last_name,
-        email=contact.email, organization="", branche="",
-        is_member=True, status="confirmed",
-        attendance=random.choice(["attended", "attended", "no_show"]),
-    )
-    db.add(reg)
-
-# Future event 3 - Gala (many registrations, some pending)
-for contact in contacts:
-    status = random.choice(["pending", "pending", "confirmed", "confirmed", "confirmed"])
-    reg = EventRegistration(
-        event_id=events[2].id, contact_person_id=contact.id,
-        first_name=contact.first_name, last_name=contact.last_name,
-        email=contact.email, phone=contact.phone,
-        organization="", branche="", is_member=True,
-        status=status, motivation="Moechte gerne am Netzwerken teilnehmen und neue Kontakte knuepfen.",
-    )
-    db.add(reg)
-
-# Non-member registrations for Gala
-non_members = [
-    ("Sandra", "Fischer", "s.fischer@example.com", "Fischers Blumenladen", "Einzelhandel / Floristik"),
-    ("Bernd", "Hartmann", "b.hartmann@example.com", "Hartmann Consulting", "Beratung"),
-    ("Yvonne", "Schreiber", "y.schreiber@example.com", "Schreiber Design", "Design"),
-]
-for first, last, email, org, branche in non_members:
-    reg = EventRegistration(
-        event_id=events[2].id,
-        first_name=first, last_name=last, email=email,
-        organization=org, branche=branche, is_member=False,
-        status="pending", motivation="Interesse an der AG City und moeglicher Mitgliedschaft.",
-    )
-    db.add(reg)
-
-# Future event 4 - Seminar
-for contact in [contacts[2], contacts[7], contacts[11], contacts[4]]:
-    reg = EventRegistration(
-        event_id=events[3].id, contact_person_id=contact.id,
-        first_name=contact.first_name, last_name=contact.last_name,
-        email=contact.email, is_member=True, status="pending",
-        organization="", branche="",
-        motivation="Thema Nachhaltigkeit ist fuer unser Unternehmen sehr relevant.",
-    )
-    db.add(reg)
-
 db.commit()
-print(f"Seeded: {len(companies)} companies, {len(contacts)} contacts, {len(events)} events")
+event_count = len(events)
+print(f"Seeded: {len(companies)} companies, {len(contacts)} contacts, {event_count} City-Talk events")
+print("Teilnehmerlisten sind leer - Upload per CSV moeglich unter /events/<id>/csv-upload")
 print("Login: admin / admin123")
 db.close()
