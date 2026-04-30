@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F5C75A"/>
+      <stop offset="50%" stop-color="#DAAC2F"/>
+      <stop offset="100%" stop-color="#A57E1A"/>
+    </linearGradient>
+  </defs>
+  <!-- Stylized FA monogram -->
+  <path d="M 20 80 L 35 20 L 55 20 L 50 38 L 38 38 L 35 50 L 47 50 L 43 64 L 31 64 L 27 80 Z"
+        fill="url(#g)"/>
+  <path d="M 56 80 L 76 20 L 88 20 L 78 80 L 67 80 L 70 66 L 60 66 L 56 80 Z M 63 54 L 72 54 L 74 38 L 68 38 Z"
+        fill="url(#g)"/>
+  <path d="M 30 56 L 70 56 L 72 50 L 32 50 Z" fill="url(#g)" opacity="0.85"/>
+</svg>
