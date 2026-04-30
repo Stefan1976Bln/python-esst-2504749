@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="goldFace" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#FBE090"/>
+      <stop offset="35%" stop-color="#F5C75A"/>
+      <stop offset="70%" stop-color="#DAAC2F"/>
+      <stop offset="100%" stop-color="#A57E1A"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5C75A"/>
+      <stop offset="100%" stop-color="#8C7028"/>
+    </linearGradient>
+    <linearGradient id="goldShadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A57E1A"/>
+      <stop offset="100%" stop-color="#5A4310"/>
+    </linearGradient>
+  </defs>
+
+  <!-- F: stylized angular -->
+  <!-- Vertical stroke with diagonal cut -->
+  <polygon points="38,30 78,30 92,42 92,170 60,170 60,118 80,118 80,98 60,98 60,52 38,52" fill="url(#goldFace)"/>
+  <polygon points="60,170 60,118 80,118 80,128 70,128 70,170" fill="url(#goldShadow)" opacity="0.55"/>
+
+  <!-- A: stylized angular with sharp slant -->
+  <polygon points="118,170 138,30 162,30 184,170 162,170 158,138 122,138 118,170" fill="url(#goldFace)"/>
+  <!-- A inner cut -->
+  <polygon points="128,118 152,118 145,72 138,72" fill="#0A0A0A"/>
+  <!-- A right shadow -->
+  <polygon points="184,170 162,170 158,138 178,138" fill="url(#goldShadow)" opacity="0.55"/>
+
+  <!-- Connecting blade between F and A -->
+  <polygon points="80,98 138,72 152,72 92,108" fill="url(#goldEdge)" opacity="0.75"/>
+  <polygon points="92,108 152,72 152,82 92,118" fill="#0A0A0A" opacity="0.35"/>
+
+  <!-- Highlight strokes -->
+  <polygon points="38,30 60,30 60,52 38,52" fill="#FBE090" opacity="0.35"/>
+  <polygon points="138,30 144,30 138,72 132,72" fill="#FBE090" opacity="0.3"/>
+</svg>
