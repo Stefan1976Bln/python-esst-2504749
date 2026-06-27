@@ -421,3 +421,64 @@ h1, h2, h3 { line-height: 1.1; font-weight: 800; letter-spacing: -0.01em; }
 .mail-preview .body { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--text-2); white-space: pre-line; }
 
 .empty { text-align: center; color: var(--text-3); padding: 28px 16px; font-size: 14px; }
+
+/* =========================================================
+   FLYER-UPGRADE: echtes Logo, Hero-Foto, Feature-Strip, Tagbar
+   ========================================================= */
+
+/* Echtes FA-Logo (Vektor) statt Text-Platzhalter */
+.brand-logo { width: 42px; height: 42px; flex: none; display: block; }
+.brand-logo svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+.app-topbar .brand-logo { width: 34px; height: 34px; }
+.auth-card .brand-logo { width: 52px; height: 52px; margin: 0 auto; }
+
+/* Hero mit halbtransparentem Foto-Hintergrund (Fabio in der Sonne) */
+.hero { min-height: 92vh; display: flex; align-items: center; padding: 84px 0 56px; }
+.hero-photo { position: absolute; inset: 0; z-index: -2; background: #000; }
+.hero-photo::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: url('fabio-hero.jpg');
+  background-size: cover; background-position: 80% center; opacity: 0.5;
+}
+.hero::before {
+  background:
+    linear-gradient(90deg, #000 18%, rgba(0,0,0,0.55) 52%, rgba(0,0,0,0.2) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.88)),
+    radial-gradient(120% 80% at 90% -10%, rgba(207,171,71,0.28), transparent 55%) !important;
+}
+/* Gold-Schrägstrich wie im Flyer */
+.hero-slash { position: absolute; top: -12%; right: 34%; width: 3px; height: 130%; display: none; z-index: -1;
+  background: linear-gradient(180deg, transparent, var(--gold) 45%, var(--gold-light) 55%, transparent); transform: rotate(17deg); opacity: 0.55; }
+@media (min-width: 900px) { .hero-slash { display: block; } }
+.hero-content { max-width: 600px; }
+.hero h1 { text-shadow: 0 4px 28px rgba(0,0,0,0.7); }
+.hero-trust strong { color: var(--gold); }
+
+/* Tagline-Bar */
+.tagbar { display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;
+  padding: 20px; font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--gold);
+  border-bottom: 1px solid var(--line); background: #000; font-weight: 700; }
+.tagbar span { position: relative; }
+.tagbar span + span::before { content: ""; position: absolute; left: -16px; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--gold-dark); }
+
+/* Dreiklang-Band (Erstgespräch) */
+.pillars-band { background: linear-gradient(180deg, #0b0a06, #000); }
+
+/* Feature-Strip (wie Flyer-Fuß) */
+.feature-strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #0b0b0b, #000); }
+.feature-strip .row { display: grid; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 760px) { .feature-strip .row { grid-template-columns: repeat(4, 1fr); } }
+.feature-strip .item { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 28px 14px; border-right: 1px solid var(--line); }
+.feature-strip .item:nth-child(2n) { border-right: 0; }
+.feature-strip .item:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+@media (min-width: 760px) {
+  .feature-strip .item:nth-child(2n) { border-right: 1px solid var(--line); }
+  .feature-strip .item:last-child { border-right: 0; }
+  .feature-strip .item:nth-child(-n+2) { border-bottom: 0; }
+}
+.feature-strip .ic { width: 34px; height: 34px; color: var(--gold); }
+.feature-strip .lab { font-size: 11.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+
+/* Karten etwas hochwertiger (weg vom „grauen" Look) */
+.card { background: linear-gradient(180deg, #1b1b1b, #141414); }
+.plan { background: linear-gradient(180deg, #1b1b1b, #131313); }

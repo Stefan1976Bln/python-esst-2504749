@@ -25,7 +25,7 @@
           id: 'fabio',
           role: 'admin',
           login: 'Fabio',
-          email: 'fabioantunesprimecoaching@gmail.com',
+          email: 'info@fabioantunes.de',
           password: 'Fabio123!',
           name: 'Fabio Antunes',
           plan: '—'

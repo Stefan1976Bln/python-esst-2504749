@@ -132,7 +132,7 @@
     // Bestätigungs-Mail (Demo) an Kunde + Coach
     FA.DB.sendMail(user.email, 'Terminbestätigung: ' + type,
       'Hallo ' + first + ',\n\ndein Termin ist bestätigt:\n' + fmtDateLong(selDateStr) + ' um ' + selTime + ' Uhr\n' + type + ' · ' + loc + '\n\nBis dann!\nFabio');
-    FA.DB.sendMail('fabioantunesprimecoaching@gmail.com', 'Neue Buchung: ' + user.name,
+    FA.DB.sendMail('info@fabioantunes.de', 'Neue Buchung: ' + user.name,
       user.name + ' hat gebucht: ' + fmtDateLong(selDateStr) + ' ' + selTime + ' Uhr · ' + type);
 
     $('#bookResult').innerHTML =

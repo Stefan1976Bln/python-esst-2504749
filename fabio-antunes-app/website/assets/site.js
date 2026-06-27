@@ -94,7 +94,7 @@
           + (lead.date ? ' (Wunschtermin: ' + lead.date + ')' : '') + '.\n'
           + 'Fabio meldet sich kurzfristig bei dir zur Terminabstimmung.\n\nPremium. Nachhaltigkeit. Lebensstilveränderung.\nFabio Antunes Prime Coaching');
         // Benachrichtigung an Fabio (Demo)
-        FA.DB.sendMail('fabioantunesprimecoaching@gmail.com', 'Neue Erstgespräch-Anfrage: ' + lead.name,
+        FA.DB.sendMail('info@fabioantunes.de', 'Neue Erstgespräch-Anfrage: ' + lead.name,
           'Neue Anfrage über die Website:\n\nName: ' + lead.name + '\nE-Mail: ' + lead.email
           + '\nTelefon: ' + (lead.phone || '–') + '\nPaket-Interesse: ' + lead.plan
           + '\nFormat: ' + lead.format + '\nWunschtermin: ' + (lead.date || '–')
