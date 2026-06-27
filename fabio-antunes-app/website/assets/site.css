@@ -435,7 +435,7 @@ h1, h2, h3 { line-height: 1.1; font-weight: 800; letter-spacing: -0.01em; }
 /* Hero mit Foto-Hintergrund (Fabio in der Sonne) */
 .hero { min-height: 92vh; display: flex; align-items: center; padding: 84px 0 56px; }
 .hero-photo { position: absolute; inset: 0; z-index: -2; background-color: #000;
-  background-image: url('fabio-hero.jpg'); background-repeat: no-repeat;
+  background-image: var(--fabio-photo); background-repeat: no-repeat;
   background-size: cover; background-position: 50% 10%; }
 /* Lese-Overlay: links abdunkeln, unten weich auslaufen */
 .hero-photo::after { content: ""; position: absolute; inset: 0;
@@ -488,3 +488,11 @@ h1, h2, h3 { line-height: 1.1; font-weight: 800; letter-spacing: -0.01em; }
 /* Karten etwas hochwertiger (weg vom „grauen" Look) */
 .card { background: linear-gradient(180deg, #1b1b1b, #141414); }
 .plan { background: linear-gradient(180deg, #1b1b1b, #131313); }
+
+/* Foto als Variable (wird in der Ionos-Version einmalig eingebettet) */
+:root { --fabio-photo: url('fabio-hero.jpg'); }
+/* Doppelte Diagonale entfernt – saubere weiche Kante über das Overlay */
+.hero-slash { display: none !important; }
+/* „Über mich"-Bild: echtes Foto statt FA-Platzhalter */
+.about-photo { background-image: var(--fabio-photo) !important; background-size: cover; background-position: 50% 14%; background-repeat: no-repeat; background-color: #000; }
+.about-photo .mark { display: none; }
