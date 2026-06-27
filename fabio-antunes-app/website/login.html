@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<title>Login — Fabio Antunes Prime Coaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/site.css"/>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <a href="index.html" class="brand"><span class="brand-mark">FA</span><span class="brand-name">FABIO ANTUNES<small>PRIME COACHING</small></span></a>
+    <h1>Willkommen zurück</h1>
+    <p class="sub">Mitglieder- & Coachbereich</p>
+
+    <div id="loginAlert"></div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Login oder E-Mail</label>
+        <input type="text" id="login" placeholder="z.B. Fabio oder deine@email.de" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Passwort</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);margin-bottom:18px;cursor:pointer;">
+        <input type="checkbox" id="remember" style="width:auto;"/> Angemeldet bleiben
+      </label>
+      <button type="submit" class="btn btn-gold btn-block">Einloggen</button>
+    </form>
+
+    <div class="demo-hint">
+      <b>Demo-Zugänge</b><br/>
+      Coach (Admin): <code>Fabio</code> / <code>Fabio123!</code><br/>
+      Kunde: <code>stefan-wittenberg@gmx.de</code> / <code>Fabio123!</code><br/>
+      <a href="index.html" style="color:var(--gold);display:inline-block;margin-top:8px;">← Zur Website</a>
+    </div>
+  </div>
+</div>
+
+<script src="assets/auth.js"></script>
+<script>
+(function () {
+  // Bereits eingeloggt? Direkt weiterleiten.
+  var u = FA.currentUser();
+  if (u) { location.href = (u.role === 'admin') ? 'admin.html' : 'app.html'; }
+
+  var form = document.getElementById('loginForm');
+  var alertBox = document.getElementById('loginAlert');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var res = FA.login(
+      document.getElementById('login').value,
+      document.getElementById('password').value,
+      document.getElementById('remember').checked
+    );
+    if (!res.ok) {
+      alertBox.innerHTML = '<div class="alert alert-error">' + res.error + '</div>';
+      return;
+    }
+    location.href = (res.user.role === 'admin') ? 'admin.html' : 'app.html';
+  });
+})();
+</script>
+</body>
+</html>

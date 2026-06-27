@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<title>Verwaltung — Fabio Antunes Prime Coaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/site.css"/>
+</head>
+<body class="app-body">
+
+<header class="app-topbar">
+  <span class="brand-mark">FA</span>
+  <h1>Verwaltung</h1>
+  <div class="who"><b id="whoName">Fabio</b><span>Coach · Admin</span></div>
+</header>
+
+<main class="app-main">
+  <div class="tabs" id="tabs">
+    <button data-tab="kalender" class="active">Kalender</button>
+    <button data-tab="anfragen">Anfragen <span id="leadCount" class="pill pill-gold" style="margin-left:4px;display:none;"></span></button>
+    <button data-tab="mitglieder">Mitglieder</button>
+    <button data-tab="nachrichten">Nachrichten</button>
+    <button data-tab="mails">Postausgang</button>
+  </div>
+
+  <!-- ============ Kalender ============ -->
+  <section class="tab-panel active" data-panel="kalender">
+    <div class="app-h">Zentraler Buchungskalender</div>
+    <div class="panel">
+      <div class="cal-head"><h3 id="calLabel">—</h3><div class="cal-nav"><button id="calPrev">‹</button><button id="calNext">›</button></div></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <p class="form-note" style="margin-top:12px;">Goldener Punkt = Termin gebucht. Tag antippen für Details.</p>
+    </div>
+    <div class="app-h">Termine am <span id="dayLabel">—</span></div>
+    <div class="panel" id="dayAppts"></div>
+
+    <div class="app-h">Termin manuell eintragen</div>
+    <div class="panel">
+      <div class="field"><label>Mitglied</label><select id="newFor"></select></div>
+      <div class="grid grid-2" style="gap:12px;">
+        <div class="field"><label>Datum</label><input type="date" id="newDate"/></div>
+        <div class="field"><label>Uhrzeit</label><input type="time" id="newTime" value="17:30"/></div>
+      </div>
+      <div class="field"><label>Art</label><select id="newType"><option>Personal Training (Studio)</option><option>Outdoor Personal Training</option><option>Online Coaching Call</option><option>Check-in / Fortschrittsanalyse</option><option>Kostenloses Erstgespräch</option></select></div>
+      <button class="btn btn-gold btn-block" id="addAppt">Termin anlegen</button>
+      <div id="addResult"></div>
+    </div>
+  </section>
+
+  <!-- ============ Anfragen (Leads) ============ -->
+  <section class="tab-panel" data-panel="anfragen">
+    <div class="app-h">Neukunden-Anfragen (Erstgespräche)</div>
+    <div class="panel" id="leadList"></div>
+  </section>
+
+  <!-- ============ Mitglieder ============ -->
+  <section class="tab-panel" data-panel="mitglieder">
+    <div class="app-h">Mitglieder & Verträge</div>
+    <div class="panel" id="memberList"></div>
+  </section>
+
+  <!-- ============ Nachrichten ============ -->
+  <section class="tab-panel" data-panel="nachrichten">
+    <div class="app-h">Nachrichten von Mitgliedern</div>
+    <div class="panel" id="convSelect"></div>
+    <div class="panel" id="convBox" style="display:none;">
+      <div class="chat" id="adminChat"></div>
+      <div class="chat-input">
+        <input type="text" id="adminMsg" placeholder="Antwort an Mitglied…"/>
+        <button id="adminSend" aria-label="Senden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Postausgang (Demo der Mails) ============ -->
+  <section class="tab-panel" data-panel="mails">
+    <div class="app-h">Postausgang (E-Mail-Demo)</div>
+    <div class="panel" id="mailList"></div>
+    <p class="form-note">Demo-Ansicht aller automatisch erzeugten Benachrichtigungen. Live übernimmt PHPMailer über den Ionos-SMTP-Server den echten Versand (siehe README).</p>
+  </section>
+
+  <button class="btn btn-ghost btn-block" id="logoutBtn" style="margin:24px 0;">Abmelden</button>
+</main>
+
+<script src="assets/auth.js"></script>
+<script src="assets/admin.js" defer></script>
+</body>
+</html>

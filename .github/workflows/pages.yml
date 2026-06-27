@@ -27,6 +27,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: fabio-antunes-app/prototype
+          # Gesamter App-Ordner: / -> Website (Redirect), /website, /prototype
+          path: fabio-antunes-app
       - id: deployment
         uses: actions/deploy-pages@v4
