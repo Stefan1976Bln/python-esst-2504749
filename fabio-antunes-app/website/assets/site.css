@@ -432,19 +432,25 @@ h1, h2, h3 { line-height: 1.1; font-weight: 800; letter-spacing: -0.01em; }
 .app-topbar .brand-logo { width: 34px; height: 34px; }
 .auth-card .brand-logo { width: 52px; height: 52px; margin: 0 auto; }
 
-/* Hero mit halbtransparentem Foto-Hintergrund (Fabio in der Sonne) */
+/* Hero mit Foto-Hintergrund (Fabio in der Sonne) */
 .hero { min-height: 92vh; display: flex; align-items: center; padding: 84px 0 56px; }
-.hero-photo { position: absolute; inset: 0; z-index: -2; background: #000; }
-.hero-photo::before {
-  content: ""; position: absolute; inset: 0;
-  background-image: url('fabio-hero.jpg');
-  background-size: cover; background-position: 80% center; opacity: 0.5;
-}
-.hero::before {
+.hero-photo { position: absolute; inset: 0; z-index: -2; background-color: #000;
+  background-image: url('fabio-hero.jpg'); background-repeat: no-repeat;
+  background-size: cover; background-position: 50% 10%; }
+/* Lese-Overlay: links abdunkeln, unten weich auslaufen */
+.hero-photo::after { content: ""; position: absolute; inset: 0;
   background:
-    linear-gradient(90deg, #000 18%, rgba(0,0,0,0.55) 52%, rgba(0,0,0,0.2) 100%),
-    linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.88)),
-    radial-gradient(120% 80% at 90% -10%, rgba(207,171,71,0.28), transparent 55%) !important;
+    linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 38%, rgba(0,0,0,0.82) 100%),
+    linear-gradient(90deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 46%, rgba(0,0,0,0.05) 82%); }
+/* Basis-Glow neutralisieren (Overlay übernimmt das Foto) */
+.hero::before { background: radial-gradient(90% 80% at 95% 0%, rgba(207,171,71,0.16), transparent 55%) !important; }
+@media (min-width: 900px) {
+  /* Desktop: Fabio vollständig rechts, schwarze Fläche links für den Text */
+  .hero-photo { background-size: contain; background-position: right bottom; }
+  .hero-photo::after {
+    background:
+      linear-gradient(90deg, #000 0%, #000 30%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 72%),
+      radial-gradient(90% 80% at 95% 5%, rgba(207,171,71,0.16), transparent 55%); }
 }
 /* Gold-Schrägstrich wie im Flyer */
 .hero-slash { position: absolute; top: -12%; right: 34%; width: 3px; height: 130%; display: none; z-index: -1;
