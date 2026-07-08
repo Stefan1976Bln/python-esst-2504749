@@ -1,0 +1,499 @@
+<style>
+/* =========================================================
+   MatchQuest — Ein-Datei-Build (Landing + Login + App)
+   Bewusst dunkle "Stadion bei Nacht"-Optik: Rasengrün + Gold.
+   Alle Daten liegen lokal im Browser (localStorage).
+   ========================================================= */
+:root {
+  --pitch:#0b8a4c; --pitch-dark:#076b3a; --night:#0a1128; --night-2:#131a37;
+  --card:#1a2246; --gold:#f2c037; --gold-soft:#ffd968; --ink:#eef2ff;
+  --muted:#9aa6d0; --line:rgba(255,255,255,.10); --ok:#35d07f; --bad:#ff5d6c;
+  --radius:16px; --shadow:0 12px 34px rgba(0,0,0,.35); --maxw:1040px;
+}
+*{box-sizing:border-box;}
+#mq{
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  color:var(--ink); line-height:1.55; min-height:100vh;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(11,138,76,.35), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(242,192,55,.10), transparent 55%),
+    var(--night);
+}
+#mq a{color:var(--gold-soft);text-decoration:none;}
+#mq a:hover{text-decoration:underline;}
+#mq h1,#mq h2,#mq h3{text-wrap:balance;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 18px;}
+
+/* Header / Nav */
+.site-header{position:sticky;top:0;z-index:40;background:rgba(10,17,40,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.nav{display:flex;align-items:center;gap:18px;height:62px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;color:var(--ink);letter-spacing:.2px;cursor:pointer;}
+.brand:hover{text-decoration:none;}
+.brand .ball{font-size:1.4rem;} .brand b{color:var(--gold);}
+.nav-links{display:flex;gap:6px;margin-left:auto;align-items:center;flex-wrap:wrap;}
+.nav-links a,.nav-btn{color:var(--ink);font-weight:600;font-size:.94rem;padding:8px 14px;border-radius:999px;border:1px solid transparent;background:transparent;cursor:pointer;}
+.nav-links a:hover,.nav-btn:hover{background:rgba(255,255,255,.06);text-decoration:none;}
+.nav-links a.active,.nav-btn.active{background:var(--gold);color:#1a1200;border-color:var(--gold);}
+.nav .who{color:var(--muted);font-size:.88rem;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:1rem;cursor:pointer;padding:12px 20px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);transition:transform .06s ease,filter .15s ease;font-family:inherit;}
+.btn:hover{filter:brightness(1.08);text-decoration:none;}
+.btn:active{transform:translateY(1px);}
+.btn:focus-visible{outline:3px solid var(--gold-soft);outline-offset:2px;}
+.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#1a1200;border:none;}
+.btn.green{background:linear-gradient(135deg,var(--pitch),var(--pitch-dark));color:#fff;border:none;}
+.btn.ghost{background:transparent;}
+.btn.block{width:100%;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* Cards / layout */
+.card{background:linear-gradient(180deg,var(--card),var(--night-2));border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
+.grid{display:grid;gap:16px;}
+@media(min-width:720px){.grid.cols-2{grid-template-columns:1fr 1fr;}}
+.section-title{font-size:1.35rem;margin:26px 0 12px;}
+.muted{color:var(--muted);}
+.pill{display:inline-block;font-size:.74rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:4px 10px;border-radius:999px;}
+.pill.live{background:var(--bad);color:#fff;} .pill.soon{background:var(--gold);color:#1a1200;}
+.pill.ki{background:#6a5cff;color:#fff;} .pill.curated{background:var(--pitch);color:#fff;}
+
+/* Hero */
+.hero{padding:56px 0 34px;text-align:center;}
+.hero h1{font-size:clamp(2rem,6vw,3.4rem);margin:12px 0 10px;line-height:1.1;} .hero h1 b{color:var(--gold);}
+.hero p.lead{font-size:1.15rem;color:var(--muted);max-width:640px;margin:0 auto 26px;}
+.hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.kicker{display:inline-block;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-size:.8rem;}
+.features{margin-top:36px;}
+.feature h3{margin:6px 0;} .feature .ico{font-size:1.8rem;}
+
+/* Auth */
+.auth-shell{max-width:440px;margin:40px auto;}
+.tabs{display:flex;gap:8px;margin-bottom:18px;}
+.tabs button{flex:1;padding:10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-weight:700;cursor:pointer;font-family:inherit;}
+.tabs button.active{background:var(--gold);color:#1a1200;border-color:var(--gold);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:.86rem;color:var(--muted);margin-bottom:6px;font-weight:600;}
+.field input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font-size:1rem;font-family:inherit;}
+.field input:focus{outline:2px solid var(--gold);}
+.form-error{color:var(--bad);font-weight:600;min-height:1.2em;margin:4px 0 10px;}
+.demo-note{font-size:.85rem;color:var(--muted);margin-top:14px;text-align:center;}
+
+/* Match list */
+.match{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.match .teams{font-size:1.15rem;font-weight:800;} .match .flag{font-size:1.3rem;}
+.match .meta{color:var(--muted);font-size:.9rem;} .match .spacer{flex:1;}
+.countdown{font-variant-numeric:tabular-nums;font-weight:800;color:var(--gold);}
+
+/* Live challenge */
+.challenge-box{text-align:center;}
+.challenge-q{font-size:1.35rem;font-weight:800;margin:10px 0 6px;}
+.timer-ring{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.1rem;color:var(--gold);}
+.opts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0;}
+.opts .btn{min-width:120px;} .opts .btn.selected{outline:3px solid var(--gold);}
+.opts .btn.correct{background:var(--ok);color:#06210f;} .opts .btn.wrong{background:var(--bad);color:#2a060a;}
+.proof{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;margin:14px 0;}
+.proof img,.proof video{max-width:100%;border-radius:10px;margin-top:10px;}
+.oracle-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+.result-banner{margin-top:14px;padding:12px;border-radius:12px;font-weight:700;text-align:center;}
+.result-banner.ok{background:rgba(53,208,127,.16);color:var(--ok);}
+.result-banner.bad{background:rgba(255,93,108,.16);color:var(--bad);}
+.next-timer{text-align:center;color:var(--muted);margin-top:8px;}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.switch{display:flex;align-items:center;gap:8px;} .switch small{color:var(--muted);}
+
+/* Leaderboard */
+table.leaderboard{width:100%;border-collapse:collapse;}
+table.leaderboard th,table.leaderboard td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);}
+table.leaderboard th{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.4px;}
+table.leaderboard td.rank{font-weight:800;color:var(--gold);width:60px;font-variant-numeric:tabular-nums;}
+table.leaderboard tr.me td{background:rgba(242,192,55,.10);}
+table.leaderboard td .medal{margin-right:6px;}
+
+/* Views / pages */
+.page{display:none;} .page.active{display:block;}
+.view{display:none;} .view.active{display:block;}
+
+/* Stats */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat{text-align:center;} .stat .num{font-size:1.8rem;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;} .stat .lbl{color:var(--muted);font-size:.85rem;}
+
+footer.site{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;color:var(--muted);font-size:.88rem;text-align:center;}
+
+@media (prefers-reduced-motion: reduce){*{transition:none !important;scroll-behavior:auto !important;}}
+</style>
+
+<div id="mq">
+  <!-- ================= PAGE: LANDING ================= -->
+  <section class="page active" id="page-landing">
+    <header class="site-header"><div class="wrap nav">
+      <span class="brand" data-nav="landing"><span class="ball">⚽</span> Match<b>Quest</b></span>
+      <nav class="nav-links">
+        <a href="#konzept">Konzept</a>
+        <a href="#challenges">Challenges</a>
+        <a href="#sportarten">Sportarten</a>
+        <button class="btn primary" data-nav="login" id="landing-cta-top">Jetzt mitmachen</button>
+      </nav>
+    </div></header>
+    <main>
+      <section class="hero wrap">
+        <span class="kicker">🏆 WM 2026 · Live dabei</span>
+        <h1>Mach jedes Spiel zur <b>Challenge</b>.</h1>
+        <p class="lead">Klassische Tipp-Apps sind nach dem Anpfiff langweilig. MatchQuest hält dich 90 Minuten aktiv: Live-Challenges zum Spielgeschehen, Wetten mit Freunden, Punkte, Belohnungen und ein Freundes-Leaderboard.</p>
+        <div class="cta" id="landing-cta">
+          <button class="btn primary" data-nav="login">⚡ Kostenlos registrieren</button>
+          <a class="btn ghost" href="#konzept">So funktioniert's</a>
+        </div>
+      </section>
+
+      <section id="konzept" class="wrap features">
+        <h2 class="section-title">So funktioniert MatchQuest</h2>
+        <div class="grid cols-2">
+          <div class="card feature"><div class="ico">📝</div><h3>1. Registrieren & Lobby beitreten</h3><p class="muted">Sekundenschnell anmelden, ein WM-Spiel wählen und vor dem Anpfiff der Challenge-Lobby beitreten.</p></div>
+          <div class="card feature"><div class="ico">🎯</div><h3>2. Alle 10 Minuten eine Live-Challenge</h3><p class="muted">Wetten auf das nächste Tor oder verrückte Mitmach-Aktionen — mit Zeitlimit.</p></div>
+          <div class="card feature"><div class="ico">🎥</div><h3>3. Beweis hochladen, Orakel bestätigt</h3><p class="muted">Bei Aktions-Challenges lädst du ein Foto/Video hoch. Ein Freund im Raum bestätigt als neutrales Orakel.</p></div>
+          <div class="card feature"><div class="ico">🥇</div><h3>4. Punkte sammeln & aufsteigen</h3><p class="muted">Richtige Wetten und bestätigte Aktionen bringen Punkte. Vergleiche dich im Leaderboard.</p></div>
+        </div>
+      </section>
+
+      <section id="challenges" class="wrap features">
+        <h2 class="section-title">🔥 Zwei Arten von Challenges</h2>
+        <div class="grid cols-2">
+          <div class="card"><span class="pill curated">Wett-Challenge</span><h3>🎲 Tippe das nächste Ereignis</h3><p class="muted">„Fällt in den nächsten 10 Minuten ein Tor?" · „Foul oder Eckball?" — schnell antworten, Punkte kassieren.</p></div>
+          <div class="card"><span class="pill ki">Mitmach-Challenge</span><h3>🤳 Aktion + Beweis</h3><p class="muted">Torjubel erfinden, Fangesang anstimmen, Fan-Schild hochhalten — Beweis hochladen, Orakel bestätigt.</p></div>
+        </div>
+        <p class="muted" style="margin-top:14px">✅ Alle Challenges laufen durch <b>Guardrails</b>: keine Gewalt, nichts Sexuelles, nichts Gefährliches.</p>
+      </section>
+
+      <section id="sportarten" class="wrap features">
+        <h2 class="section-title">⚽ Für jedes Spiel gebaut</h2>
+        <p class="muted">Start zur Fußball-WM — das Prinzip passt aber auf jede Sportart:</p>
+        <div class="grid cols-2" style="margin-top:12px">
+          <div class="card feature"><div class="ico">⚽ 🏆</div><h3>Fußball</h3><p class="muted">WM, Champions League, Bundesliga bis Amateurliga.</p></div>
+          <div class="card feature"><div class="ico">🏀 🏈</div><h3>Basketball & Football</h3><p class="muted">Viertel-basierte Challenges statt Halbzeiten.</p></div>
+          <div class="card feature"><div class="ico">🎾 🏐</div><h3>Tennis & Volleyball</h3><p class="muted">Challenges pro Satz oder Aufschlag.</p></div>
+          <div class="card feature"><div class="ico">🏒 🏉</div><h3>Eishockey & Rugby</h3><p class="muted">Schnelle Ereignis-Wetten für rasante Spiele.</p></div>
+        </div>
+        <div class="cta" style="margin-top:26px"><button class="btn primary" data-nav="login">Jetzt zur WM starten ⚽</button></div>
+      </section>
+    </main>
+    <footer class="site"><div class="wrap">MatchQuest · Prototyp (Demo) — Daten liegen nur lokal im Browser · Zur WM 2026</div></footer>
+  </section>
+
+  <!-- ================= PAGE: LOGIN ================= -->
+  <section class="page" id="page-login">
+    <header class="site-header"><div class="wrap nav">
+      <span class="brand" data-nav="landing"><span class="ball">⚽</span> Match<b>Quest</b></span>
+      <nav class="nav-links"><button class="nav-btn" data-nav="landing">← Startseite</button></nav>
+    </div></header>
+    <main class="wrap">
+      <div class="auth-shell card">
+        <h2 style="text-align:center;margin-top:0">🔑 Willkommen</h2>
+        <div class="tabs">
+          <button id="tab-login" class="active">Einloggen</button>
+          <button id="tab-register">Registrieren</button>
+        </div>
+        <form id="form-login">
+          <div class="field"><label for="login-email">E-Mail</label><input id="login-email" type="email" autocomplete="username" placeholder="stefan@matchquest.app"></div>
+          <div class="field"><label for="login-pw">Passwort</label><input id="login-pw" type="password" autocomplete="current-password" placeholder="••••••"></div>
+          <div class="form-error" id="login-error"></div>
+          <button class="btn primary block" type="submit">⚡ Einloggen</button>
+          <p class="demo-note">Demo-Zugang: <b>stefan@matchquest.app</b> · Passwort <b>wm2026</b><br>(auch <b>lena@</b>, <b>jonas@</b> — Passwort für alle: <b>wm2026</b>)</p>
+        </form>
+        <form id="form-register" style="display:none">
+          <div class="field"><label for="reg-name">Anzeigename</label><input id="reg-name" type="text" autocomplete="name" placeholder="Dein Name"></div>
+          <div class="field"><label for="reg-email">E-Mail</label><input id="reg-email" type="email" autocomplete="username" placeholder="du@example.com"></div>
+          <div class="field"><label for="reg-pw">Passwort</label><input id="reg-pw" type="password" autocomplete="new-password" placeholder="Mindestens 4 Zeichen"></div>
+          <div class="form-error" id="reg-error"></div>
+          <button class="btn primary block" type="submit">🎉 Konto erstellen & loslegen</button>
+          <p class="demo-note">Du wirst automatisch mit den Demo-Freunden vernetzt, damit dein Leaderboard sofort lebt.</p>
+        </form>
+      </div>
+    </main>
+  </section>
+
+  <!-- ================= PAGE: APP ================= -->
+  <section class="page" id="page-app">
+    <header class="site-header"><div class="wrap nav">
+      <span class="brand" data-nav="landing"><span class="ball">⚽</span> Match<b>Quest</b></span>
+      <nav class="nav-links">
+        <button class="nav-btn active" data-view="matches">🗓️ Spiele</button>
+        <button class="nav-btn" data-view="live">🎯 Live-Challenge</button>
+        <button class="nav-btn" data-view="leaderboard">🏆 Leaderboard</button>
+        <span class="who" id="who"></span>
+        <button class="nav-btn" id="logout">Abmelden</button>
+      </nav>
+    </div></header>
+    <main class="wrap" style="padding-top:22px;padding-bottom:40px">
+      <section id="view-matches" class="view active">
+        <h2 class="section-title">🗓️ WM 2026 — Spiele & Challenge-Lobbys</h2>
+        <p class="muted">Wähle ein Spiel und tritt vor dem Anpfiff der Challenge-Lobby bei.</p>
+        <div id="match-list" class="grid" style="margin-top:14px"></div>
+      </section>
+
+      <section id="view-live" class="view">
+        <div id="live-empty" class="card" style="text-align:center">
+          <div style="font-size:2.4rem">🎯</div><h3>Noch keiner Lobby beigetreten</h3>
+          <p class="muted">Geh zu <b>Spiele</b> und tritt einer Challenge-Lobby bei, um Live-Challenges zu erhalten.</p>
+          <button class="btn primary" data-view="matches">Zu den Spielen</button>
+        </div>
+        <div id="live-active" style="display:none">
+          <div class="card">
+            <div class="toolbar">
+              <span class="pill live" id="live-badge">● LIVE</span>
+              <span id="live-match" style="font-weight:800"></span>
+              <span class="spacer"></span>
+              <label class="switch" title="Stufe 2 simuliert eine KI, die überraschende – aber durch Guardrails gefilterte – Challenges erzeugt.">
+                <input type="checkbox" id="ki-toggle"><small>🤖 KI-Überraschungsmodus (Stufe 2)</small>
+              </label>
+            </div>
+            <div class="next-timer" id="next-timer"></div>
+          </div>
+          <div class="card challenge-box" id="challenge-card" style="margin-top:16px;display:none">
+            <span class="pill" id="challenge-source"></span>
+            <div class="challenge-q" id="challenge-q"></div>
+            <div class="timer-ring" id="challenge-timer"></div>
+            <div class="opts" id="challenge-opts"></div>
+            <div id="challenge-action" style="display:none">
+              <div class="proof" id="proof-drop">
+                <div>📎 Beweis hochladen (Foto oder Video)</div>
+                <input type="file" id="proof-input" accept="image/*,video/*" style="margin-top:10px">
+                <div id="proof-preview"></div>
+              </div>
+              <p class="muted">👁️ Ein Freund im Raum bestätigt als <b>Orakel</b>:</p>
+              <div class="oracle-row">
+                <button class="btn green" id="oracle-confirm">✅ Orakel bestätigt</button>
+                <button class="btn ghost" id="oracle-reject">❌ Nicht erfüllt</button>
+              </div>
+            </div>
+            <div class="result-banner" id="challenge-result" style="display:none"></div>
+          </div>
+          <div style="text-align:center;margin-top:16px">
+            <button class="btn ghost" id="skip-challenge" style="display:none">Challenge überspringen</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-leaderboard" class="view">
+        <h2 class="section-title">🏆 Leaderboard — deine Freunde</h2>
+        <p class="muted">Rangliste aller Freunde, sortiert nach richtigen Wetten. Aktualisiert bei jedem Öffnen.</p>
+        <div class="card" style="margin-top:12px">
+          <table class="leaderboard">
+            <thead><tr><th>Platz</th><th>Name</th><th>Richtige Wetten</th></tr></thead>
+            <tbody id="lb-body"></tbody>
+          </table>
+        </div>
+        <h3 class="section-title" style="font-size:1.1rem">📊 Deine Statistik</h3>
+        <div class="card"><div class="stat-row">
+          <div class="stat"><div class="num" id="stat-points">0</div><div class="lbl">Punkte</div></div>
+          <div class="stat"><div class="num" id="stat-bets">0</div><div class="lbl">Richtige Wetten</div></div>
+          <div class="stat"><div class="num" id="stat-challenges">0</div><div class="lbl">Challenges gemeistert</div></div>
+        </div></div>
+      </section>
+    </main>
+    <footer class="site"><div class="wrap">MatchQuest · Prototyp (Demo) — alle Daten lokal im Browser · <a href="#" id="reset-demo">Demo zurücksetzen</a></div></footer>
+  </section>
+</div>
+
+<script>
+/* ===================== MQ: Auth + Daten + Spiele ===================== */
+(function (global) {
+  'use strict';
+  var LS_KEY='mq_std_v1', SESSION_KEY='mq_std_session';
+  function minutesFromNow(m){return new Date(Date.now()+m*60000).toISOString();}
+  function seedMatches(){return [
+    {id:'m1',stage:'Gruppe A · 1. Spieltag',home:'Deutschland',homeFlag:'🇩🇪',away:'Brasilien',awayFlag:'🇧🇷',kickoff:minutesFromNow(-8),venue:'MetLife Stadium, New York',liveUrl:'https://www.kicker.de/fussball-international/wettbewerbe'},
+    {id:'m2',stage:'Gruppe C · 1. Spieltag',home:'Argentinien',homeFlag:'🇦🇷',away:'Frankreich',awayFlag:'🇫🇷',kickoff:minutesFromNow(20),venue:'Estadio Azteca, Mexiko-Stadt',liveUrl:'https://www.kicker.de/fussball-international/wettbewerbe'},
+    {id:'m3',stage:'Gruppe E · 1. Spieltag',home:'Spanien',homeFlag:'🇪🇸',away:'England',awayFlag:'🏴',kickoff:minutesFromNow(75),venue:'SoFi Stadium, Los Angeles',liveUrl:'https://www.kicker.de/fussball-international/wettbewerbe'},
+    {id:'m4',stage:'Gruppe G · 1. Spieltag',home:'Portugal',homeFlag:'🇵🇹',away:'Niederlande',awayFlag:'🇳🇱',kickoff:minutesFromNow(150),venue:'BC Place, Vancouver',liveUrl:'https://www.kicker.de/fussball-international/wettbewerbe'}
+  ];}
+  function seed(){return {users:[
+    {id:'stefan',name:'Stefan',email:'stefan@matchquest.app',password:'wm2026',friends:['lena','jonas','mara'],points:120,correctBets:6,challengesDone:4},
+    {id:'lena',name:'Lena',email:'lena@matchquest.app',password:'wm2026',friends:['stefan','jonas'],points:210,correctBets:11,challengesDone:7},
+    {id:'jonas',name:'Jonas',email:'jonas@matchquest.app',password:'wm2026',friends:['stefan','lena'],points:90,correctBets:4,challengesDone:3},
+    {id:'mara',name:'Mara',email:'mara@matchquest.app',password:'wm2026',friends:['stefan'],points:165,correctBets:8,challengesDone:6}
+  ],matches:seedMatches(),version:1};}
+  function load(){try{var raw=global.localStorage.getItem(LS_KEY);if(!raw){var f=seed();save(f);return f;}return JSON.parse(raw);}catch(e){var s=seed();save(s);return s;}}
+  function save(db){global.localStorage.setItem(LS_KEY,JSON.stringify(db));}
+  var DB={
+    getUsers:function(){return load().users;},
+    getUser:function(id){return load().users.filter(function(u){return u.id===id;})[0]||null;},
+    findByEmail:function(e){e=(e||'').trim().toLowerCase();return load().users.filter(function(u){return u.email.toLowerCase()===e;})[0]||null;},
+    getMatches:function(){var db=load();db.matches=seedMatches();save(db);return db.matches;},
+    getMatch:function(id){return DB.getMatches().filter(function(m){return m.id===id;})[0]||null;},
+    addResult:function(userId,opts){opts=opts||{};var db=load();var u=db.users.filter(function(x){return x.id===userId;})[0];if(!u)return null;u.points=(u.points||0)+(opts.points||0);if(opts.correctBet)u.correctBets=(u.correctBets||0)+1;if(opts.challengeDone)u.challengesDone=(u.challengesDone||0)+1;save(db);return u;},
+    friendsLeaderboard:function(userId){var db=load();var me=db.users.filter(function(u){return u.id===userId;})[0];if(!me)return [];var ids={};ids[userId]=true;(me.friends||[]).forEach(function(f){ids[f]=true;});var rows=db.users.filter(function(u){return ids[u.id];});rows.sort(function(a,b){if(b.correctBets!==a.correctBets)return b.correctBets-a.correctBets;return (b.points||0)-(a.points||0);});return rows.map(function(u,i){return {rank:i+1,id:u.id,name:u.name,correctBets:u.correctBets||0,points:u.points||0,me:u.id===userId};});}
+  };
+  var Auth={
+    register:function(name,email,password){name=(name||'').trim();email=(email||'').trim().toLowerCase();if(!name||!email||!password)return {ok:false,error:'Bitte Name, E-Mail und Passwort ausfüllen.'};if(DB.findByEmail(email))return {ok:false,error:'Diese E-Mail ist bereits registriert.'};var db=load();var id='u_'+email.replace(/[^a-z0-9]/g,'').slice(0,12)+'_'+db.users.length;var user={id:id,name:name,email:email,password:password,friends:['stefan','lena','jonas','mara'],points:0,correctBets:0,challengesDone:0};db.users.push(user);db.users.forEach(function(u){if(user.friends.indexOf(u.id)!==-1&&u.friends.indexOf(id)===-1)u.friends.push(id);});save(db);Auth.setSession(id);return {ok:true,user:user};},
+    login:function(email,password){var u=DB.findByEmail(email);if(!u||u.password!==password)return {ok:false,error:'E-Mail oder Passwort ist falsch.'};Auth.setSession(u.id);return {ok:true,user:u};},
+    setSession:function(id){global.localStorage.setItem(SESSION_KEY,id);},
+    currentUser:function(){var id=global.localStorage.getItem(SESSION_KEY);return id?DB.getUser(id):null;},
+    logout:function(){global.localStorage.removeItem(SESSION_KEY);}
+  };
+  function resetDemo(){global.localStorage.removeItem(LS_KEY);global.localStorage.removeItem(SESSION_KEY);load();return 'MatchQuest Demo-Daten zurückgesetzt.';}
+  global.MQ={DB:DB,Auth:Auth,resetDemo:resetDemo};
+})(window);
+
+/* ===================== MQChallenges: Engine + Guardrails ===================== */
+(function (global) {
+  'use strict';
+  var BLOCKLIST=['gewalt','schlag','prügel','verletz','blut','waffe','messer','feuer','brand','sprung','springen vom','dach','balkon','klettern auf','auto fahren','straße rennen','gefähr','ersticken','würg','sex','nackt','entkleid','ausziehen','busen','intim','porno','exen','shot trinken','komasaufen','droge','kiffen','zigarette rauch','beleidig','rassis','sexis','stehlen','klauen','einbruch','mobbing'];
+  function passesGuardrails(text){if(!text)return false;var t=text.toLowerCase();for(var i=0;i<BLOCKLIST.length;i++){if(t.indexOf(BLOCKLIST[i])!==-1)return false;}return true;}
+  function pick(arr,seed){var idx=Math.floor((seed%arr.length+arr.length)%arr.length);return arr[idx];}
+  function rnd(){return Math.random();}
+  var CURATED=[
+    {type:'bet',text:'Fällt in den nächsten 10 Minuten ein Tor?',options:['Ja','Nein'],points:20},
+    {type:'bet',text:'Gibt es in den nächsten 10 Minuten eine Gelbe Karte?',options:['Ja','Nein'],points:20},
+    {type:'bet',text:'Wird der nächste Eckball von der linken oder rechten Seite ausgeführt?',options:['Links','Rechts'],points:15},
+    {type:'action',text:'Mache deinen besten Torjubel und lass ihn von einem Freund (Orakel) filmen oder bestätigen.',points:30},
+    {type:'action',text:'Male dein Tipp-Ergebnis auf einen Zettel, halte ihn in die Kamera und lass es vom Orakel bestätigen.',points:25},
+    {type:'action',text:'Stimme mit allen im Raum die Vereinshymne oder einen Fangesang an — Beweisvideo hochladen.',points:30}
+  ];
+  var SITUATIONS=['Beim nächsten Freistoß','Wenn die Kamera auf die Trainerbank schwenkt','Sobald der Kommentator laut wird','Beim nächsten Einwurf','Wenn dein Team in Ballbesitz kommt','In der nächsten Werbepause'];
+  var ACTIONS=['erfinde einen Jubel und führe ihn vor','halte ein selbstgemaltes Fan-Schild hoch','imitiere den Kommentator für 10 Sekunden','mache mit allen im Raum eine La-Ola-Welle','stimme einen kurzen Fangesang an','balanciere einen Snack auf dem Kopf, ohne dass er runterfällt','zeichne in 20 Sekunden das Wappen deines Teams'];
+  var BET_EVENTS=[{q:'Fällt in den nächsten 10 Minuten ein Tor?',o:['Ja','Nein']},{q:'Kommt als Nächstes ein Foul oder ein Eckball?',o:['Foul','Eckball']},{q:'Wird der nächste Torschuss aufs Tor gehen oder daneben?',o:['Aufs Tor','Daneben']},{q:'Wechselt der Trainer in den nächsten 10 Minuten einen Spieler?',o:['Ja','Nein']}];
+  function generateSimulated(){for(var a=0;a<8;a++){var asBet=rnd()<0.5;var c;if(asBet){var ev=pick(BET_EVENTS,Math.floor(rnd()*1000));c={type:'bet',text:ev.q,options:ev.o.slice(),points:20,source:'ki'};}else{var sit=pick(SITUATIONS,Math.floor(rnd()*1000));var act=pick(ACTIONS,Math.floor(rnd()*1000));c={type:'action',text:sit+': '+act+'. Ein Freund im Raum bestätigt als Orakel — Beweisfoto/-video hochladen.',points:30,source:'ki'};}if(passesGuardrails(c.text))return c;}return {type:'action',text:'Zeig ein Daumen-hoch in die Kamera und lass es vom Orakel bestätigen.',points:15,source:'ki'};}
+  var idc=0;
+  function nextChallenge(opts){opts=opts||{};var mode=opts.mode||'curated';var raw;if(mode==='ki'){raw=generateSimulated();}else{raw=JSON.parse(JSON.stringify(pick(CURATED,Math.floor(rnd()*1000))));raw.source='curated';}if(!passesGuardrails(raw.text)){raw={type:'action',text:'Zeig ein Daumen-hoch in die Kamera und lass es vom Orakel bestätigen.',points:15,source:raw.source};}raw.id='c'+(++idc);raw.answerSeconds=raw.type==='bet'?30:90;return raw;}
+  global.MQChallenges={nextChallenge:nextChallenge,passesGuardrails:passesGuardrails,BLOCKLIST:BLOCKLIST};
+})(window);
+
+/* ===================== Controller (Routing + App) ===================== */
+(function () {
+  'use strict';
+  var MQ=window.MQ, Engine=window.MQChallenges;
+  var $=function(id){return document.getElementById(id);};
+  var user=null;
+  var state={matchId:null,mode:'curated',challenge:null,answered:false};
+  var timers={next:null,answer:null,matchList:null};
+  function clear(t){if(t){clearInterval(t);}return null;}
+  function fmt(sec){sec=Math.max(0,Math.round(sec));var m=Math.floor(sec/60),s=sec%60;return m+':'+(s<10?'0':'')+s;}
+  function kickoffDiff(iso){return (new Date(iso).getTime()-Date.now())/1000;}
+  var NEXT_CHALLENGE_SECONDS=20;
+
+  /* ---- Top-level routing ---- */
+  function go(page){
+    document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+    $('page-'+page).classList.add('active');
+    window.scrollTo(0,0);
+    if(page==='login'){resetForms();}
+    if(page==='landing'){renderLandingCta();}
+    if(page==='app'){enterApp();}
+  }
+  document.querySelectorAll('[data-nav]').forEach(function(el){
+    el.addEventListener('click',function(e){
+      var target=el.getAttribute('data-nav');
+      if(target==='login'&&MQ.Auth.currentUser()){go('app');return;}
+      go(target);
+    });
+  });
+  // Sanftes Scrollen für Anker auf der Landing
+  document.querySelectorAll('#page-landing a[href^="#"]').forEach(function(link){
+    link.addEventListener('click',function(e){var el=document.querySelector(link.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'});}});
+  });
+
+  function renderLandingCta(){
+    var u=MQ.Auth.currentUser();
+    var cta=$('landing-cta');
+    var existing=$('landing-continue');
+    if(u&&!existing){
+      var b=document.createElement('button');
+      b.className='btn green';b.id='landing-continue';b.textContent='▶️ Weiter zur App, '+u.name;
+      b.addEventListener('click',function(){go('app');});
+      cta.insertBefore(b,cta.firstChild);
+    }else if(!u&&existing){existing.remove();}
+  }
+
+  /* ---- Login / Register ---- */
+  var tabLogin=$('tab-login'),tabReg=$('tab-register'),formLogin=$('form-login'),formReg=$('form-register');
+  function resetForms(){formLogin.reset&&formLogin.reset();formReg.reset&&formReg.reset();$('login-error').textContent='';$('reg-error').textContent='';showAuth('login');}
+  function showAuth(which){var isLogin=which==='login';tabLogin.classList.toggle('active',isLogin);tabReg.classList.toggle('active',!isLogin);formLogin.style.display=isLogin?'':'none';formReg.style.display=isLogin?'none':'';}
+  tabLogin.addEventListener('click',function(){showAuth('login');});
+  tabReg.addEventListener('click',function(){showAuth('register');});
+  formLogin.addEventListener('submit',function(e){e.preventDefault();var r=MQ.Auth.login($('login-email').value,$('login-pw').value);if(r.ok){go('app');}else{$('login-error').textContent=r.error;}});
+  formReg.addEventListener('submit',function(e){e.preventDefault();var r=MQ.Auth.register($('reg-name').value,$('reg-email').value,$('reg-pw').value);if(r.ok){go('app');}else{$('reg-error').textContent=r.error;}});
+
+  /* ---- App ---- */
+  function enterApp(){
+    user=MQ.Auth.currentUser();
+    if(!user){go('login');return;}
+    $('who').textContent='👤 '+user.name;
+    showView('matches');
+    renderMatches();
+    renderLiveView();
+  }
+  document.querySelectorAll('.nav-btn[data-view]').forEach(function(b){b.addEventListener('click',function(){showView(b.getAttribute('data-view'));});});
+  document.addEventListener('click',function(e){var g=e.target.getAttribute&&e.target.getAttribute('data-view');if(g&&e.target.classList.contains('btn')){showView(g);}});
+  $('logout').addEventListener('click',function(){MQ.Auth.logout();stopTimers();state.matchId=null;go('landing');});
+  $('reset-demo').addEventListener('click',function(e){e.preventDefault();if(confirm('Alle Demo-Daten zurücksetzen und abmelden?')){MQ.resetDemo();stopTimers();state.matchId=null;go('landing');}});
+
+  function stopTimers(){timers.next=clear(timers.next);timers.answer=clear(timers.answer);}
+
+  function showView(name){
+    document.querySelectorAll('#page-app .view').forEach(function(v){v.classList.remove('active');});
+    var v=$('view-'+name);if(v)v.classList.add('active');
+    document.querySelectorAll('.nav-btn[data-view]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===name);});
+    if(name==='leaderboard')renderLeaderboard();
+    if(name==='live')renderLiveView();
+  }
+
+  function renderMatches(){
+    var matches=MQ.DB.getMatches();var host=$('match-list');host.innerHTML='';
+    matches.forEach(function(m){
+      var diff=kickoffDiff(m.kickoff);var live=diff<=0;var joined=state.matchId===m.id;
+      var card=document.createElement('div');card.className='card match';
+      card.innerHTML='<span class="pill '+(live?'live':'soon')+'">'+(live?'● LIVE':'Bald')+'</span>'+
+        '<div><div class="teams"><span class="flag">'+m.homeFlag+'</span> '+m.home+' <span class="muted">vs</span> '+m.away+' <span class="flag">'+m.awayFlag+'</span></div>'+
+        '<div class="meta">'+m.stage+' · '+m.venue+'</div></div>'+
+        '<span class="spacer"></span>'+
+        '<div style="text-align:right"><div class="meta">'+(live?'läuft':'Anpfiff in')+'</div>'+
+        '<div class="countdown" data-kickoff="'+m.kickoff+'">'+(live?'⏱️':fmt(diff))+'</div></div>';
+      var actions=document.createElement('div');actions.style.cssText='width:100%;display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;';
+      var joinBtn=document.createElement('button');joinBtn.className='btn '+(joined?'green':'primary');joinBtn.textContent=joined?'✅ In Lobby — zur Live-Challenge':'➕ Challenge-Lobby beitreten';
+      joinBtn.addEventListener('click',function(){joinLobby(m.id);});
+      var liveLink=document.createElement('a');liveLink.className='btn ghost';liveLink.href=m.liveUrl;liveLink.target='_blank';liveLink.rel='noopener';liveLink.textContent='📺 Spiel live verfolgen';
+      actions.appendChild(joinBtn);actions.appendChild(liveLink);card.appendChild(actions);host.appendChild(card);
+    });
+  }
+  timers.matchList=setInterval(function(){document.querySelectorAll('#match-list .countdown[data-kickoff]').forEach(function(el){var d=kickoffDiff(el.getAttribute('data-kickoff'));el.textContent=d<=0?'⏱️':fmt(d);});},1000);
+
+  function joinLobby(matchId){state.matchId=matchId;renderMatches();showView('live');startLobby();}
+
+  $('ki-toggle').addEventListener('change',function(){state.mode=this.checked?'ki':'curated';});
+
+  function renderLiveView(){
+    var has=!!state.matchId;$('live-empty').style.display=has?'none':'';$('live-active').style.display=has?'':'none';
+    if(has){var m=MQ.DB.getMatch(state.matchId);$('live-match').textContent=m?(m.homeFlag+' '+m.home+' vs '+m.away+' '+m.awayFlag):'';}
+  }
+  function startLobby(){renderLiveView();spawnChallenge();scheduleNext();}
+  function scheduleNext(){timers.next=clear(timers.next);var r=NEXT_CHALLENGE_SECONDS;$('next-timer').textContent='⏳ Nächste Live-Challenge in '+fmt(r);timers.next=setInterval(function(){r-=1;if(r<=0){$('next-timer').textContent='';spawnChallenge();scheduleNext();return;}$('next-timer').textContent='⏳ Nächste Live-Challenge in '+fmt(r);},1000);}
+
+  function spawnChallenge(){
+    var m=MQ.DB.getMatch(state.matchId);var c=Engine.nextChallenge({mode:state.mode,match:m});state.challenge=c;state.answered=false;
+    $('challenge-card').style.display='';$('challenge-result').style.display='none';$('skip-challenge').style.display='';
+    var src=$('challenge-source');if(c.source==='ki'){src.className='pill ki';src.textContent='🤖 KI-Challenge · geprüft';}else{src.className='pill curated';src.textContent='🎯 Live-Challenge';}
+    $('challenge-q').textContent=c.text;
+    var optsHost=$('challenge-opts');optsHost.innerHTML='';
+    if(c.type==='bet'){$('challenge-action').style.display='none';c.options.forEach(function(opt){var b=document.createElement('button');b.className='btn';b.textContent=opt;b.addEventListener('click',function(){answerBet(opt,b);});optsHost.appendChild(b);});}
+    else{$('challenge-action').style.display='';resetProof();}
+    startAnswerTimer(c.answerSeconds);
+  }
+  function startAnswerTimer(seconds){timers.answer=clear(timers.answer);var r=seconds;var el=$('challenge-timer');el.textContent='⏱️ '+fmt(r)+' Zeit zum Antworten';timers.answer=setInterval(function(){r-=1;if(r<=0){timers.answer=clear(timers.answer);if(!state.answered)timeout();return;}el.textContent='⏱️ '+fmt(r)+' Zeit zum Antworten';},1000);}
+  function lockChallenge(){state.answered=true;timers.answer=clear(timers.answer);$('challenge-timer').textContent='';$('skip-challenge').style.display='none';}
+  function banner(kind,text){var b=$('challenge-result');b.className='result-banner '+kind;b.textContent=text;b.style.display='';}
+  function answerBet(choice,btnEl){if(state.answered)return;lockChallenge();var opts=state.challenge.options;var correct=opts[Math.floor(Math.random()*opts.length)];Array.prototype.forEach.call($('challenge-opts').children,function(b){b.disabled=true;if(b.textContent===correct)b.classList.add('correct');if(b===btnEl&&choice!==correct)b.classList.add('wrong');});if(choice===correct){MQ.DB.addResult(user.id,{points:state.challenge.points,correctBet:true});banner('ok','🎉 Richtig getippt! +'+state.challenge.points+' Punkte');}else{banner('bad','😅 Diesmal daneben — richtig war: '+correct+'. Nächste Challenge kommt gleich!');}refreshUser();}
+  function resetProof(){$('proof-input').value='';$('proof-preview').innerHTML='';$('oracle-confirm').disabled=true;$('oracle-reject').disabled=true;}
+  $('proof-input').addEventListener('change',function(){var file=this.files&&this.files[0];var host=$('proof-preview');host.innerHTML='';if(!file)return;var url=URL.createObjectURL(file);var el=file.type.indexOf('video')===0?document.createElement('video'):document.createElement('img');if(el.tagName==='VIDEO')el.controls=true;el.src=url;host.appendChild(el);$('oracle-confirm').disabled=false;$('oracle-reject').disabled=false;});
+  $('oracle-confirm').addEventListener('click',function(){if(state.answered)return;lockChallenge();MQ.DB.addResult(user.id,{points:state.challenge.points,challengeDone:true});banner('ok','✅ Vom Orakel bestätigt! +'+state.challenge.points+' Punkte');refreshUser();});
+  $('oracle-reject').addEventListener('click',function(){if(state.answered)return;lockChallenge();banner('bad','👁️ Orakel hat nicht bestätigt — keine Punkte. Weiter geht\'s!');});
+  function timeout(){lockChallenge();if(state.challenge&&state.challenge.type==='bet'){Array.prototype.forEach.call($('challenge-opts').children,function(b){b.disabled=true;});}banner('bad','⏰ Zeit abgelaufen — keine Antwort. Die nächste Challenge kommt gleich!');}
+  $('skip-challenge').addEventListener('click',function(){lockChallenge();banner('bad','⏭️ Übersprungen. Nächste Challenge kommt gleich.');});
+
+  function medal(rank){return rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';}
+  function renderLeaderboard(){var rows=MQ.DB.friendsLeaderboard(user.id);var body=$('lb-body');body.innerHTML='';rows.forEach(function(r){var tr=document.createElement('tr');if(r.me)tr.className='me';tr.innerHTML='<td class="rank">'+(medal(r.rank)?'<span class="medal">'+medal(r.rank)+'</span>':'')+r.rank+'</td><td>'+(r.me?'<b>'+r.name+' (du)</b>':r.name)+'</td><td>'+r.correctBets+'</td>';body.appendChild(tr);});var me=MQ.DB.getUser(user.id);$('stat-points').textContent=me.points||0;$('stat-bets').textContent=me.correctBets||0;$('stat-challenges').textContent=me.challengesDone||0;}
+  function refreshUser(){user=MQ.DB.getUser(user.id);}
+
+  /* ---- Start: schon eingeloggt? direkt in die App ---- */
+  if(MQ.Auth.currentUser()){go('app');}else{renderLandingCta();}
+})();
+</script>
