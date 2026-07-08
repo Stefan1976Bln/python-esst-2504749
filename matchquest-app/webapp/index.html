@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MatchQuest — Live-Fußball-Challenges</title>
-<meta name="description" content="Interaktive Live-Challenges, Video-Duelle mit Freunden, XP und Ranglisten zu jedem Fußballspiel.">
 <meta name="theme-color" content="#060913">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32">
@@ -266,6 +265,19 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 .lu-card{text-align:center;padding:34px 30px;border-radius:26px;background:linear-gradient(160deg,var(--bg3),var(--bg2));border:1px solid rgba(255,209,92,.5);box-shadow:0 0 60px -10px rgba(255,209,92,.4);}
 .lu-card .big{font-size:3.4rem;font-weight:900;background:linear-gradient(120deg,var(--gold),var(--lime));-webkit-background-clip:text;background-clip:text;color:transparent;}
 
+/* consent + legal */
+#consent,#docmodal{position:fixed;inset:0;z-index:62;display:none;place-items:start center;background:rgba(4,7,16,.82);backdrop-filter:blur(6px);overflow:auto;padding:20px 14px;}
+#docmodal{z-index:64;}
+#consent.show,#docmodal.show{display:grid;}
+.consent-card{max-width:460px;width:100%;text-align:left;padding:22px;border-radius:22px;background:linear-gradient(160deg,var(--bg3),var(--bg2));border:1px solid var(--line);box-shadow:var(--shadow);}
+.consent-line{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;color:var(--ink);margin:12px 0;line-height:1.45;cursor:pointer;}
+.consent-line input{margin-top:2px;width:19px;height:19px;accent-color:var(--lime);flex:none;}
+.doc-box{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.8rem;color:var(--muted);max-height:200px;overflow:auto;margin-top:10px;line-height:1.55;}
+.doc-box h4{margin:0 0 6px;color:var(--ink);font-size:.9rem;}
+.donate-card{background:linear-gradient(135deg,rgba(255,61,113,.14),rgba(255,209,92,.12));border:1px solid rgba(255,61,113,.35);}
+.donate-amts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.chip.donate{cursor:pointer;color:#ff9ab0;border-color:rgba(255,61,113,.4);}
+
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;scroll-behavior:auto !important;}}
 </style>
 
@@ -326,6 +338,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         </div>
       </div>
       <div class="chips">
+        <button class="chip donate" id="donate-chip" title="An die Berliner Tafel spenden">❤️ Spenden</button>
         <span class="chip streak"><span class="ico">🔥</span><span id="sb-streak" class="tnum">0</span></span>
         <span class="chip coins"><span class="ico">🪙</span><span id="sb-coins" class="tnum">0</span></span>
       </div>
@@ -367,10 +380,12 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 
           <label class="row card" style="padding:12px 14px;margin-bottom:12px;cursor:pointer">
             <span class="pill ki">🤖 KI-Modus</span>
-            <span style="font-size:.85rem" class="muted">Überraschungs-Challenges (mit Guardrails)</span>
+            <span style="font-size:.85rem" class="muted">Überraschungs-Challenges im Browser generiert (simuliert, mit Guardrails · auch für Video &amp; Gruppe). Echte KI folgt in Phase 2.</span>
             <span class="spacer"></span>
             <input type="checkbox" id="ki-toggle" style="width:20px;height:20px;accent-color:var(--lime)">
           </label>
+
+          <div class="card" id="team-strip" style="padding:10px 14px;margin-bottom:12px"></div>
 
           <div class="next-timer muted" id="next-timer" style="text-align:center;font-size:.85rem;margin-bottom:12px"></div>
 
@@ -414,7 +429,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
               <!-- ECHTER VIDEOCALL (Jitsi · Open Source · Mehrpersonen) -->
               <div id="grp-live" style="display:none">
                 <div class="field" style="margin-bottom:10px">
-                  <label>Raum-Code — alle Freunde geben denselben ein</label>
+                  <label>Team-Raum-Code — dein Team teilt sich einen Call</label>
                   <div class="row" style="gap:8px">
                     <input id="vc-room" type="text" autocomplete="off" spellcheck="false">
                     <button class="btn sm ghost" id="vc-copy">📋 Teilen</button>
@@ -422,7 +437,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
                 </div>
                 <div id="vc-prejoin">
                   <button class="btn live block" id="vc-join">📹 Videocall beitreten & Kamera freigeben</button>
-                  <p class="jitsi-note" style="margin:8px 0 0">Öffnet einen echten Mehrpersonen-Video-Chat (Jitsi, Open Source, kostenlos). Alle mit demselben Raum-Code sehen sich live. Kamera/Mikro im Browser erlauben.</p>
+                  <p class="jitsi-note" style="margin:8px 0 0">Öffnet einen echten Mehrpersonen-Video-Chat (Jitsi, Open Source, kostenlos). Alle mit demselben Raum-Code sehen sich live. Kamera/Mikro im Browser erlauben.<br><b>Jeder Raum-Code = ein eigenes Meeting</b> — verschiedene Gruppen nutzen verschiedene Codes und spielen parallel.</p>
                 </div>
                 <div class="jitsi-wrap" id="jitsi-wrap" style="display:none"></div>
                 <div id="vc-status" class="jitsi-note" style="margin-top:8px"></div>
@@ -521,7 +536,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       <div class="screen">
         <h2 class="title">Ranglisten 🏆</h2>
         <div class="sub">Miss dich mit Freunden — in Echtzeit.</div>
-        <div class="seg"><button id="seg-friends" class="active">👥 Freunde</button><button id="seg-league">🛡️ Meine Liga</button></div>
+        <div class="seg"><button id="seg-friends" class="active">👥 Freunde</button><button id="seg-league">🛡️ Liga</button><button id="seg-teams">⚔️ Teams</button></div>
         <div class="card" id="lb-card"></div>
       </div>
     </div>
@@ -547,7 +562,21 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         <h3 style="margin:20px 0 10px;font-size:1.05rem">Erfolge 🏅</h3>
         <div class="ach-grid" id="ach-grid"></div>
 
-        <div class="stack" style="margin-top:22px">
+        <div class="card donate-card" style="margin-top:20px">
+          <div style="font-weight:800;font-size:1.05rem">❤️ Statt Gewinn: Gutes tun</div>
+          <p class="jitsi-note" style="margin:6px 0 0">MatchQuest verdient <b>kein Geld</b>. Wenn dir der Spaß gefällt, spende freiwillig an die <b>Berliner Tafel</b>. Die Spende läuft <b>direkt über deren offizielle Seite</b> — wir behalten nichts.</p>
+          <div class="donate-amts">
+            <button class="btn live sm" data-donate="1">1 € spenden</button>
+            <button class="btn ghost sm" data-donate="3">3 €</button>
+            <button class="btn ghost sm" data-donate="5">5 €</button>
+            <button class="btn ghost sm" data-donate="0">Anderer Betrag</button>
+          </div>
+        </div>
+
+        <div class="stack" style="margin-top:20px">
+          <button class="btn ghost block" data-doc="imprint">Impressum</button>
+          <button class="btn ghost block" data-doc="privacy">Datenschutz</button>
+          <button class="btn ghost block" data-doc="rules">Verhaltenskodex</button>
           <button class="btn ghost block" id="logout">Abmelden</button>
           <button class="btn ghost block" id="reset-demo" style="color:var(--bad)">Demo zurücksetzen</button>
         </div>
@@ -567,6 +596,17 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 <div id="toasts"></div>
 <canvas id="confetti"></canvas>
 <div id="levelup"><div class="lu-card"><div class="eyebrow">Level up!</div><div class="big" id="lu-level">2</div><div style="font-weight:800">Weiter so! 🚀</div><button class="btn gold" id="lu-close" style="margin-top:16px">Weiter</button></div></div>
+<div id="consent"><div class="consent-card">
+  <div class="eyebrow" style="color:var(--lime)">Willkommen bei MatchQuest</div>
+  <h2 style="font-size:1.3rem;margin:6px 0 10px">Kurz zustimmen — dann geht's los</h2>
+  <p class="jitsi-note" style="margin-bottom:6px">MatchQuest ist ein <b>nicht-kommerzielles</b> Spaßprojekt. <b>Wir verdienen kein Geld.</b> Wer mag, spendet freiwillig an die <b>Berliner Tafel</b> — direkt über deren offizielle Seite, wir behalten nichts.</p>
+  <label class="consent-line"><input type="checkbox" id="c1"><span>Ich nehme freiwillig teil und halte mich an den <b>Verhaltenskodex</b> (Challenges ungefährlich, respektvoll — keine Gewalt, nichts Sexuelles, nichts Gefährliches). <a href="#" data-doc="rules">lesen</a></span></label>
+  <label class="consent-line"><input type="checkbox" id="c2"><span>Ich stimme der <a href="#" data-doc="privacy">Datenschutzerklärung</a> zu: Daten liegen lokal auf meinem Gerät, die Kamera wird nur lokal genutzt, und beim <b>„Echten Videocall"</b> läuft das Video über <b>Jitsi (Drittanbieter)</b>.</span></label>
+  <label class="consent-line"><input type="checkbox" id="c3"><span>Ich bin mindestens <b>16 Jahre</b> alt oder habe die Zustimmung eines Erziehungsberechtigten.</span></label>
+  <button class="btn primary block" id="consent-accept" disabled style="margin-top:8px">Zustimmen &amp; starten</button>
+  <p class="jitsi-note" style="margin-top:10px;text-align:center"><a href="#" data-doc="imprint">Impressum</a> · <a href="#" data-doc="privacy">Datenschutz</a></p>
+</div></div>
+<div id="docmodal"><div class="consent-card"><div id="doc-content" class="doc-box" style="max-height:62vh"></div><button class="btn ghost block" id="doc-close" style="margin-top:12px">Schließen</button></div></div>
 </div>
 
 <script>
@@ -588,13 +628,18 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     {id:'fin',stage:'🏆 Finale · WM 2026',home:'Sieger HF1',hf:'🏆',away:'Sieger HF2',af:'🏆',kick:'2026-07-19T22:00:00+02:00',venue:'MetLife Stadium, New York/New Jersey',live:KL,inLobby:['lena','jonas','mara']}
   ];}
   function u(id,name,email,av,friends,pts,cb,ch,xp,coins,streak){return{id:id,name:name,email:email,password:'wm2026',av:av,friends:friends,points:pts,correctBets:cb,challengesDone:ch,xp:xp,coins:coins,streak:streak,ach:[]};}
-  function seed(){return{users:[
+  function seed(){var users=[
     u('stefan','Stefan','stefan@matchquest.app','',['lena','jonas','mara'],120,6,4,240,180,2),
     u('lena','Lena','lena@matchquest.app','a-b',['stefan','jonas'],210,11,7,520,310,5),
     u('jonas','Jonas','jonas@matchquest.app','a-c',['stefan','lena'],90,4,3,180,120,1),
     u('mara','Mara','mara@matchquest.app','a-d',['stefan'],165,8,6,360,240,3)
-  ],league:{name:'Kabinen-Crew',members:['stefan','lena','jonas','mara']},v:1};}
-  function load(){try{var r=g.localStorage.getItem(LS);if(!r){var f=seed();save(f);return f;}var d=JSON.parse(r);return d;}catch(e){var s=seed();save(s);return s;}}
+  ];
+    users[1].teamId='green';users[2].teamId='green';users[3].teamId='blue';
+    return{users:users,league:{name:'Kabinen-Crew',members:['stefan','lena','jonas','mara']},
+      teams:[{id:'green',name:'Team Grün',emoji:'🟢',members:['lena','jonas']},{id:'blue',name:'Team Blau',emoji:'🔵',members:['mara']}],v:2};}
+  function load(){try{var r=g.localStorage.getItem(LS);if(!r){var f=seed();save(f);return f;}var d=JSON.parse(r);
+    if(!d.teams){d.teams=seed().teams;save(d);} // Migration für ältere Daten
+    return d;}catch(e){var s=seed();save(s);return s;}}
   function save(d){g.localStorage.setItem(LS,JSON.stringify(d));}
   var DB={
     getUser:function(id){return load().users.filter(function(x){return x.id===id;})[0]||null;},
@@ -612,7 +657,12 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       rows.sort(function(a,b){if(b.correctBets!==a.correctBets)return b.correctBets-a.correctBets;return (b.points||0)-(a.points||0);});
       return rows.map(function(x,i){return{rank:i+1,id:x.id,name:x.name,av:x.av,correctBets:x.correctBets||0,points:x.points||0,level:Math.floor((x.xp||0)/100)+1,me:x.id===meId};});},
     friendsBoard:function(meId){var me=DB.getUser(meId);var ids=[meId].concat(me.friends||[]);return DB.board(ids,meId);},
-    leagueBoard:function(meId){return DB.board(DB.league().members,meId);}
+    leagueBoard:function(meId){return DB.board(DB.league().members,meId);},
+    teams:function(){return load().teams||[];},
+    getTeam:function(id){return DB.teams().filter(function(t){return t.id===id;})[0]||null;},
+    joinTeam:function(userId,teamId){var d=load();(d.teams||[]).forEach(function(t){t.members=(t.members||[]).filter(function(m){return m!==userId;});if(t.id===teamId&&t.members.indexOf(userId)===-1)t.members.push(userId);});var x=d.users.filter(function(z){return z.id===userId;})[0];if(x)x.teamId=teamId;save(d);return x;},
+    teamStandings:function(){var d=load();return (d.teams||[]).map(function(t){var pts=0,mc=0;(t.members||[]).forEach(function(mid){var mu=d.users.filter(function(x){return x.id===mid;})[0];if(mu){pts+=(mu.points||0);mc++;}});return{id:t.id,name:t.name,emoji:t.emoji,members:mc,points:pts};}).sort(function(a,b){return b.points-a.points;});},
+    setConsent:function(userId){var d=load();var x=d.users.filter(function(z){return z.id===userId;})[0];if(x){x.consent={v:1,at:new Date().toISOString()};save(d);}return x;}
   };
   var Auth={
     register:function(name,email,pw){name=(name||'').trim();email=(email||'').trim().toLowerCase();
@@ -661,7 +711,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     if(type==='bet'){var b=pick(BETS);c={type:'bet',text:b.q,options:b.o.slice(),points:20,xp:20,coins:10};}
     else{var t=ki?vidSim():pick(VID_CURATED);if(!ok(t))t='Zeig ein fettes Daumen-hoch in die Kamera!';c={type:'video',text:t,points:35,xp:40,coins:25};}
     c.source=ki?'ki':'curated';c.id='c'+(++idc);c.answer=type==='bet'?30:45;return c;}
-  g.MQC={next:next,ok:ok};
+  function kiTask(){for(var i=0;i<8;i++){var t=pick(SIT)+': '+pick(ACT)+'!';if(ok(t))return t;}return 'Zeig ein fettes Daumen-hoch für alle!';}
+  g.MQC={next:next,ok:ok,kiTask:kiTask};
 })(window);
 
 /* ===================== UI helpers: toast / confetti / countup ===================== */
@@ -721,9 +772,15 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     if(r.ok){go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Kein E-Mail-Versand — du bist direkt drin','lime');}else $('reg-error').textContent=r.error;};
 
   /* ---- app enter ---- */
-  function enterApp(){user=MQ.Auth.current();if(!user){go('login');return;}syncStatus();showView('matches');renderMatches();renderLiveView();startTicker();}
+  function enterApp(){user=MQ.Auth.current();if(!user){go('login');return;}
+    if(!user.consent){showConsent();return;}
+    bootApp();}
+  function bootApp(){syncStatus();showView('matches');renderMatches();renderLiveView();startTicker();}
   document.querySelectorAll('.tabbar button[data-view]').forEach(function(b){b.onclick=function(){showView(b.getAttribute('data-view'));};});
-  document.addEventListener('click',function(e){var t=e.target;if(t.classList&&t.classList.contains('btn')&&t.getAttribute('data-view'))showView(t.getAttribute('data-view'));});
+  document.addEventListener('click',function(e){var t=e.target;if(!t.getAttribute)return;
+    if(t.classList&&t.classList.contains('btn')&&t.getAttribute('data-view'))showView(t.getAttribute('data-view'));
+    var doc=t.getAttribute('data-doc');if(doc){e.preventDefault();showDoc(doc);}
+    var amt=t.getAttribute('data-donate');if(amt!==null&&amt!==undefined&&amt!=='')openDonation(amt);});
   $('logout').onclick=function(){MQ.Auth.logout();stopCam();stopAll();st.matchId=null;go('landing');};
   $('reset-demo').onclick=function(){if(confirm('Alle Demo-Daten zurücksetzen?')){MQ.reset();stopCam();stopAll();st.matchId=null;go('landing');}};
   function stopAll(){tm.next=clr(tm.next);tm.answer=clr(tm.answer);tm.rec=clr(tm.rec);tm.ticker=clr(tm.ticker);}
@@ -744,6 +801,32 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     var afterLv=level(user.xp);if(afterLv>beforeLv){levelUp(afterLv);}checkAch();}
   function levelUp(lv){$('lu-level').textContent=lv;$('levelup').classList.add('show');UI.confetti();}
   $('lu-close').onclick=function(){$('levelup').classList.remove('show');};
+
+  /* ---- Einwilligung (rechtlich) ---- */
+  function updateConsentBtn(){$('consent-accept').disabled=!($('c1').checked&&$('c2').checked&&$('c3').checked);}
+  ['c1','c2','c3'].forEach(function(id){$(id).addEventListener('change',updateConsentBtn);});
+  function showConsent(){$('c1').checked=$('c2').checked=$('c3').checked=false;updateConsentBtn();$('consent').classList.add('show');}
+  $('consent-accept').onclick=function(){MQ.DB.setConsent(user.id);user=MQ.DB.getUser(user.id);$('consent').classList.remove('show');bootApp();};
+
+  /* ---- Rechtstexte (Platzhalter: Betreiberangaben bitte ausfüllen) ---- */
+  var DOCS={
+    imprint:'<h4>Impressum</h4>Angaben gemäß § 5 TMG / § 18 MStV:<br><br><b>[Betreiber:in Vor- und Nachname]</b><br>[Straße Nr.]<br>[PLZ Ort]<br>E-Mail: [kontakt@…]<br><br>MatchQuest ist ein privates, <b>nicht-kommerzielles</b> Projekt. Es werden keine Einnahmen erzielt. <br><br><i>Bitte diese Angaben vor der Veröffentlichung mit euren echten Kontaktdaten ausfüllen (in Deutschland gesetzlich verpflichtend).</i>',
+    privacy:'<h4>Datenschutzerklärung (Kurzfassung)</h4><b>Verantwortlich:</b> siehe Impressum.<br><br><b>Welche Daten?</b> Anzeigename, E-Mail und Passwort, die du eingibst, sowie dein Spielstand. In dieser Version werden diese <b>ausschließlich lokal in deinem Browser</b> (localStorage) gespeichert — sie werden <b>nicht</b> an einen Server übertragen.<br><br><b>Kamera/Mikrofon:</b> werden nur nach deiner Freigabe genutzt. Bei einfachen Live-Video-Challenges bleibt das Bild <b>lokal</b> auf deinem Gerät und wird nicht gespeichert.<br><br><b>Echter Videocall:</b> Startest du den „Echten Videocall", wird dein Video/Audio über den Dienst <b>Jitsi Meet (meet.jit.si, 8x8 Inc.)</b> übertragen, damit euch andere sehen können. Dabei werden Daten an diesen Drittanbieter übermittelt; es gelten dessen Datenschutzbestimmungen. Die Nutzung ist freiwillig.<br><br><b>Spenden:</b> erfolgen <b>direkt auf der Website der Berliner Tafel</b>. Wir verarbeiten keine Zahlungsdaten.<br><br><b>Deine Rechte:</b> Auskunft, Löschung, Widerruf. Lokale Daten löschst du über „Demo zurücksetzen" oder das Löschen der Browserdaten.<br><br><i>Platzhalter — vor Live-Betrieb rechtlich prüfen/vervollständigen.</i>',
+    rules:'<h4>Verhaltenskodex</h4>MatchQuest soll Spaß machen und sicher sein:<br><br>• Challenges sind <b>freiwillig</b> und müssen <b>ungefährlich</b> sein.<br>• <b>Keine</b> Gewalt, nichts Sexuelles, nichts Gefährliches, keine Diskriminierung, nichts Illegales — dies wird durch automatische Guardrails zusätzlich gefiltert.<br>• Respektiere andere; im Videocall gilt: nur mit Einverständnis aller filmen.<br>• Das <b>Orakel</b> bewertet fair und neutral.<br>• Verstöße können zum Ausschluss führen.',
+    donate:''
+  };
+  function showDoc(key){$('doc-content').innerHTML=DOCS[key]||'';$('docmodal').classList.add('show');}
+  $('doc-close').onclick=function(){$('docmodal').classList.remove('show');};
+
+  /* ---- Spenden an die Berliner Tafel (kein eigenes Payment) ---- */
+  // Offizielle Website der Berliner Tafel e.V. Root-Domain (existiert sicher).
+  // TIPP: exakten Deep-Link der Spendenseite eintragen, sobald bestätigt (z. B. .../spenden).
+  var SPENDE_URL='https://www.berliner-tafel.de/';
+  function openDonation(amt){var url=SPENDE_URL;
+    try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
+    var t=(amt&&amt!=='0')?('Danke! '+amt+' € an die Berliner Tafel'):'Danke fürs Spenden!';
+    UI.toast('❤️',t,'Du wirst zur offiziellen Spendenseite weitergeleitet','gold');}
+  $('donate-chip').onclick=function(){openDonation('1');};
   function checkAch(){var defs=[
     ['first_win',(user.correctBets+user.challengesDone)>=1],
     ['streak3',(user.streak||0)>=3],
@@ -783,7 +866,13 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   /* ---- live ---- */
   $('ki-toggle').onchange=function(){st.mode=this.checked?'ki':'curated';};
   function renderLiveView(){var has=!!st.matchId;$('live-empty').style.display=has?'none':'';$('live-active').style.display=has?'':'none';
-    if(has){var m=MQ.DB.match(st.matchId);$('live-match').textContent=m?(m.hf+' '+m.home+' – '+m.away+' '+m.af):'';var c=(m&&m.inLobby?m.inLobby.length:0)+1;$('live-count').textContent='👥 '+c+' live';}}
+    if(has){var m=MQ.DB.match(st.matchId);$('live-match').textContent=m?(m.hf+' '+m.home+' – '+m.away+' '+m.af):'';var c=(m&&m.inLobby?m.inLobby.length:0)+1;$('live-count').textContent='👥 '+c+' live';renderTeamStrip();}}
+  function renderTeamStrip(){var el=$('team-strip');if(!el)return;var me=MQ.DB.getUser(user.id);
+    if(me&&me.teamId&&MQ.DB.getTeam(me.teamId)){var t=MQ.DB.getTeam(me.teamId);var stt=MQ.DB.teamStandings();var rank=1,mine=null;stt.forEach(function(x,i){if(x.id===me.teamId){rank=i+1;mine=x;}});
+      el.innerHTML='<div class="row" style="gap:10px"><span style="font-size:1.3rem">'+t.emoji+'</span><div style="flex:1"><div style="font-weight:800">Dein Team: '+t.name+'</div><div class="jitsi-note">⚔️ Team-Battle · Platz '+rank+' · '+(mine?mine.points:0)+' Pkt</div></div><button class="btn sm ghost" data-view="rank">Battle ansehen</button></div>';}
+    else{var btns=MQ.DB.teams().map(function(t){return '<button class="btn sm ghost tjoin" data-team="'+t.id+'">'+t.emoji+' '+t.name+'</button>';}).join(' ');
+      el.innerHTML='<div style="font-weight:800;margin-bottom:6px">⚔️ Tritt einem Team bei — auch mitten in der Challenge</div><div class="row" style="gap:8px;flex-wrap:wrap">'+btns+'</div>';
+      Array.prototype.forEach.call(el.querySelectorAll('.tjoin'),function(b){b.onclick=function(){MQ.DB.joinTeam(user.id,b.getAttribute('data-team'));user=MQ.DB.getUser(user.id);renderTeamStrip();UI.toast('⚔️','Team beigetreten!','Deine Punkte zählen jetzt fürs Team','lime');};});}}
   function startLobby(){renderLiveView();spawn();scheduleNext();}
   function scheduleNext(){tm.next=clr(tm.next);var r=25;tick();tm.next=setInterval(function(){r--;if(r<=0){spawn();r=25;}tick();},1000);function tick(){$('next-timer').textContent='⏳ Nächste Live-Challenge in '+fmt(r);}}
 
@@ -850,7 +939,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     var ids=grp.players.map(function(p){return p.id;});if(!ids.length)return;
     var pi=Math.floor(Math.random()*ids.length),oi;do{oi=Math.floor(Math.random()*ids.length);}while(oi===pi&&ids.length>1);
     grp.playerId=ids[pi];grp.oracleId=ids[oi];
-    var t=GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(t))t='Zeig ein fettes Daumen-hoch für alle!';grp.task=t;
+    var t=(st.mode==='ki'&&MQC.kiTask)?MQC.kiTask():GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(t))t='Zeig ein fettes Daumen-hoch für alle!';grp.task=t;
     renderGroup();runGroupFlow(tok);}
   function renderGroup(){var grid=$('grp-grid');grid.innerHTML='';
     grp.players.forEach(function(p){var isP=p.id===grp.playerId,isO=p.id===grp.oracleId,isMe=p.id===user.id;
@@ -895,16 +984,19 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   var fp1=$('freeplay-btn'),fp2=$('freeplay-btn2');if(fp1)fp1.onclick=startFreeplay;if(fp2)fp2.onclick=startFreeplay;
 
   /* ---- Gruppen-Modus: Simulation <-> echter Videocall ---- */
-  function defaultRoom(){return 'MatchQuestAH2026-'+(st.matchId||'lobby');}
+  function defaultRoom(){var me=MQ.DB.getUser(user.id);var team=(me&&me.teamId)?('-'+me.teamId):'';return 'MatchQuestAH2026-'+(st.matchId||'lobby')+team;}
   function setGroupMode(mode){var live=mode==='live';
     $('mode-sim').classList.toggle('active',!live);$('mode-live').classList.toggle('active',live);
     $('grp-sim').style.display=live?'none':'';$('grp-live').style.display=live?'':'none';$('grp-timer').textContent='';
-    if(live){grp.token++;stopCam();if(!$('vc-room').value)$('vc-room').value=defaultRoom();}
+    if(live){grp.token++;stopCam();$('vc-room').value=defaultRoom();
+      var me=MQ.DB.getUser(user.id);var tn=(me&&me.teamId&&MQ.DB.getTeam(me.teamId))?MQ.DB.getTeam(me.teamId).name:null;
+      $('vc-status').textContent=tn?('👥 Dies ist der Call von „'+tn+'". Dein Team teilt sich diesen Raum-Code; andere Teams haben ihren eigenen Call.'):'Tipp: Tritt einem Team bei (Rang → Teams) — dann bekommt jedes Team automatisch seinen eigenen Call.';}
     else{try{leaveCall();}catch(e){}if(!grp.playerId||!grp.players.length){grp.players=grpParticipants();rollGroup();}}}
   $('mode-sim').onclick=function(){setGroupMode('sim');};
   $('mode-live').onclick=function(){setGroupMode('live');};
 
   /* ---- Echter Mehrpersonen-Videocall via Jitsi (Open Source, meet.jit.si) ---- */
+  var JITSI_DOMAIN='meet.jit.si'; // Öffentlicher Jitsi-Server (Open Source). Für Produktion ggf. eigene Instanz eintragen.
   var jitsi={api:null,me:null,round:null};
   function loadJitsi(cb){if(window.JitsiMeetExternalAPI){cb(true);return;}
     var s=document.createElement('script');s.src='https://meet.jit.si/external_api.js';s.async=true;
@@ -926,7 +1018,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       if(!loaded){$('vc-status').innerHTML='⚠️ Der Videocall-Dienst ist hier blockiert (z. B. in dieser Vorschau). Bitte die auf IONOS gehostete Version <b>https://…/matchquest/</b> nutzen — dort funktioniert der echte Videocall. Solange klappt der 🤖 Simulations-Modus.';return;}
       $('vc-prejoin').style.display='none';$('jitsi-wrap').style.display='';$('jitsi-wrap').innerHTML='';
       try{
-      jitsi.api=new JitsiMeetExternalAPI('meet.jit.si',{roomName:room,parentNode:$('jitsi-wrap'),userInfo:{displayName:user.name},
+      jitsi.api=new JitsiMeetExternalAPI(JITSI_DOMAIN,{roomName:room,parentNode:$('jitsi-wrap'),userInfo:{displayName:user.name},
         configOverwrite:{prejoinPageEnabled:false,startWithAudioMuted:false,disableDeepLinking:true},
         interfaceConfigOverwrite:{MOBILE_APP_PROMO:false,SHOW_JITSI_WATERMARK:false,SHOW_CHROME_EXTENSION_BANNER:false,TOOLBAR_BUTTONS:['microphone','camera','desktop','tileview','hangup','fullscreen']}});
       jitsi.api.addEventListener('videoConferenceJoined',function(e){jitsi.me=e.id;$('vc-status').textContent='✅ Verbunden als '+user.name+'. Teile den Raum-Code — alle mit demselben Code sehen sich live.';$('vc-actions').style.display='';$('vc-leave').style.display='';});
@@ -943,7 +1035,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   function startRoundForAll(){var parts=callParts();if(!parts.length){UI.toast('👥','Noch niemand im Call','Tritt zuerst dem Videocall bei');return;}
     if(parts.length<2)UI.toast('👥','Allein im Call','Warte auf Freunde (gleicher Raum-Code) — Runde läuft trotzdem zum Testen.');
     var pi=Math.floor(Math.random()*parts.length),oi;do{oi=Math.floor(Math.random()*parts.length);}while(oi===pi&&parts.length>1);
-    var task=GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(task))task='Zeig ein Daumen-hoch für alle!';
+    var task=(st.mode==='ki'&&MQC.kiTask)?MQC.kiTask():GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(task))task='Zeig ein Daumen-hoch für alle!';
     var payload={mq:'round',playerId:parts[pi].id,playerName:parts[pi].name,oracleId:parts[oi].id,oracleName:parts[oi].name,task:task};
     applyRound(payload);if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}}
   function applyRound(d){jitsi.round=d;$('vc-roundcard').style.display='';$('vc-result').style.display='none';
@@ -962,8 +1054,22 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   var currentBoard='friends';
   $('seg-friends').onclick=function(){currentBoard='friends';seg();renderBoard('friends');};
   $('seg-league').onclick=function(){currentBoard='league';seg();renderBoard('league');};
-  function seg(){$('seg-friends').classList.toggle('active',currentBoard==='friends');$('seg-league').classList.toggle('active',currentBoard==='league');}
-  function renderBoard(which){var rows=which==='league'?MQ.DB.leagueBoard(user.id):MQ.DB.friendsBoard(user.id);var host=$('lb-card');
+  $('seg-teams').onclick=function(){currentBoard='teams';seg();renderBoard('teams');};
+  function seg(){$('seg-friends').classList.toggle('active',currentBoard==='friends');$('seg-league').classList.toggle('active',currentBoard==='league');$('seg-teams').classList.toggle('active',currentBoard==='teams');}
+  function renderTeamBattle(){var stt=MQ.DB.teamStandings();var me=MQ.DB.getUser(user.id);var host=$('lb-card');var max=Math.max(1,(stt[0]&&stt[0].points)||1);
+    var html='<div class="eyebrow" style="margin-bottom:10px">⚔️ Team-Battle</div>';
+    if(stt.length>=2){var a=stt[0],b=stt[1];html+='<div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px">'+
+      '<div style="text-align:center;flex:1"><div style="font-size:1.7rem">'+a.emoji+'</div><div style="font-weight:800">'+a.name+'</div><div style="font-weight:900;color:var(--lime)" class="tnum">'+a.points+'</div></div>'+
+      '<div class="vs" style="font-size:1.1rem;padding-top:14px">VS</div>'+
+      '<div style="text-align:center;flex:1"><div style="font-size:1.7rem">'+b.emoji+'</div><div style="font-weight:800">'+b.name+'</div><div style="font-weight:900;color:var(--lime)" class="tnum">'+b.points+'</div></div></div>';}
+    html+=stt.map(function(t){var w=Math.round(t.points/max*100);var mine=me&&me.teamId===t.id;
+      return '<div style="margin:10px 0"><div class="row" style="gap:8px"><span>'+t.emoji+'</span><b>'+t.name+(mine?' (dein Team)':'')+'</b><span class="spacer"></span><span class="tnum" style="font-weight:800;color:var(--lime)">'+t.points+' Pkt</span></div><div class="xpbar" style="margin-top:6px"><i style="width:'+w+'%"></i></div><div class="jitsi-note">'+t.members+' Mitglieder</div></div>';}).join('');
+    html+='<div class="jitsi-note" style="margin-top:12px">'+(me&&me.teamId?'Dein Team: <b>'+(MQ.DB.getTeam(me.teamId)?MQ.DB.getTeam(me.teamId).name:'—')+'</b>. Jede richtige Challenge bringt Punkte fürs Team.':'<b>Tritt einem Team bei und hol Punkte für dein Team:</b>')+'</div>';
+    host.innerHTML=html;
+    var row=document.createElement('div');row.className='row';row.style.cssText='gap:8px;margin-top:10px;flex-wrap:wrap';
+    MQ.DB.teams().forEach(function(t){var btn=document.createElement('button');btn.className='btn sm '+(me&&me.teamId===t.id?'primary':'ghost');btn.textContent=t.emoji+' '+t.name+(me&&me.teamId===t.id?' ✓':' beitreten');btn.onclick=function(){MQ.DB.joinTeam(user.id,t.id);user=MQ.DB.getUser(user.id);renderTeamBattle();UI.toast(t.emoji,'Team beigetreten',t.name,'lime');};row.appendChild(btn);});
+    host.appendChild(row);}
+  function renderBoard(which){if(which==='teams'){renderTeamBattle();return;}var rows=which==='league'?MQ.DB.leagueBoard(user.id):MQ.DB.friendsBoard(user.id);var host=$('lb-card');
     var head=which==='league'?'<div class="row" style="margin-bottom:10px"><span class="pill curated">🛡️ '+MQ.DB.league().name+'</span><span class="spacer"></span><span class="muted" style="font-size:.78rem">'+rows.length+' Mitglieder</span></div>':'';
     var medal=function(r){return r===1?'🥇':r===2?'🥈':r===3?'🥉':r;};
     host.innerHTML=head+rows.map(function(r){return '<div class="lb-row'+(r.me?' me':'')+'">'+

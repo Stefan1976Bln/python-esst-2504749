@@ -43,6 +43,24 @@ einem Unterordner.
 - **Link teilen** (WhatsApp/QR-Code) → alle öffnen dieselbe URL, kostenlos, auf jedem Gerät.
 - Kein Sideloading, keine APK, keine 25 $-Store-Gebühr nötig.
 
+## Neu in dieser Version
+
+- **Einwilligung (rechtlich):** Beim ersten Start muss jede:r den Nutzungsregeln, dem Datenschutz
+  (inkl. Jitsi-Drittanbieter) und der Altersangabe (16+) zustimmen. Impressum/Datenschutz/Verhaltenskodex
+  sind im Profil hinterlegt — **Betreiberangaben in `matchquest.html`/`index.html` (Objekt `DOCS`) vor dem
+  Live-Gang ausfüllen** (in DE gesetzlich Pflicht).
+- **Spenden statt Gewinn:** ❤️-Button (Statusleiste & Profil) öffnet die **offizielle Seite der Berliner Tafel**.
+  Wir wickeln **keine Zahlungen** ab und behalten nichts. Exakten Spenden-Deep-Link bei Bedarf in
+  `SPENDE_URL` eintragen.
+- **Teams:** Rang → **Teams** (Team-Battle). Man kann **während einer Challenge** einem Team beitreten;
+  Punkte zählen fürs Team. **Jedes Team hat seinen eigenen Videocall** (Raum-Code enthält die Team-ID).
+- **KI-Modus (simuliert):** erzeugt Überraschungs-Challenges **im Browser** (regelbasiert, mit Guardrails) —
+  funktioniert ohne Server. **Echte** LLM-KI braucht einen kleinen Server-Proxy (Phase 2, z. B. `ki.php` auf
+  IONOS, damit der API-Schlüssel nie ins Frontend gelangt).
+- **Videocall-Räume:** werden **dynamisch** erzeugt (kein Reservieren): Der Raum-Name ist der „Schlüssel" —
+  wer denselben Code nutzt, landet im selben, kurzlebigen Meeting. `meet.jit.si`-Server ist in
+  `JITSI_DOMAIN` austauschbar (eigene Instanz für Produktion).
+
 ## Mit Freunden testen
 
 **Registrieren (super einfach, kein E-Mail-Versand):**
