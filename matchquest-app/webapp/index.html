@@ -330,8 +330,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     <!-- VIEW: SPIELE -->
     <div id="view-matches" class="view active">
       <div class="screen">
-        <h2 class="title">Heute live 🗓️</h2>
-        <div class="sub">Tritt einer Challenge-Lobby bei und sei ab dem Anpfiff dabei.</div>
+        <h2 class="title">WM 2026 · Finalrunde 🏆</h2>
+        <div class="sub">Alle Restspiele mit echten Terminen. Tritt einer Lobby bei und teste die Challenges.</div>
         <div id="ticker-wrap" style="margin-bottom:14px"></div>
         <div class="stack" id="match-list"></div>
       </div>
@@ -524,12 +524,18 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 (function(g){
   'use strict';
   var LS='mqpro_v1', SS='mqpro_session';
-  function mins(m){return new Date(Date.now()+m*60000).toISOString();}
+  var KL='https://www.kicker.de/fussball-international/wettbewerbe';
+  // Restspiele WM 2026 (Finalrunde) — echte Termine (CEST). Teams stehen noch nicht fest → Bracket-Platzhalter.
+  // Hinweis: Anstoßzeiten/Spielorte vorläufig; werden mit dem Turnierverlauf bestätigt.
   function seedMatches(){return[
-    {id:'m1',stage:'Gruppe A · WM 2026',home:'Deutschland',hf:'🇩🇪',away:'Brasilien',af:'🇧🇷',kick:mins(-8),venue:'MetLife Stadium, New York',live:'https://www.kicker.de/fussball-international/wettbewerbe',inLobby:['lena','jonas','mara']},
-    {id:'m2',stage:'Gruppe C · WM 2026',home:'Argentinien',hf:'🇦🇷',away:'Frankreich',af:'🇫🇷',kick:mins(20),venue:'Estadio Azteca, Mexiko-Stadt',live:'https://www.kicker.de/fussball-international/wettbewerbe',inLobby:['lena','mara']},
-    {id:'m3',stage:'Gruppe E · WM 2026',home:'Spanien',hf:'🇪🇸',away:'England',af:'🏴',kick:mins(75),venue:'SoFi Stadium, Los Angeles',live:'https://www.kicker.de/fussball-international/wettbewerbe',inLobby:['jonas']},
-    {id:'m4',stage:'Gruppe G · WM 2026',home:'Portugal',hf:'🇵🇹',away:'Niederlande',af:'🇳🇱',kick:mins(150),venue:'BC Place, Vancouver',live:'https://www.kicker.de/fussball-international/wettbewerbe',inLobby:[]}
+    {id:'vf1',stage:'Viertelfinale 1 · WM 2026',home:'Sieger AF1',hf:'⚽',away:'Sieger AF2',af:'⚽',kick:'2026-07-09T21:00:00+02:00',venue:'Gillette Stadium, Boston',live:KL,inLobby:['lena','jonas','mara']},
+    {id:'vf2',stage:'Viertelfinale 2 · WM 2026',home:'Sieger AF3',hf:'⚽',away:'Sieger AF4',af:'⚽',kick:'2026-07-10T21:00:00+02:00',venue:'SoFi Stadium, Los Angeles',live:KL,inLobby:['lena','mara']},
+    {id:'vf3',stage:'Viertelfinale 3 · WM 2026',home:'Sieger AF5',hf:'⚽',away:'Sieger AF6',af:'⚽',kick:'2026-07-11T18:00:00+02:00',venue:'Arrowhead Stadium, Kansas City',live:KL,inLobby:['jonas']},
+    {id:'vf4',stage:'Viertelfinale 4 · WM 2026',home:'Sieger AF7',hf:'⚽',away:'Sieger AF8',af:'⚽',kick:'2026-07-11T22:00:00+02:00',venue:'Hard Rock Stadium, Miami',live:KL,inLobby:['lena','jonas']},
+    {id:'hf1',stage:'Halbfinale 1 · WM 2026',home:'Sieger VF1',hf:'⚽',away:'Sieger VF2',af:'⚽',kick:'2026-07-14T21:00:00+02:00',venue:'AT&T Stadium, Dallas',live:KL,inLobby:['lena','jonas','mara']},
+    {id:'hf2',stage:'Halbfinale 2 · WM 2026',home:'Sieger VF3',hf:'⚽',away:'Sieger VF4',af:'⚽',kick:'2026-07-15T21:00:00+02:00',venue:'Mercedes-Benz Stadium, Atlanta',live:KL,inLobby:['mara']},
+    {id:'p3',stage:'Spiel um Platz 3 · WM 2026',home:'Verlierer HF1',hf:'🥉',away:'Verlierer HF2',af:'🥉',kick:'2026-07-18T22:00:00+02:00',venue:'Hard Rock Stadium, Miami',live:KL,inLobby:['jonas','mara']},
+    {id:'fin',stage:'🏆 Finale · WM 2026',home:'Sieger HF1',hf:'🏆',away:'Sieger HF2',af:'🏆',kick:'2026-07-19T22:00:00+02:00',venue:'MetLife Stadium, New York/New Jersey',live:KL,inLobby:['lena','jonas','mara']}
   ];}
   function u(id,name,email,av,friends,pts,cb,ch,xp,coins,streak){return{id:id,name:name,email:email,password:'wm2026',av:av,friends:friends,points:pts,correctBets:cb,challengesDone:ch,xp:xp,coins:coins,streak:streak,ach:[]};}
   function seed(){return{users:[
@@ -635,6 +641,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   var tm={next:null,answer:null,rec:null,mlist:null,ticker:null};
   function clr(t){if(t)clearInterval(t);return null;}
   function fmt(s){s=Math.max(0,Math.round(s));var m=Math.floor(s/60);return m+':'+((s%60)<10?'0':'')+(s%60);}
+  function fmtCountdown(s){if(s<=0)return '⏱️';if(s<3600)return fmt(s);if(s<86400){var h=Math.floor(s/3600);return h+' Std '+Math.floor((s%3600)/60)+' Min';}return Math.floor(s/86400)+' Tg '+Math.floor((s%86400)/3600)+' Std';}
+  function kickoffLabel(iso){try{return new Date(iso).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
   function diff(iso){return (new Date(iso).getTime()-Date.now())/1000;}
   function initials(n){return (n||'?').trim().charAt(0).toUpperCase();}
   var ACH={first_win:{i:'🎉',l:'Erster Sieg'},streak3:{i:'🔥',l:'3er-Serie'},sharp:{i:'🎯',l:'Scharfschütze'},live:{i:'🎥',l:'Live-Star'},social:{i:'🛡️',l:'Team-Player'},level5:{i:'⭐',l:'Level 5'}};
@@ -701,10 +709,10 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     var el=document.createElement('div');el.className='card match';
     el.innerHTML='<div class="head"><span class="pill '+(live?'live':'soon')+'">'+(live?'<span class="dot"></span>LIVE':'⏳ Bald')+'</span>'+
       '<span class="muted" style="font-size:.78rem">'+m.stage+'</span><span class="spacer"></span>'+
-      '<span class="muted" style="font-size:.78rem">'+(live?'läuft':'Anpfiff')+'</span> <span class="count" data-k="'+m.kick+'">'+(live?'⏱️':fmt(d))+'</span></div>'+
+      '<span class="muted" style="font-size:.78rem">'+(live?'läuft':'in')+'</span> <span class="count" data-k="'+m.kick+'">'+(live?'⏱️':fmtCountdown(d))+'</span></div>'+
       '<div class="teams"><div class="side"><div class="fl">'+m.hf+'</div><div class="nm">'+m.home+'</div></div>'+
       '<div class="vs">VS</div><div class="side"><div class="fl">'+m.af+'</div><div class="nm">'+m.away+'</div></div></div>'+
-      '<div class="meta">📍 '+m.venue+'</div>'+
+      '<div class="meta">📅 '+kickoffLabel(m.kick)+' Uhr · 📍 '+m.venue+'</div>'+
       '<div class="lobby-strip"><div class="lobby-ava">'+avas+'</div><span class="muted" style="font-size:.78rem">'+count+' in der Lobby</span></div>';
     var acts=document.createElement('div');acts.className='stack';acts.style.marginTop='4px';
     var join=document.createElement('button');join.className='btn '+(joined?'primary':'primary');join.textContent=joined?'✅ In Lobby — zur Live-Challenge':'➕ Challenge-Lobby beitreten';
@@ -712,7 +720,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     var lk=document.createElement('a');lk.className='btn ghost sm';lk.href=m.live;lk.target='_blank';lk.rel='noopener';lk.textContent='📺 Spiel live verfolgen';
     acts.appendChild(join);acts.appendChild(lk);el.appendChild(acts);host.appendChild(el);
   });}
-  tm.mlist=setInterval(function(){document.querySelectorAll('#match-list .count[data-k]').forEach(function(el){var d=diff(el.getAttribute('data-k'));el.textContent=d<=0?'⏱️':fmt(d);});},1000);
+  tm.mlist=setInterval(function(){document.querySelectorAll('#match-list .count[data-k]').forEach(function(el){var d=diff(el.getAttribute('data-k'));el.textContent=d<=0?'⏱️':fmtCountdown(d);});},1000);
   function joinLobby(id){st.matchId=id;UI.toast('✅','Lobby beigetreten!','Die erste Challenge startet gleich','lime');renderMatches();showView('live');startLobby();}
 
   /* ---- live ---- */
@@ -851,9 +859,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 </script>
 
 <script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load",function(){navigator.serviceWorker.register("service-worker.js").catch(function(){});});
-}
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("service-worker.js").catch(function(){});});}
 </script>
 </body>
 </html>

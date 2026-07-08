@@ -12,17 +12,25 @@ Genau wie bei der Fabio-Antunes-Seite wird der Ordner per **FTP/SFTP ins IONOS-W
 | `service-worker.js` | Offline-Fähigkeit + Installierbarkeit |
 | `icons/` | App-Icons (Android, iOS, maskable, Favicon) |
 
-## Auf IONOS veröffentlichen (Phase 1)
+## Auf IONOS veröffentlichen — als **Unterordner** (bestehende Website bleibt unverändert)
+
+Ziel: die App unter **`www.altenau-harz.de/matchquest/`** betreiben, **ohne** die bestehende Seite anzufassen —
+es wird nur zusätzlicher Webspace genutzt. Die App verwendet **relative Pfade**, läuft daher problemlos in
+einem Unterordner.
 
 1. Im IONOS-Kundenmenü **Webhosting → FTP-Zugang** öffnen (Host, Benutzer, Passwort).
 2. Mit einem FTP-Programm (z. B. **FileZilla**) verbinden.
-3. Den **gesamten Inhalt dieses Ordners** (`index.html`, `manifest.webmanifest`, `service-worker.js`, `icons/`)
-   ins gewünschte Verzeichnis laden:
-   - eigene Domain, z. B. `matchquest.de` → ins Webroot,
-   - oder Unterordner, z. B. `deinedomain.de/matchquest/`.
-4. **HTTPS aktivieren** (IONOS SSL/„SSL-Zertifikat" – kostenlos im Tarif enthalten).
-   ⚠️ Wichtig: Die **Kamera** (Live-Video-Challenges) funktioniert nur über **https**, nicht über http.
-5. Fertig – die App ist unter deiner Domain erreichbar und teilbar (einfach Link verschicken).
+3. Im Webroot (dort, wo die bestehende `index.html` von altenau-harz.de liegt) einen **neuen Ordner**
+   `matchquest` anlegen. **Nichts Bestehendes löschen oder überschreiben.**
+4. Den **gesamten Inhalt dieses Ordners** — `index.html`, `manifest.webmanifest`, `service-worker.js`
+   und den Ordner `icons/` — in `…/matchquest/` hochladen.
+5. **HTTPS/SSL** muss aktiv sein (bei IONOS kostenlos im Tarif). ⚠️ Die **Kamera** (Live-/Video-Challenges)
+   funktioniert nur über **https**, nicht über http.
+6. Fertig — Aufruf unter **`https://www.altenau-harz.de/matchquest/`**. Link (oder QR-Code) an Freunde
+   schicken, Feedback einsammeln.
+
+> Die eigentliche Website (`www.altenau-harz.de`) wird dadurch **nicht** verändert — MatchQuest liegt
+> vollständig separat im Unterordner.
 
 ## Auf dem Handy „installieren" (ohne App-Store)
 

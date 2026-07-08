@@ -248,9 +248,11 @@ Als menschliche Sicherheitsebene bestätigt das **Orakel** neutral das Ergebnis.
 Begründung: hohe iPhone-Verbreitung in der Zielgruppe und zu große Hürde/Aufwand für die Store-Einreichung.
 
 **Hosting (wie Fabio-Antunes-Projekt): IONOS Webhosting**
-1. Ordner `matchquest-app/webapp/` per **FTP/SFTP** ins IONOS-Webroot laden (reines HTML/CSS/JS).
+1. Inhalt von `matchquest-app/webapp/` per **FTP/SFTP** in einen **neuen Unterordner** laden, z. B.
+   `…/matchquest/` — die bestehende Website (z. B. `www.altenau-harz.de`) bleibt **unverändert**, es wird
+   nur zusätzlicher Webspace genutzt. Die App nutzt relative Pfade und läuft daher im Unterordner.
 2. **HTTPS/SSL** aktivieren (im Tarif enthalten) — nötig für Kamera-Zugriff.
-3. Unter eigener Domain (z. B. `matchquest.de`) erreichbar.
+3. Erreichbar unter z. B. `https://www.altenau-harz.de/matchquest/` — Link/QR-Code an Freunde zum Testen.
 
 **Verteilung an alle — einfach & kostenlos:**
 - **Link teilen** (WhatsApp/QR-Code): alle öffnen dieselbe URL auf jedem Gerät.
