@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MatchQuest — App</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="index.html"><span class="ball">⚽</span> Match<b>Quest</b></a>
+      <nav class="nav-links">
+        <button class="nav-btn active" data-view="matches">🗓️ Spiele</button>
+        <button class="nav-btn" data-view="live">🎯 Live-Challenge</button>
+        <button class="nav-btn" data-view="leaderboard">🏆 Leaderboard</button>
+        <span class="who" id="who"></span>
+        <button class="nav-btn" id="logout">Abmelden</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top:22px; padding-bottom:40px">
+
+    <!-- VIEW: SPIELE / LOBBY -->
+    <section id="view-matches" class="view active">
+      <h2 class="section-title">🗓️ WM 2026 — Spiele & Challenge-Lobbys</h2>
+      <p class="muted">Wähle ein Spiel und tritt vor dem Anpfiff der Challenge-Lobby bei.</p>
+      <div id="match-list" class="grid" style="margin-top:14px"></div>
+    </section>
+
+    <!-- VIEW: LIVE CHALLENGE -->
+    <section id="view-live" class="view">
+      <div id="live-empty" class="card" style="text-align:center">
+        <div style="font-size:2.4rem">🎯</div>
+        <h3>Noch keiner Lobby beigetreten</h3>
+        <p class="muted">Geh zu <b>Spiele</b> und tritt einer Challenge-Lobby bei, um Live-Challenges zu erhalten.</p>
+        <button class="btn primary" data-goto="matches">Zu den Spielen</button>
+      </div>
+
+      <div id="live-active" style="display:none">
+        <div class="card">
+          <div class="toolbar">
+            <span class="pill live" id="live-badge">● LIVE</span>
+            <span id="live-match" style="font-weight:800"></span>
+            <span class="spacer"></span>
+            <label class="switch" title="Stufe 2 simuliert eine KI, die überraschende – aber durch Guardrails gefilterte – Challenges erzeugt.">
+              <input type="checkbox" id="ki-toggle" />
+              <small>🤖 KI-Überraschungsmodus (Stufe 2)</small>
+            </label>
+          </div>
+          <div class="next-timer" id="next-timer"></div>
+        </div>
+
+        <div class="card challenge-box" id="challenge-card" style="margin-top:16px; display:none">
+          <span class="pill" id="challenge-source"></span>
+          <div class="challenge-q" id="challenge-q"></div>
+          <div class="timer-ring" id="challenge-timer"></div>
+
+          <!-- Wett-Optionen -->
+          <div class="opts" id="challenge-opts"></div>
+
+          <!-- Aktions-Challenge: Beweis-Upload + Orakel -->
+          <div id="challenge-action" style="display:none">
+            <div class="proof" id="proof-drop">
+              <div>📎 Beweis hochladen (Foto oder Video)</div>
+              <input type="file" id="proof-input" accept="image/*,video/*" style="margin-top:10px" />
+              <div id="proof-preview"></div>
+            </div>
+            <p class="muted">👁️ Ein Freund im Raum bestätigt als <b>Orakel</b>:</p>
+            <div class="oracle-row">
+              <button class="btn green" id="oracle-confirm">✅ Orakel bestätigt</button>
+              <button class="btn ghost" id="oracle-reject">❌ Nicht erfüllt</button>
+            </div>
+          </div>
+
+          <div class="result-banner" id="challenge-result" style="display:none"></div>
+        </div>
+
+        <div style="text-align:center; margin-top:16px">
+          <button class="btn ghost" id="skip-challenge" style="display:none">Challenge überspringen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: LEADERBOARD -->
+    <section id="view-leaderboard" class="view">
+      <h2 class="section-title">🏆 Leaderboard — deine Freunde</h2>
+      <p class="muted">Rangliste aller Freunde, sortiert nach richtigen Wetten. Aktualisiert bei jedem Öffnen.</p>
+      <div class="card" style="margin-top:12px">
+        <table class="leaderboard">
+          <thead>
+            <tr><th>Platz</th><th>Name</th><th>Richtige Wetten</th></tr>
+          </thead>
+          <tbody id="lb-body"></tbody>
+        </table>
+      </div>
+
+      <h3 class="section-title" style="font-size:1.1rem">📊 Deine Statistik</h3>
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="num" id="stat-points">0</div><div class="lbl">Punkte</div></div>
+          <div class="stat"><div class="num" id="stat-bets">0</div><div class="lbl">Richtige Wetten</div></div>
+          <div class="stat"><div class="num" id="stat-challenges">0</div><div class="lbl">Challenges gemeistert</div></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site">
+    <div class="wrap">MatchQuest · Prototyp (Demo) — alle Daten lokal im Browser · <a href="#" id="reset-demo">Demo zurücksetzen</a></div>
+  </footer>
+
+  <script src="assets/auth.js"></script>
+  <script src="assets/challenges.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MatchQuest — Login & Registrierung</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="index.html"><span class="ball">⚽</span> Match<b>Quest</b></a>
+      <nav class="nav-links">
+        <a href="index.html">← Startseite</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="auth-shell card">
+      <h2 style="text-align:center; margin-top:0">🔑 Willkommen zurück</h2>
+      <div class="tabs">
+        <button id="tab-login" class="active">Einloggen</button>
+        <button id="tab-register">Registrieren</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form id="form-login">
+        <div class="field">
+          <label for="login-email">E-Mail</label>
+          <input id="login-email" type="email" autocomplete="username" placeholder="stefan@matchquest.app" />
+        </div>
+        <div class="field">
+          <label for="login-pw">Passwort</label>
+          <input id="login-pw" type="password" autocomplete="current-password" placeholder="••••••" />
+        </div>
+        <div class="form-error" id="login-error"></div>
+        <button class="btn primary block" type="submit">⚡ Einloggen</button>
+        <p class="demo-note">
+          Demo-Zugang: <b>stefan@matchquest.app</b> · Passwort <b>wm2026</b><br />
+          (auch <b>lena@</b>, <b>jonas@</b> — Passwort für alle: <b>wm2026</b>)
+        </p>
+      </form>
+
+      <!-- REGISTER -->
+      <form id="form-register" style="display:none">
+        <div class="field">
+          <label for="reg-name">Anzeigename</label>
+          <input id="reg-name" type="text" autocomplete="name" placeholder="Dein Name" />
+        </div>
+        <div class="field">
+          <label for="reg-email">E-Mail</label>
+          <input id="reg-email" type="email" autocomplete="username" placeholder="du@example.com" />
+        </div>
+        <div class="field">
+          <label for="reg-pw">Passwort</label>
+          <input id="reg-pw" type="password" autocomplete="new-password" placeholder="Mindestens 4 Zeichen" />
+        </div>
+        <div class="form-error" id="reg-error"></div>
+        <button class="btn primary block" type="submit">🎉 Konto erstellen & loslegen</button>
+        <p class="demo-note">Du wirst automatisch mit den Demo-Freunden vernetzt, damit dein Leaderboard sofort lebt.</p>
+      </form>
+    </div>
+  </main>
+
+  <script src="assets/auth.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var MQ = window.MQ;
+      // Schon eingeloggt? Direkt in die App.
+      if (MQ.Auth.currentUser()) { window.location.href = 'app.html'; }
+
+      var tabLogin = document.getElementById('tab-login');
+      var tabReg = document.getElementById('tab-register');
+      var formLogin = document.getElementById('form-login');
+      var formReg = document.getElementById('form-register');
+
+      function show(which) {
+        var isLogin = which === 'login';
+        tabLogin.classList.toggle('active', isLogin);
+        tabReg.classList.toggle('active', !isLogin);
+        formLogin.style.display = isLogin ? '' : 'none';
+        formReg.style.display = isLogin ? 'none' : '';
+      }
+      tabLogin.addEventListener('click', function () { show('login'); });
+      tabReg.addEventListener('click', function () { show('register'); });
+
+      formLogin.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var res = MQ.Auth.login(
+          document.getElementById('login-email').value,
+          document.getElementById('login-pw').value
+        );
+        if (res.ok) { window.location.href = 'app.html'; }
+        else { document.getElementById('login-error').textContent = res.error; }
+      });
+
+      formReg.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var res = MQ.Auth.register(
+          document.getElementById('reg-name').value,
+          document.getElementById('reg-email').value,
+          document.getElementById('reg-pw').value
+        );
+        if (res.ok) { window.location.href = 'app.html'; }
+        else { document.getElementById('reg-error').textContent = res.error; }
+      });
+    })();
+  </script>
+</body>
+</html>

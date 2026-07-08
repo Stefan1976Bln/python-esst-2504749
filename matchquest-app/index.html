@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MatchQuest — Interaktive Fußball-Challenges zur WM</title>
+  <meta name="description" content="MatchQuest verwandelt jedes Fußballspiel in ein interaktives Erlebnis: Live-Challenges, Wetten mit Freunden, Punkte, Belohnungen und Ranglisten." />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="index.html"><span class="ball">⚽</span> Match<b>Quest</b></a>
+      <nav class="nav-links">
+        <a href="#konzept">Konzept</a>
+        <a href="#challenges">Challenges</a>
+        <a href="#sportarten">Sportarten</a>
+        <a class="btn primary" href="login.html">Jetzt mitmachen</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero wrap">
+      <span class="kicker">🏆 WM 2026 · Live dabei</span>
+      <h1>Mach jedes Spiel zur <b>Challenge</b>.</h1>
+      <p class="lead">
+        Klassische Tipp-Apps sind nach dem Anpfiff langweilig. MatchQuest hält dich
+        90 Minuten aktiv: Live-Challenges zum Spielgeschehen, Wetten mit Freunden,
+        Punkte, Belohnungen und ein Freundes-Leaderboard.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="login.html">⚡ Kostenlos registrieren</a>
+        <a class="btn ghost" href="#konzept">So funktioniert's</a>
+      </div>
+    </section>
+
+    <!-- KONZEPT -->
+    <section id="konzept" class="wrap features">
+      <h2 class="section-title">So funktioniert MatchQuest</h2>
+      <div class="grid cols-2">
+        <div class="card feature"><div class="ico">📝</div><h3>1. Registrieren & Lobby beitreten</h3>
+          <p class="muted">Sekundenschnell anmelden, ein WM-Spiel aus der Liste wählen und vor dem Anpfiff der Challenge-Lobby beitreten.</p></div>
+        <div class="card feature"><div class="ico">🎯</div><h3>2. Alle 10 Minuten eine Live-Challenge</h3>
+          <p class="muted">Wetten auf das nächste Tor oder verrückte Mitmach-Aktionen — mit Zeitlimit. Antworten zählen sofort.</p></div>
+        <div class="card feature"><div class="ico">🎥</div><h3>3. Beweis hochladen, Orakel bestätigt</h3>
+          <p class="muted">Bei Aktions-Challenges lädst du ein Foto/Video hoch. Ein Freund im Raum bestätigt als neutrales Orakel.</p></div>
+        <div class="card feature"><div class="ico">🥇</div><h3>4. Punkte sammeln & aufsteigen</h3>
+          <p class="muted">Richtige Wetten und bestätigte Aktionen bringen Punkte. Vergleiche dich im Leaderboard mit deinen Freunden.</p></div>
+      </div>
+    </section>
+
+    <!-- CHALLENGES -->
+    <section id="challenges" class="wrap features">
+      <h2 class="section-title">🔥 Zwei Arten von Challenges</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <span class="pill curated">Wett-Challenge</span>
+          <h3>🎲 Tippe das nächste Ereignis</h3>
+          <p class="muted">„Fällt in den nächsten 10 Minuten ein Tor?" · „Foul oder Eckball?" — schnell antworten, Punkte kassieren.</p>
+        </div>
+        <div class="card">
+          <span class="pill ki">Mitmach-Challenge</span>
+          <h3>🤳 Aktion + Beweis</h3>
+          <p class="muted">Torjubel erfinden, Fangesang anstimmen, Fan-Schild hochhalten — Beweis hochladen, Orakel bestätigt.</p>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:14px">
+        ✅ Alle Challenges laufen durch <b>Guardrails</b>: keine Gewalt, nichts Sexuelles, nichts Gefährliches.
+        Die „KI"-Stufe kombiniert überraschende, aber immer harmlose Ideen.
+      </p>
+    </section>
+
+    <!-- SPORTARTEN -->
+    <section id="sportarten" class="wrap features">
+      <h2 class="section-title">⚽ Für jedes Spiel gebaut</h2>
+      <p class="muted">Start zur Fußball-WM — das Prinzip passt aber auf jede Sportart:</p>
+      <div class="grid cols-2" style="margin-top:12px">
+        <div class="card feature"><div class="ico">⚽ 🏆</div><h3>Fußball</h3><p class="muted">WM, Champions League, Bundesliga bis Amateurliga.</p></div>
+        <div class="card feature"><div class="ico">🏀 🏈</div><h3>Basketball & Football</h3><p class="muted">Viertel-basierte Challenges statt Halbzeiten.</p></div>
+        <div class="card feature"><div class="ico">🎾 🏐</div><h3>Tennis & Volleyball</h3><p class="muted">Challenges pro Satz oder Aufschlag.</p></div>
+        <div class="card feature"><div class="ico">🏒 🏉</div><h3>Eishockey & Rugby</h3><p class="muted">Schnelle Ereignis-Wetten für rasante Spiele.</p></div>
+      </div>
+      <div class="cta" style="margin-top:26px">
+        <a class="btn primary" href="login.html">Jetzt zur WM starten ⚽</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      MatchQuest · Prototyp (Demo) — Daten liegen nur lokal im Browser · Zur WM 2026
+    </div>
+  </footer>
+
+  <script src="assets/auth.js"></script>
+  <script src="assets/landing.js"></script>
+</body>
+</html>
