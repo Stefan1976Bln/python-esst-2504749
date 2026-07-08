@@ -203,7 +203,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 .jitsi-note{font-size:.74rem;color:var(--muted);line-height:1.5;}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
 .opt{padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);font-weight:800;font-size:1.05rem;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s;}
-.opt:hover{background:var(--surface-2);} .opt.correct{background:linear-gradient(135deg,var(--ok),#12b06a);color:#04210f;border:none;}
+.opt:hover{background:var(--surface-2);} .opt.selected{outline:3px solid var(--cyan);}
+.opt.correct{background:linear-gradient(135deg,var(--ok),#12b06a);color:#04210f;border:none;}
 .opt.wrong{background:linear-gradient(135deg,var(--bad),#d63a49);color:#fff;border:none;}
 .result{margin-top:14px;padding:14px;border-radius:14px;font-weight:800;text-align:center;}
 .result.ok{background:rgba(47,224,127,.14);color:#7dffbe;} .result.bad{background:rgba(255,93,108,.14);color:#ff9aa4;}
@@ -275,6 +276,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       <h1>Erlebe jedes Spiel <span class="hl">live mit.</span></h1>
       <p>Interaktive Live-Challenges, Video-Duelle mit Freunden, XP, Ligen und Belohnungen — vom Anpfiff bis zum Abpfiff.</p>
       <button class="btn primary block" data-nav="login" style="max-width:320px;margin:0 auto">⚡ Jetzt kostenlos starten</button>
+      <p style="margin:14px auto 0;max-width:360px;font-size:.82rem;color:var(--muted)">❤️ <b>Nicht-kommerziell &amp; kostenlos.</b> Wir verdienen kein Geld — freiwillige Spenden gehen direkt an die <b>Berliner Tafel</b>.</p>
     </div>
     <div class="landing-feats">
       <div class="feat"><div class="fi">🎥</div><div><h3>Live-Video-Challenges</h3><p class="muted">Führe Aktionen live vor der Kamera vor — dein Orakel bestätigt in Echtzeit.</p></div></div>
@@ -322,7 +324,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         </div>
       </div>
       <div class="chips">
-        <button class="chip donate" id="donate-chip" title="An die Berliner Tafel spenden">❤️ Spenden</button>
+        <button class="chip donate" id="donate-chip" title="Freiwillig an die Berliner Tafel spenden – MatchQuest ist nicht-kommerziell">❤️ Berliner Tafel</button>
         <span class="chip streak"><span class="ico">🔥</span><span id="sb-streak" class="tnum">0</span></span>
         <span class="chip coins"><span class="ico">🪙</span><span id="sb-coins" class="tnum">0</span></span>
       </div>
@@ -406,7 +408,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
                 </div>
                 <div class="result" id="grp-result" style="display:none"></div>
                 <div class="row" style="margin-top:12px">
-                  <button class="btn ghost sm" id="grp-reroll">🎲 Rollen neu würfeln</button>
+                  <button class="btn ghost sm" id="grp-reroll">▶️ Nächste:r ist dran</button>
                 </div>
               </div>
 
@@ -433,7 +435,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
                   <div class="eyebrow" id="vc-eb"></div>
                   <div id="vc-task" style="font-weight:800;margin:6px 0;font-size:1.02rem"></div>
                   <div id="vc-roleinfo" class="jitsi-note" style="margin-bottom:8px"></div>
-                  <div id="vc-oracle" style="display:none"><div class="opts"><button class="btn primary" id="vc-ok">✅ Erfüllt</button><button class="btn ghost" id="vc-no">❌ Nicht erfüllt</button></div></div>
+                  <div id="vc-score" style="display:none"><p class="jitsi-note" style="margin:0 0 6px">Wie gut war\'s? Vergib <b>0–10</b> Punkte:</p><div id="vc-scorebtns" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+                  <button class="btn primary block" id="vc-eval" style="display:none;margin-top:8px">Runde auswerten (Ø)</button>
                   <div class="result" id="vc-result" style="display:none"></div>
                 </div>
                 <button class="btn ghost block" id="vc-leave" style="display:none;margin-top:10px">Videocall verlassen</button>
@@ -452,6 +455,11 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
             <h3 id="bet-q" style="font-size:1.25rem;margin:12px 0 2px;text-align:center"></h3>
             <div class="timer-ring tnum" id="bet-timer" style="text-align:center;color:var(--lime);font-weight:900"></div>
             <div class="opts" id="bet-opts"></div>
+            <div id="bet-confirm" style="display:none;margin-top:6px">
+              <div class="eyebrow" style="color:var(--cyan)">✅ Was ist wirklich passiert?</div>
+              <p class="jitsi-note" style="margin:4px 0 0">Alle bestätigen — die <b>Mehrheit</b> entscheidet über das Ergebnis (kein Zufall).</p>
+              <div class="opts" id="bet-confirm-opts"></div>
+            </div>
             <div class="result" id="bet-result" style="display:none"></div>
           </div>
 
@@ -547,10 +555,10 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         <div class="ach-grid" id="ach-grid"></div>
 
         <div class="card donate-card" style="margin-top:20px">
-          <div style="font-weight:800;font-size:1.05rem">❤️ Statt Gewinn: Gutes tun</div>
-          <p class="jitsi-note" style="margin:6px 0 0">MatchQuest verdient <b>kein Geld</b>. Wenn dir der Spaß gefällt, spende freiwillig an die <b>Berliner Tafel</b>. Die Spende läuft <b>direkt über deren offizielle Seite</b> — wir behalten nichts.</p>
+          <div style="font-weight:800;font-size:1.05rem">❤️ Nicht-kommerziell — spende an die Berliner Tafel</div>
+          <p class="jitsi-note" style="margin:6px 0 0">MatchQuest ist ein <b>nicht-kommerzielles</b> Projekt und <b>verdient kein Geld</b>. Wenn dir der Spaß gefällt, spende freiwillig an die <b>Berliner Tafel e.V.</b> — die Spende läuft <b>direkt über deren offizielle Seite</b>, wir behalten nichts und wickeln keine Zahlung ab.</p>
           <div class="donate-amts">
-            <button class="btn live sm" data-donate="1">1 € spenden</button>
+            <button class="btn live sm" data-donate="1">❤️ 1 € an die Berliner Tafel</button>
             <button class="btn ghost sm" data-donate="3">3 €</button>
             <button class="btn ghost sm" data-donate="5">5 €</button>
             <button class="btn ghost sm" data-donate="0">Anderer Betrag</button>
@@ -618,7 +626,13 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     u('jonas','Jonas','jonas@matchquest.app','a-c',['stefan','lena'],90,4,3,180,120,1),
     u('mara','Mara','mara@matchquest.app','a-d',['stefan'],165,8,6,360,240,3)
   ];
+    users[0].isOracle=true; // Stefan = akkreditiertes Demo-Orakel (darf Ereignisse feststellen)
     users[1].teamId='green';users[2].teamId='green';users[3].teamId='blue';
+    // Erfolge der Demo-Nutzer vorab, damit beim ersten Spielzug kein Toast-Schwall kommt
+    users[0].ach=['first_win','sharp','live','social'];
+    users[1].ach=['first_win','sharp','live','social','streak3','level5'];
+    users[2].ach=['first_win','live','social'];
+    users[3].ach=['first_win','sharp','live','social','streak3'];
     return{users:users,league:{name:'Kabinen-Crew',members:['stefan','lena','jonas','mara']},
       teams:[{id:'green',name:'Team Grün',emoji:'🟢',members:['lena','jonas']},{id:'blue',name:'Team Blau',emoji:'🔵',members:['mara']}],v:2};}
   function load(){try{var r=g.localStorage.getItem(LS);if(!r){var f=seed();save(f);return f;}var d=JSON.parse(r);
@@ -686,8 +700,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     'Imitiere den TV-Kommentator für 10 Sekunden.',
     'Mach eine Ein-Personen-La-Ola-Welle.'
   ];
-  var SIT=['Beim nächsten Freistoß','Wenn die Kamera zur Trainerbank schwenkt','Sobald der Kommentator laut wird','Beim nächsten Einwurf','In der Werbepause'];
-  var ACT=['erfinde einen neuen Jubel','imitiere einen Elfmeter-Anlauf in Zeitlupe','balanciere einen Snack auf dem Kopf','zeichne in 15 Sek. das Team-Wappen in die Luft','mach die Welle mit den Armen'];
+  var SIT=['Beim nächsten Freistoß','Wenn die Kamera zur Trainerbank schwenkt','Sobald der Kommentator laut wird','Beim nächsten Einwurf','In der Werbepause','Wenn der Schiri pfeift','Beim nächsten Eckball'];
+  var ACT=['imitiere den Trainer an der Seitenlinie','erfinde einen neuen Torjubel','imitiere einen Elfmeter-Anlauf in Zeitlupe','kommentiere die Szene wie im TV','spiele den Schiri mit dramatischer Karte','balanciere (vorsichtig) einen Snack auf dem Kopf','zeichne in 15 Sek. das Team-Wappen in die Luft','mach die Welle mit den Armen','halte wie ein Torwart einen Ball','sing die Stadionhymne'];
   function vidSim(){for(var i=0;i<8;i++){var t=pick(SIT)+': '+pick(ACT)+'!';if(ok(t))return t;}return 'Zeig ein fettes Daumen-hoch in die Kamera!';}
 
   var idc=0;
@@ -783,7 +797,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     $('sb-xpfill').style.width=into+'%';}
   function reward(o){var beforeLv=level(user.xp);user=MQ.DB.addResult(user.id,o);syncStatus();
     var afterLv=level(user.xp);if(afterLv>beforeLv){levelUp(afterLv);}checkAch();}
-  function levelUp(lv){$('lu-level').textContent=lv;$('levelup').classList.add('show');UI.confetti();}
+  var luTimer=null;
+  function levelUp(lv){$('lu-level').textContent=lv;$('levelup').classList.add('show');UI.confetti();if(luTimer)clearTimeout(luTimer);luTimer=setTimeout(function(){$('levelup').classList.remove('show');},2800);}
   $('lu-close').onclick=function(){$('levelup').classList.remove('show');};
 
   /* ---- Einwilligung (rechtlich) ---- */
@@ -862,9 +877,10 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 
   function spawn(){stopCam();var m=MQ.DB.match(st.matchId);var c=MQC.next({mode:st.mode,match:m});st.ch=c;st.answered=false;
     $('skip-challenge').style.display='';
-    if(c.type==='bet'){$('vid-card').style.display='none';$('bet-card').style.display='';$('bet-result').style.display='none';
+    if(c.type==='bet'){$('vid-card').style.display='none';$('bet-card').style.display='';$('bet-result').style.display='none';$('bet-confirm').style.display='none';
       $('bet-src').className='pill '+(c.source==='ki'?'ki':'curated');$('bet-src').textContent=c.source==='ki'?'🤖 KI-Challenge · geprüft':'🎯 Live-Challenge';
-      $('bet-q').textContent=c.text;var host=$('bet-opts');host.innerHTML='';c.options.forEach(function(opt){var b=document.createElement('button');b.className='opt';b.textContent=opt;b.onclick=function(){answerBet(opt,b);};host.appendChild(b);});
+      $('bet-q').textContent=c.text;st.betTip=null;st.betReality=c.options[Math.floor(Math.random()*c.options.length)];
+      var host=$('bet-opts');host.innerHTML='';c.options.forEach(function(opt){var b=document.createElement('button');b.className='opt';b.textContent=opt;b.onclick=function(){tipBet(opt,b);};host.appendChild(b);});
       startAnswer(c.answer,$('bet-timer'),betTimeout);
     }else{$('bet-card').style.display='none';$('vid-card').style.display='';$('vid-result').style.display='none';$('vid-oracle').style.display='none';$('reacts').style.display='none';$('rec-badge').style.display='none';$('vid-pre').style.display='';
       $('vid-src').className='pill '+(c.source==='ki'?'ki':'curated');$('vid-src').textContent=c.source==='ki'?'🤖 KI-Video-Challenge':'🎥 Live-Video-Challenge';
@@ -878,11 +894,23 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   function betResult(kind,txt){var b=$('bet-result');b.className='result '+kind;b.textContent=txt;b.style.display='';}
   function vidResult(kind,txt){var b=$('vid-result');b.className='result '+kind;b.textContent=txt;b.style.display='';}
 
-  function answerBet(choice,btn){if(st.answered)return;lock();$('bet-timer').textContent='';var opts=st.ch.options;var correct=opts[Math.floor(Math.random()*opts.length)];
-    Array.prototype.forEach.call($('bet-opts').children,function(b){b.disabled=true;if(b.textContent===correct)b.classList.add('correct');if(b===btn&&choice!==correct)b.classList.add('wrong');});
-    if(choice===correct){reward({points:st.ch.points,xp:st.ch.xp,coins:st.ch.coins,correctBet:true,streakInc:true});UI.confetti();betResult('ok','🎉 Richtig! +'+st.ch.xp+' XP · +'+st.ch.coins+' 🪙');UI.toast('🎯','Richtig getippt!','+'+st.ch.points+' Punkte','lime');}
-    else{reward({streakReset:true});betResult('bad','😅 Daneben — richtig war: '+correct+'. Serie zurückgesetzt.');}}
-  function betTimeout(){lock();$('bet-timer').textContent='';Array.prototype.forEach.call($('bet-opts').children,function(b){b.disabled=true;});reward({streakReset:true});betResult('bad','⏰ Zeit abgelaufen — keine Antwort.');}
+  // Phase 1: Tipp abgeben
+  function tipBet(choice,btn){if(st.betTip)return;st.betTip=choice;st.answered=true;tm.answer=clr(tm.answer);$('bet-timer').textContent='';$('skip-challenge').style.display='none';
+    Array.prototype.forEach.call($('bet-opts').children,function(b){b.disabled=true;if(b===btn)b.classList.add('selected');});
+    showBetConfirm();}
+  // Phase 2: Alle bestätigen, was wirklich passiert ist — Mehrheit entscheidet
+  function showBetConfirm(){$('bet-confirm').style.display='';var host=$('bet-confirm-opts');host.innerHTML='';st.ch.options.forEach(function(opt){var b=document.createElement('button');b.className='opt';b.textContent=opt;b.onclick=function(){confirmBet(opt);};host.appendChild(b);});}
+  function confirmBet(myConfirm){var opts=st.ch.options;var m=MQ.DB.match(st.matchId);var others=(m&&m.inLobby?m.inLobby.length:0);
+    var votes={};opts.forEach(function(o){votes[o]=0;});votes[myConfirm]++;
+    // Mitschauende bestätigen ebenfalls (in echt: reale Personen im Videocall; hier simuliert)
+    for(var i=0;i<others;i++){var v=(Math.random()<0.8)?st.betReality:opts[Math.floor(Math.random()*opts.length)];votes[v]++;}
+    var official=opts[0],best=-1;opts.forEach(function(o){if(votes[o]>best){best=votes[o];official=o;}});
+    var total=1+others;$('bet-confirm').style.display='none';
+    Array.prototype.forEach.call($('bet-opts').children,function(b){if(b.textContent===official)b.classList.add('correct');if(b.textContent===st.betTip&&st.betTip!==official)b.classList.add('wrong');});
+    var tally='🗳️ Mehrheit: „'+official+'" ('+votes[official]+'/'+total+')';
+    if(st.betTip===official){reward({points:st.ch.points,xp:st.ch.xp,coins:st.ch.coins,correctBet:true,streakInc:true});UI.confetti();betResult('ok','🎉 Dein Tipp „'+st.betTip+'" stimmt! '+tally+' · +'+st.ch.xp+' XP');UI.toast('🎯','Richtig getippt!','+'+st.ch.points+' Punkte','lime');}
+    else{reward({streakReset:true});betResult('bad','😅 Dein Tipp „'+st.betTip+'". '+tally+'.');}}
+  function betTimeout(){lock();$('bet-timer').textContent='';$('bet-confirm').style.display='none';Array.prototype.forEach.call($('bet-opts').children,function(b){b.disabled=true;});reward({streakReset:true});betResult('bad','⏰ Zeit abgelaufen — kein Tipp abgegeben.');}
 
   /* ---- live video flow ---- */
   $('vid-start').onclick=function(){startVideo();};
@@ -905,61 +933,66 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   $('skip-challenge').onclick=function(){lock();stopCam();if(st.ch&&st.ch.type==='bet')betResult('bad','⏭️ Übersprungen.');else vidResult('bad','⏭️ Übersprungen.');reward({streakReset:true});};
 
   /* ---- group video-call challenge ---- */
-  var GT=['Mach deinen besten Torjubel — alle schauen zu!','Stimme einen Fangesang an, die Gruppe geht mit!','Halte dein Fan-Schild hoch und erklär es in 10 Sekunden.','Imitiere den Trainer an der Seitenlinie.','Zeig deinen verrücktesten Jubel-Tanz.','Feiere ein imaginäres Tor in Zeitlupe.'];
-  var grp={players:[],playerId:null,oracleId:null,task:null,token:0};
+  var GT=['Imitiere den Trainer, der an der Seitenlinie tobt!','Mach deinen besten Torjubel — in Zeitlupe!','Kommentiere die Szene wie ein TV-Reporter (10 Sek.).','Sei der Schiedsrichter und zeig eine dramatische Gelbe Karte.','Stimme einen Fangesang an, die Gruppe geht mit!','Zeig deinen verrücktesten Jubel-Tanz.','Mime einen Elfmeter-Anlauf in Zeitlupe.','Halt wie ein Torwart einen unhaltbaren Ball.','Feiere, als hättest du gerade das Siegtor geschossen.','Mach die Welle ganz allein.','Imitiere den Jubel deines Lieblingsspielers.','Spiele die Trainer-Auswechslung an der Seitenlinie nach.','Sing die Stadionhymne wie ein Ultra.','Mach ein Torwart-Hechtsprung-Foto (eingefroren).','Erkläre in 10 Sek. die Abseitsregel mit Händen und Füßen.'];
+  var grp={players:[],performerIdx:-1,task:null,token:0};
   function grpParticipants(){var m=MQ.DB.match(st.matchId);var ids=[user.id].concat((m&&m.inLobby)||[]);var seen={};ids=ids.filter(function(i){if(seen[i])return false;seen[i]=1;return true;}).slice(0,4);return ids.map(function(i){return MQ.DB.getUser(i);}).filter(Boolean);}
   function nameOf(id){var u=MQ.DB.getUser(id);return u?u.name:'?';}
+  function performer(){return grp.players[grp.performerIdx]||null;}
   $('grp-start').onclick=function(){openGroup();};
-  $('grp-reroll').onclick=function(){rollGroup();};
+  $('grp-reroll').onclick=function(){nextGroupRound();};
   $('grp-close').onclick=function(){closeGroup();};
   document.querySelectorAll('#grp-reacts .rbtn').forEach(function(b){b.onclick=function(){floatEmoji(b.getAttribute('data-emo'),$('grp-grid'));};});
 
   function openGroup(){tm.next=clr(tm.next);$('next-timer').textContent='';stopCam();
     $('bet-card').style.display='none';$('vid-card').style.display='none';$('skip-challenge').style.display='none';$('grp-start').style.display='none';
-    grp.players=grpParticipants();$('group-card').style.display='';
+    grp.players=grpParticipants();grp.performerIdx=-1;$('group-card').style.display='';
     if(!$('vc-room').value)$('vc-room').value=defaultRoom();
     setGroupMode('sim');}
-  function rollGroup(){grp.token++;var tok=grp.token;stopCam();$('grp-result').style.display='none';
-    var ids=grp.players.map(function(p){return p.id;});if(!ids.length)return;
-    var pi=Math.floor(Math.random()*ids.length),oi;do{oi=Math.floor(Math.random()*ids.length);}while(oi===pi&&ids.length>1);
-    grp.playerId=ids[pi];grp.oracleId=ids[oi];
+
+  // Rotation: jede:r kommt der Reihe nach dran; die anderen sind Jury
+  function nextGroupRound(){grp.token++;stopCam();$('grp-result').style.display='none';
+    if(!grp.players.length)grp.players=grpParticipants();
+    grp.performerIdx=(grp.performerIdx+1)%grp.players.length;
     var t=(st.mode==='ki'&&MQC.kiTask)?MQC.kiTask():GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(t))t='Zeig ein fettes Daumen-hoch für alle!';grp.task=t;
-    renderGroup();runGroupFlow(tok);}
-  function renderGroup(){var grid=$('grp-grid');grid.innerHTML='';
-    grp.players.forEach(function(p){var isP=p.id===grp.playerId,isO=p.id===grp.oracleId,isMe=p.id===user.id;
-      var role=isP?'🎯 SPIELER':isO?'👁️ ORAKEL':'👀 ZUSCHAUER';var cls='vtile'+(isP?' player speaking':'')+(isO?' oracle':'');
+    renderGroup();grpReactions(grp.token);}
+  function renderGroup(){var grid=$('grp-grid');grid.innerHTML='';var perf=performer();
+    grp.players.forEach(function(p,i){var isP=i===grp.performerIdx,isMe=p.id===user.id;
+      var role=isP?'🎯 DRAN':'⭐ JURY';var cls='vtile'+(isP?' player speaking':'');
       var inner='<div class="role">'+role+'</div>'+(isMe&&isP?'<video id="grp-video" autoplay playsinline muted></video>':'')+
         '<div class="va '+(p.av||'')+'" id="grp-va-'+p.id+'">'+initials(p.name)+'</div>'+(isP?'<div class="ml"></div>':'')+
         '<div class="who">'+(isMe?'Du':p.name)+'</div>';
       var el=document.createElement('div');el.className=cls;el.innerHTML=inner;grid.appendChild(el);});
     var eb=$('grp-role-eb'),act=$('grp-action');$('grp-task').textContent=grp.task;
-    if(grp.playerId===user.id){eb.textContent='🎯 Du bist dran — führ es vor!';
-      act.innerHTML='<button class="btn live block" id="grp-cam">🎥 Kamera starten & loslegen</button>';
-      $('grp-cam').onclick=function(){grpPlayerStart(grp.token);};}
-    else if(grp.oracleId===user.id){eb.textContent='👁️ Du bist das Orakel für '+nameOf(grp.playerId);
-      act.innerHTML='<p class="muted" style="font-size:.85rem;margin:0 0 8px">'+nameOf(grp.playerId)+' führt live vor. Bewerte fair:</p>'+
-        '<div class="opts"><button class="btn primary" id="grp-ok">✅ Erfüllt</button><button class="btn ghost" id="grp-no">❌ Nicht erfüllt</button></div>';
-      $('grp-ok').onclick=function(){grpOracleDecide(true,grp.token);};$('grp-no').onclick=function(){grpOracleDecide(false,grp.token);};}
-    else{eb.textContent='👀 Du schaust zu';
-      act.innerHTML='<p class="muted" style="font-size:.85rem;margin:0">'+nameOf(grp.playerId)+' ist dran · '+nameOf(grp.oracleId)+' bewertet live. Feuer die Gruppe an! 🎉</p>';}}
-  function grpTimerRun(sec,tok,onEnd){tm.rec=clr(tm.rec);var r=sec;$('grp-timer').textContent=fmt(r);tm.rec=setInterval(function(){if(tok!==grp.token){tm.rec=clr(tm.rec);return;}r--;$('grp-timer').textContent=fmt(r);if(r<=0){tm.rec=clr(tm.rec);onEnd&&onEnd();}},1000);}
+    if(perf&&perf.id===user.id){eb.textContent='🎯 Du bist dran — die Jury vergibt 0–10!';
+      act.innerHTML='<button class="btn live block" id="grp-cam">🎬 Los geht\'s (Kamera)</button>';
+      $('grp-cam').onclick=function(){grpPerform(grp.token);};}
+    else{eb.textContent='⭐ '+(perf?perf.name:'?')+' ist dran — du bist Jury';
+      act.innerHTML='<p class="muted" style="font-size:.85rem;margin:0 0 8px">Wie gut war\'s? Vergib <b>0–10</b> Punkte:</p><div id="grp-scorebtns"></div>';
+      renderScoreButtons($('grp-scorebtns'),function(sc){grpJurorScore(sc,grp.token);});}}
+  function renderScoreButtons(host,cb){host.innerHTML='';host.style.cssText='display:flex;flex-wrap:wrap;gap:6px';for(var n=0;n<=10;n++){(function(n){var b=document.createElement('button');b.className='btn ghost sm';b.style.minWidth='42px';b.textContent=n;b.onclick=function(){cb(n);};host.appendChild(b);})(n);}}
   function grpReactions(tok){var e=['🔥','👏','⚽','😂','🎉'];var k=0;(function loop(){if(tok!==grp.token)return;floatEmoji(e[k%e.length],$('grp-grid'));k++;if(k<6)setTimeout(loop,1300);})();}
-  function runGroupFlow(tok){$('grp-timer').textContent='';
-    if(grp.playerId===user.id){/* wartet auf Kamerastart */}
-    else if(grp.oracleId===user.id){grpReactions(tok);grpTimerRun(30,tok,function(){if(tok===grp.token)grpOracleDecide(true,tok);});}
-    else{grpReactions(tok);grpTimerRun(20,tok,function(){if(tok!==grp.token)return;grpFinish(Math.random()<0.8,'spectator');});}}
-  function grpPlayerStart(tok){var v=document.getElementById('grp-video');
-    function begin(){grpReactions(tok);$('grp-action').innerHTML='<p class="muted" style="font-size:.85rem;margin:0">🔴 Du bist live! '+nameOf(grp.oracleId)+' bewertet gleich…</p>';
-      grpTimerRun(15,tok,function(){if(tok!==grp.token)return;$('grp-action').innerHTML='<p class="muted" style="font-size:.85rem;margin:0">⏳ Warte auf '+nameOf(grp.oracleId)+' (Orakel)…</p>';
-        setTimeout(function(){if(tok!==grp.token)return;grpFinish(Math.random()<0.85,'player');},1800);});}
+  function simJury(n){var arr=[];for(var i=0;i<Math.max(1,n);i++)arr.push(4+Math.floor(Math.random()*7));return arr;} // wohlwollende 4..10
+  function avgOf(a){return a.reduce(function(s,x){return s+x;},0)/a.length;}
+  // User ist dran → Jury (die anderen, hier simuliert / in echt im Call) bewertet 0–10
+  function grpPerform(tok){var v=document.getElementById('grp-video');
+    function finish(){if(tok!==grp.token)return;grp.token++;stopCam();
+      var scores=simJury(grp.players.length-1);var a=avgOf(scores);var pts=Math.round(a*5);
+      reward({points:pts,xp:pts,coins:Math.round(a*2),challengeDone:true,streakInc:a>=5});if(a>=7)UI.confetti();
+      grpRes(a>=5?'ok':'bad','⭐ Jury: '+scores.join(' · ')+' → Ø '+a.toFixed(1)+'/10 · +'+pts+' Punkte');
+      UI.toast('🎬','Bewertet!','Ø '+a.toFixed(1)+'/10 · +'+pts+' Pkt',a>=7?'lime':'');nextRoundButton();}
+    function begin(){$('grp-action').innerHTML='<p class="muted" style="font-size:.85rem;margin:0 0 8px">🔴 Du bist live! Zeig es der Jury…</p><button class="btn primary block" id="grp-done">✅ Fertig — Jury bewerten lassen</button>';
+      document.getElementById('grp-done').onclick=finish;grpTimerRun(15,tok,finish);}
     if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&v){navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(function(s){stream=s;v.srcObject=s;var va=document.getElementById('grp-va-'+user.id);if(va)va.style.display='none';begin();}).catch(function(){begin();});}else{begin();}}
-  function grpOracleDecide(okr,tok){if(tok!==grp.token)return;tm.rec=clr(tm.rec);grpFinish(okr,'oracle');}
-  function grpFinish(okr,role){grp.token++;stopCam();$('grp-timer').textContent='';var pName=nameOf(grp.playerId),oName=nameOf(grp.oracleId);
-    if(role==='player'){if(okr){reward({points:35,xp:40,coins:25,challengeDone:true,streakInc:true});UI.confetti();grpRes('ok','✅ '+oName+' (Orakel) bestätigt! +40 XP · +25 🪙');UI.toast('🎥','Gruppen-Challenge gemeistert!','+35 Punkte','lime');}else{reward({streakReset:true});grpRes('bad','😕 '+oName+' hat nicht bestätigt. Nächste Runde!');}}
-    else if(role==='oracle'){reward({xp:5,coins:10});grpRes(okr?'ok':'bad',(okr?'✅ Du hast '+pName+' bestätigt.':'❌ Du hast '+pName+' abgelehnt.')+' Fair georakelt — +10 🪙');UI.toast('👁️','Danke fürs Orakeln!','+10 🪙');}
-    else{reward({coins:5});if(okr){UI.confetti();grpRes('ok','🎉 '+pName+' hat gemeistert — '+oName+' bestätigt! +5 🪙 fürs Dabeisein');}else{grpRes('bad','😅 '+pName+' hat es nicht geschafft. +5 🪙 fürs Dabeisein');}}
-    var act=$('grp-action');act.innerHTML='<button class="btn primary block" id="grp-again">🎲 Nächste Runde (neu auslosen)</button>';
-    document.getElementById('grp-again').onclick=function(){$('grp-result').style.display='none';rollGroup();};}
+  // User ist Jury → vergibt 0–10 für die:den Performer:in
+  function grpJurorScore(sc,tok){if(tok!==grp.token)return;grp.token++;var perf=performer();
+    var others=simJury(grp.players.length-2);var all=others.concat([sc]);var a=avgOf(all);
+    reward({xp:5,coins:5});if(a>=7)UI.confetti();
+    grpRes(a>=5?'ok':'bad','⭐ '+(perf?perf.name:'?')+': deine '+sc+' + Jury → Ø '+a.toFixed(1)+'/10 · danke! +5 🪙');
+    UI.toast('⭐','Bewertung abgegeben','+5 🪙');nextRoundButton();}
+  function nextRoundButton(){var act=$('grp-action');var allDone=(grp.performerIdx>=grp.players.length-1);
+    act.innerHTML='<button class="btn primary block" id="grp-again">▶️ '+(allDone?'Neue Runde — wieder alle dran':'Nächste:r ist dran')+'</button>';
+    document.getElementById('grp-again').onclick=function(){$('grp-result').style.display='none';nextGroupRound();};}
+  function grpTimerRun(sec,tok,onEnd){tm.rec=clr(tm.rec);var r=sec;$('grp-timer').textContent=fmt(r);tm.rec=setInterval(function(){if(tok!==grp.token){tm.rec=clr(tm.rec);return;}r--;$('grp-timer').textContent=fmt(r);if(r<=0){tm.rec=clr(tm.rec);onEnd&&onEnd();}},1000);}
   function grpRes(kind,txt){var b=$('grp-result');b.className='result '+kind;b.textContent=txt;b.style.display='';}
   function closeGroup(){grp.token++;stopCam();try{leaveCall();}catch(e){}$('group-card').style.display='none';$('grp-start').style.display='';startLobby();}
 
@@ -975,7 +1008,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     if(live){grp.token++;stopCam();$('vc-room').value=defaultRoom();
       var me=MQ.DB.getUser(user.id);var tn=(me&&me.teamId&&MQ.DB.getTeam(me.teamId))?MQ.DB.getTeam(me.teamId).name:null;
       $('vc-status').textContent=tn?('👥 Dies ist der Call von „'+tn+'". Dein Team teilt sich diesen Raum-Code; andere Teams haben ihren eigenen Call.'):'Tipp: Tritt einem Team bei (Rang → Teams) — dann bekommt jedes Team automatisch seinen eigenen Call.';}
-    else{try{leaveCall();}catch(e){}if(!grp.playerId||!grp.players.length){grp.players=grpParticipants();rollGroup();}}}
+    else{try{leaveCall();}catch(e){}if(!grp.players.length)grp.players=grpParticipants();if(grp.performerIdx<0)nextGroupRound();else renderGroup();}}
   $('mode-sim').onclick=function(){setGroupMode('sim');};
   $('mode-live').onclick=function(){setGroupMode('live');};
 
@@ -992,8 +1025,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   $('vc-join').onclick=function(){joinCall();};
   $('vc-leave').onclick=function(){leaveCall();};
   $('vc-round').onclick=function(){startRoundForAll();};
-  $('vc-ok').onclick=function(){oracleDecideLive(true);};
-  $('vc-no').onclick=function(){oracleDecideLive(false);};
+  $('vc-eval').onclick=function(){evalRoundLive();};
 
   function joinCall(){var room=($('vc-room').value||defaultRoom()).replace(/[^A-Za-z0-9\-_]/g,'');
     if(room.length<4){UI.toast('⚠️','Raum-Code zu kurz','Bitte mind. 4 Zeichen');return;}
@@ -1006,7 +1038,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         configOverwrite:{prejoinPageEnabled:false,startWithAudioMuted:false,disableDeepLinking:true},
         interfaceConfigOverwrite:{MOBILE_APP_PROMO:false,SHOW_JITSI_WATERMARK:false,SHOW_CHROME_EXTENSION_BANNER:false,TOOLBAR_BUTTONS:['microphone','camera','desktop','tileview','hangup','fullscreen']}});
       jitsi.api.addEventListener('videoConferenceJoined',function(e){jitsi.me=e.id;$('vc-status').textContent='✅ Verbunden als '+user.name+'. Teile den Raum-Code — alle mit demselben Code sehen sich live.';$('vc-actions').style.display='';$('vc-leave').style.display='';});
-      jitsi.api.addEventListener('endpointTextMessageReceived',function(ev){try{var d=JSON.parse(ev.data.eventData.text);if(d&&d.mq==='round')applyRound(d);else if(d&&d.mq==='result')showLiveResult(d);}catch(e){}});
+      jitsi.api.addEventListener('endpointTextMessageReceived',function(ev){try{var d=JSON.parse(ev.data.eventData.text);if(d&&d.mq==='round')applyRound(d);else if(d&&d.mq==='score')onScoreLive(d);else if(d&&d.mq==='vresult')showLiveResultJury(d);}catch(e){}});
       jitsi.api.addEventListener('readyToClose',function(){leaveCall();});
       }catch(err){$('vc-status').textContent='⚠️ Videocall konnte nicht gestartet werden. Bitte die IONOS-Version nutzen.';$('vc-prejoin').style.display='';$('jitsi-wrap').style.display='none';}
     });}
@@ -1016,23 +1048,33 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     if($('vc-leave'))$('vc-leave').style.display='none';if($('vc-roundcard'))$('vc-roundcard').style.display='none';if($('vc-status'))$('vc-status').textContent='';}
   function callParts(){try{var info=jitsi.api.getParticipantsInfo()||[];var list=info.map(function(p){return{id:p.participantId,name:p.displayName||'Gast'};});
     if(jitsi.me&&!list.some(function(x){return x.id===jitsi.me;}))list.push({id:jitsi.me,name:user.name});return list;}catch(e){return jitsi.me?[{id:jitsi.me,name:user.name}]:[];}}
+  // Rotation über die Call-Teilnehmer: jede:r kommt der Reihe nach dran
   function startRoundForAll(){var parts=callParts();if(!parts.length){UI.toast('👥','Noch niemand im Call','Tritt zuerst dem Videocall bei');return;}
     if(parts.length<2)UI.toast('👥','Allein im Call','Warte auf Freunde (gleicher Raum-Code) — Runde läuft trotzdem zum Testen.');
-    var pi=Math.floor(Math.random()*parts.length),oi;do{oi=Math.floor(Math.random()*parts.length);}while(oi===pi&&parts.length>1);
+    jitsi.perfIdx=((jitsi.perfIdx==null?-1:jitsi.perfIdx)+1)%parts.length;var perf=parts[jitsi.perfIdx];
     var task=(st.mode==='ki'&&MQC.kiTask)?MQC.kiTask():GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(task))task='Zeig ein Daumen-hoch für alle!';
-    var payload={mq:'round',playerId:parts[pi].id,playerName:parts[pi].name,oracleId:parts[oi].id,oracleName:parts[oi].name,task:task};
+    var payload={mq:'round',performerId:perf.id,performerName:perf.name,task:task};
     applyRound(payload);if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}}
-  function applyRound(d){jitsi.round=d;$('vc-roundcard').style.display='';$('vc-result').style.display='none';
-    var iP=d.playerId===jitsi.me,iO=d.oracleId===jitsi.me;
-    $('vc-eb').textContent=iP?'🎯 Du bist dran!':iO?'👁️ Du bist das Orakel':'👀 Du schaust zu';
+  function applyRound(d){jitsi.round=d;jitsi.scores={};$('vc-roundcard').style.display='';$('vc-result').style.display='none';
+    var iAmPerf=d.performerId===jitsi.me;
+    $('vc-eb').textContent=iAmPerf?'🎯 Du bist dran!':('⭐ '+d.performerName+' ist dran — du bist Jury');
     $('vc-task').textContent=d.task;
-    $('vc-roleinfo').textContent='Spieler: '+d.playerName+' · Orakel: '+d.oracleName+(iP?' — führ es jetzt vor der Kamera vor!':iO?' — bewerte '+d.playerName+' fair.':' — feuere die Gruppe an!');
-    $('vc-oracle').style.display=iO?'':'none';}
-  function oracleDecideLive(okr){if(!jitsi.round)return;var d=jitsi.round;var payload={mq:'result',ok:okr,playerId:d.playerId,playerName:d.playerName,oracleName:d.oracleName};
-    if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}showLiveResult(payload);}
-  function showLiveResult(d){$('vc-oracle').style.display='none';var iP=jitsi.round&&d.playerId===jitsi.me;var b=$('vc-result');b.style.display='';
-    if(d.ok){b.className='result ok';b.textContent='✅ '+d.playerName+' hat die Challenge gemeistert! (bestätigt von '+d.oracleName+')';if(iP){reward({points:35,xp:40,coins:25,challengeDone:true,streakInc:true});UI.confetti();UI.toast('🎥','Gemeistert!','+35 Punkte','lime');}}
-    else{b.className='result bad';b.textContent='😕 '+d.playerName+' — diesmal nicht bestätigt.';if(iP)reward({streakReset:true});}}
+    $('vc-roleinfo').textContent=iAmPerf?'Führ es vor der Kamera vor — die anderen vergeben 0–10.':('Bewerte '+d.performerName+' fair mit 0–10.');
+    // Jury: Score-Buttons; Performer: Auswerten-Button
+    if(iAmPerf){$('vc-score').style.display='none';$('vc-eval').style.display='';$('vc-eval').textContent='Runde auswerten (Ø)';}
+    else{$('vc-eval').style.display='none';$('vc-score').style.display='';renderScoreButtons($('vc-scorebtns'),function(sc){sendScoreLive(sc);});}}
+  function sendScoreLive(sc){if(!jitsi.round)return;jitsi.scores[jitsi.me]=sc;$('vc-score').style.display='none';$('vc-roleinfo').textContent='Deine Wertung: '+sc+'/10 — danke! Warten auf Auswertung durch '+jitsi.round.performerName+'.';
+    var payload={mq:'score',performerId:jitsi.round.performerId,from:jitsi.me,score:sc};if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}}
+  function onScoreLive(d){if(!jitsi.round||d.performerId!==jitsi.round.performerId)return;jitsi.scores[d.from]=d.score;
+    if(jitsi.round.performerId===jitsi.me){var vals=Object.keys(jitsi.scores).map(function(k){return jitsi.scores[k];});$('vc-eval').textContent='Runde auswerten (Ø '+(vals.length?avgOf(vals).toFixed(1):'–')+' · '+vals.length+' Stimmen)';}}
+  function evalRoundLive(){if(!jitsi.round)return;var vals=Object.keys(jitsi.scores).map(function(k){return jitsi.scores[k];});
+    if(!vals.length)vals=simJury(1); // Fallback, falls (noch) keine Wertungen eingegangen sind
+    var a=avgOf(vals);var payload={mq:'vresult',performerId:jitsi.round.performerId,performerName:jitsi.round.performerName,avg:a,n:vals.length};
+    if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}showLiveResultJury(payload);}
+  function showLiveResultJury(d){$('vc-score').style.display='none';$('vc-eval').style.display='none';var iP=d.performerId===jitsi.me;var b=$('vc-result');b.style.display='';
+    b.className='result '+(d.avg>=5?'ok':'bad');b.textContent='⭐ '+d.performerName+': Ø '+Number(d.avg).toFixed(1)+'/10 ('+d.n+' Wertungen)';
+    if(iP){var pts=Math.round(d.avg*5);reward({points:pts,xp:pts,coins:Math.round(d.avg*2),challengeDone:true,streakInc:d.avg>=5});if(d.avg>=7)UI.confetti();UI.toast('🎬','Bewertet!','Ø '+Number(d.avg).toFixed(1)+'/10 · +'+pts+' Pkt',d.avg>=7?'lime':'');}
+    else{reward({xp:5,coins:5});}}
 
   /* ---- leaderboard ---- */
   var currentBoard='friends';

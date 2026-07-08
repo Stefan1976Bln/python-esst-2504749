@@ -211,11 +211,18 @@ Keine Serverlogik nötig — ideal für schnellen Start zur WM. „Gruppen-Video
 
 ## 10. Ablauf: Live- und Gruppen-Challenges
 
-**Wett-Challenge:** Challenge erscheint → Zeitlimit läuft → Nutzer wählt Option → Ergebnis wird ermittelt
-(Phase 2: Datenfeed) → Punkte/XP/Streak aktualisiert.
+**Wett-Challenge (faktische Ereignisse, z. B. „Tor?"):** Challenge erscheint → Zeitlimit → Nutzer tippt →
+danach **bestätigen alle, was wirklich passiert ist** → die **Mehrheit** legt das offizielle Ergebnis fest
+(kein Zufall, keine Sonderrechte). Wer die Mehrheit richtig getippt hat, bekommt Punkte. (Phase 2: zusätzlich
+automatischer Live-Datenfeed als Quelle, durch die Mehrheit gegengeprüft.)
 
 **Live-Video-Challenge:** Nutzer startet Kamera → führt Aktion vor (REC-Timer) → **Orakel** bestätigt/lehnt
 live ab → Belohnung bzw. Streak-Reset.
+
+**Ergebnis-Ermittlung — wer bewertet was?**
+- **Fakten** (Tor/Karte/Eckball) → **Mehrheitsentscheid**: jede:r bestätigt das reale Ereignis.
+- **Darbietung** (Torjubel, Trainer nachmachen …) → **Jury 0–10**: die anderen im Videocall vergeben Punkte,
+  der Schnitt zählt. **Rotation: jede:r kommt der Reihe nach dran** mit einer anderen (jugendfreien) Aufgabe.
 
 **Gruppen-Videocall-Challenge (US2b):**
 1. Alle Teilnehmenden der Lobby sind im **Videocall-Raster** sichtbar.
@@ -271,6 +278,11 @@ Begründung: hohe iPhone-Verbreitung in der Zielgruppe und zu große Hürde/Aufw
 - **Bild-/Persönlichkeitsrechte:** Beweisvideos zeigen ggf. Dritte → nur mit Zustimmung, nicht öffentlich teilen.
 - **Kein Glücksspiel:** Es wird **mit Punkten**, nicht um Geld gespielt (keine Geldeinsätze/-gewinne),
   um regulatorische Einordnung als Glücksspiel zu vermeiden.
+- **Nicht-kommerziell & Spende:** MatchQuest erzielt **keine Einnahmen**. Ein Spenden-Button verlinkt auf die
+  **offizielle Seite der Berliner Tafel e.V.**; die App wickelt **keine Zahlungen** ab (keine Zahlungsdienst-/PCI-Pflichten)
+  und behält nichts.
+- **Einwilligung:** Vor der Nutzung stimmen Nutzer:innen Verhaltenskodex, Datenschutz (inkl. Jitsi-Drittanbieter)
+  und Altersangabe (16+) zu; die Zustimmung wird gespeichert.
 - **Minderjährige:** Alterskennzeichnung/Elternhinweis; Guardrails schützen zusätzlich.
 - **Marken/Ligarechte:** Team-/Wettbewerbsnamen nur beschreibend; keine offiziellen Logos ohne Lizenz;
   Live-Links verweisen auf berechtigte Anbieter.
