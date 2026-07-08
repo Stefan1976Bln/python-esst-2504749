@@ -136,7 +136,8 @@ und spielerisch interagieren möchten; mobil-affin.
 | F12 | KI-Challenge-Generierung | Stufe 1 kuratiert, Stufe 2 (Prototyp) simuliert, (Phase 2) echt | 1/2 |
 | F13 | PWA/Installierbarkeit | „Zum Home-Bildschirm", Offline-Shell | 1 |
 | F14 | Echtzeit-Multiplayer | Gemeinsame Lobbys/Ranking serverseitig | 2 |
-| F15 | Echter Video-Chat | WebRTC zwischen Geräten + Signalisierung | 2 |
+| F15 | Echter Video-Chat | Mehrpersonen-Video via **Jitsi Meet** (Open Source) eingebettet — kein eigener Server; synchrone Rollen-Auslosung über Jitsi-Datenkanal | 1 (Client) / 2 (self-hosted) |
+| F15b | Freies Spiel | Live-Challenges & Videocall ohne Spiel-Termin | 1 |
 | F16 | Auto-Auflösung Wetten | Live-Sportdatenfeed | 2 |
 
 ---

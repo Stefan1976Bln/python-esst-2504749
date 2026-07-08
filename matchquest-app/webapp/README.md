@@ -43,6 +43,28 @@ einem Unterordner.
 - **Link teilen** (WhatsApp/QR-Code) → alle öffnen dieselbe URL, kostenlos, auf jedem Gerät.
 - Kein Sideloading, keine APK, keine 25 $-Store-Gebühr nötig.
 
+## Mit Freunden testen
+
+**Registrieren (super einfach, kein E-Mail-Versand):**
+- Reiter **Registrieren** → E-Mail + Passwort (2×, im **Klartext** sichtbar), Name optional → **Konto erstellen**.
+- Es wird **keine** E-Mail verschickt/bestätigt — man ist sofort drin. Ideal für einen schnellen Freundes-Test.
+
+**Live-Challenge ohne Spiel-Termin:** auf **Spiele → „Freies Spiel — sofort testen"** (oder Live-Tab) — startet
+sofort Live-Challenges (Wette + Live-Video), unabhängig von einem WM-Spiel.
+
+**Echter Mehrpersonen-Videocall (alle sehen sich live):**
+- **Live-Tab → „👥 Gruppen-Challenge starten" → Reiter „📹 Echter Videocall"**.
+- Alle Tester geben **denselben Raum-Code** ein (z. B. den vorausgefüllten) → **Beitreten** → Kamera/Mikro erlauben.
+- Basiert auf **Jitsi Meet** (Open Source, Apache-Lizenz) über den kostenlosen Server `meet.jit.si` — **kein eigener
+  Server nötig**. Mit **„🎲 Runde für alle auslosen"** werden Spieler & Orakel zufällig bestimmt und synchron
+  bei allen angezeigt; das Orakel bewertet live.
+- ⚠️ **Nur über HTTPS** (Kamera). Funktioniert **nicht** in der Artifact-Vorschau (dort ist der externe Dienst
+  blockiert → automatischer Rückfall auf den 🤖 Simulations-Modus), sondern **auf der IONOS-gehosteten Version**.
+- ℹ️ Hinweis zu `meet.jit.si`: Gelegentlich verlangt der öffentliche Server, dass **eine Person** den Raum als
+  „Moderator" per Google/GitHub-Login startet (Meldung „Warten auf Moderator"). Für den Freundes-Test einmalig ok.
+  Für den Dauerbetrieb später **eigene Jitsi-Instanz** oder anderen Open-Source-Dienst hosten (DSGVO-freundlicher).
+  Der Server lässt sich im Code leicht austauschen (`meet.jit.si` → eigene Domain).
+
 ## Hinweis: Demo vs. Live-Backend
 
 Aktuell laufen Konten, Punkte und Ranglisten **client-seitig im Browser** (`localStorage`), d. h. pro Gerät

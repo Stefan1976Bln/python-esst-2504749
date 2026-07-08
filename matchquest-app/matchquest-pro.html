@@ -198,6 +198,9 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 .vtile .who{position:absolute;bottom:6px;left:8px;font-size:.7rem;font-weight:800;text-shadow:0 1px 5px #000;}
 .vtile .ml{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 rgba(255,61,113,.6);animation:pulse 1.4s infinite;}
 .vtile.speaking .va{animation:bob 3s ease-in-out infinite;}
+.jitsi-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#05070f;height:52vh;min-height:300px;}
+.jitsi-wrap iframe{width:100%!important;height:100%!important;border:0;display:block;}
+.jitsi-note{font-size:.74rem;color:var(--muted);line-height:1.5;}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
 .opt{padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);font-weight:800;font-size:1.05rem;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s;}
 .opt:hover{background:var(--surface-2);} .opt.correct{background:linear-gradient(135deg,var(--ok),#12b06a);color:#04210f;border:none;}
@@ -283,12 +286,13 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         <p class="demo-note">Demo: <b>stefan@matchquest.app</b> · <b>wm2026</b><br>(auch lena@ · jonas@ — Passwort für alle: wm2026)</p>
       </form>
       <form id="form-register" style="display:none">
-        <div class="field"><label>Anzeigename</label><input id="reg-name" type="text" autocomplete="name" placeholder="Dein Name"></div>
-        <div class="field"><label>E-Mail</label><input id="reg-email" type="email" autocomplete="username" placeholder="du@example.com"></div>
-        <div class="field"><label>Passwort</label><input id="reg-pw" type="password" autocomplete="new-password" placeholder="Mind. 4 Zeichen"></div>
+        <div class="field"><label>Anzeigename (optional)</label><input id="reg-name" type="text" autocomplete="name" placeholder="z. B. Stefan"></div>
+        <div class="field"><label>E-Mail</label><input id="reg-email" type="text" autocomplete="off" spellcheck="false" placeholder="du@example.com"></div>
+        <div class="field"><label>Passwort <span class="muted" style="font-weight:600">(im Klartext sichtbar)</span></label><input id="reg-pw" type="text" autocomplete="off" spellcheck="false" placeholder="Mind. 4 Zeichen"></div>
+        <div class="field"><label>Passwort wiederholen</label><input id="reg-pw2" type="text" autocomplete="off" spellcheck="false" placeholder="Passwort erneut eingeben"></div>
         <div class="form-error" id="reg-error"></div>
         <button class="btn primary block" type="submit">🎉 Konto erstellen</button>
-        <p class="demo-note">Du wirst sofort mit den Demo-Freunden vernetzt.</p>
+        <p class="demo-note">🔓 Test-Modus: E-Mail &amp; Passwort im Klartext sichtbar. Es wird <b>keine E-Mail</b> versendet — du bist sofort drin und mit den Demo-Freunden vernetzt.</p>
       </form>
     </div>
   </section>
@@ -315,6 +319,11 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       <div class="screen">
         <h2 class="title">WM 2026 · Finalrunde 🏆</h2>
         <div class="sub">Alle Restspiele mit echten Terminen. Tritt einer Lobby bei und teste die Challenges.</div>
+        <div class="card glow" style="margin-bottom:14px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:1.8rem">🎥</div>
+          <div style="flex:1"><div style="font-weight:800">Freies Spiel — sofort testen</div><div class="jitsi-note">Live-Challenges &amp; echter Videocall, ganz ohne Spiel-Termin.</div></div>
+          <button class="btn primary sm" id="freeplay-btn">Start</button>
+        </div>
         <div id="ticker-wrap" style="margin-bottom:14px"></div>
         <div class="stack" id="match-list"></div>
       </div>
@@ -326,8 +335,9 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
         <div id="live-empty" class="card" style="text-align:center;padding:34px 20px">
           <div style="font-size:2.6rem">🎯</div>
           <h3 style="margin:8px 0">Keiner Lobby beigetreten</h3>
-          <p class="muted" style="font-size:.9rem">Wähle unter <b>Spiele</b> ein Match und tritt der Lobby bei.</p>
-          <button class="btn primary" data-view="matches" style="margin-top:8px">Zu den Spielen</button>
+          <p class="muted" style="font-size:.9rem">Starte ein <b>Freies Spiel</b> oder wähle unter <b>Spiele</b> ein Match.</p>
+          <button class="btn primary" id="freeplay-btn2" style="margin-top:8px">🎥 Freies Spiel starten</button>
+          <button class="btn ghost" data-view="matches" style="margin-top:8px">Zu den Spielen</button>
         </div>
 
         <div id="live-active" style="display:none">
@@ -358,22 +368,62 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
                 <span class="spacer"></span>
                 <span class="timer-ring tnum" id="grp-timer" style="color:var(--cyan);font-weight:900"></span>
               </div>
-              <div class="vcall-grid" id="grp-grid"></div>
-              <div class="reacts" id="grp-reacts" style="position:static;display:flex;justify-content:center;gap:8px;margin-top:10px">
-                <button class="rbtn" data-emo="🔥">🔥</button>
-                <button class="rbtn" data-emo="👏">👏</button>
-                <button class="rbtn" data-emo="😂">😂</button>
-                <button class="rbtn" data-emo="⚽">⚽</button>
-                <button class="rbtn" data-emo="🎉">🎉</button>
+              <div class="seg" id="grp-mode" style="margin-bottom:12px">
+                <button id="mode-sim" class="active">🤖 Simulation</button>
+                <button id="mode-live">📹 Echter Videocall</button>
               </div>
-              <div class="card" style="margin-top:12px;padding:13px;background:var(--surface-2)">
-                <div class="eyebrow" id="grp-role-eb">Gruppen-Challenge</div>
-                <div id="grp-task" style="font-weight:800;margin:6px 0;font-size:1.02rem"></div>
-                <div id="grp-action"></div>
+
+              <!-- SIM-Modus (funktioniert überall, auch in der Vorschau) -->
+              <div id="grp-sim">
+                <div class="vcall-grid" id="grp-grid"></div>
+                <div class="reacts" id="grp-reacts" style="position:static;display:flex;justify-content:center;gap:8px;margin-top:10px">
+                  <button class="rbtn" data-emo="🔥">🔥</button>
+                  <button class="rbtn" data-emo="👏">👏</button>
+                  <button class="rbtn" data-emo="😂">😂</button>
+                  <button class="rbtn" data-emo="⚽">⚽</button>
+                  <button class="rbtn" data-emo="🎉">🎉</button>
+                </div>
+                <div class="card" style="margin-top:12px;padding:13px;background:var(--surface-2)">
+                  <div class="eyebrow" id="grp-role-eb">Gruppen-Challenge</div>
+                  <div id="grp-task" style="font-weight:800;margin:6px 0;font-size:1.02rem"></div>
+                  <div id="grp-action"></div>
+                </div>
+                <div class="result" id="grp-result" style="display:none"></div>
+                <div class="row" style="margin-top:12px">
+                  <button class="btn ghost sm" id="grp-reroll">🎲 Rollen neu würfeln</button>
+                </div>
               </div>
-              <div class="result" id="grp-result" style="display:none"></div>
+
+              <!-- ECHTER VIDEOCALL (Jitsi · Open Source · Mehrpersonen) -->
+              <div id="grp-live" style="display:none">
+                <div class="field" style="margin-bottom:10px">
+                  <label>Raum-Code — alle Freunde geben denselben ein</label>
+                  <div class="row" style="gap:8px">
+                    <input id="vc-room" type="text" autocomplete="off" spellcheck="false">
+                    <button class="btn sm ghost" id="vc-copy">📋 Teilen</button>
+                  </div>
+                </div>
+                <div id="vc-prejoin">
+                  <button class="btn live block" id="vc-join">📹 Videocall beitreten & Kamera freigeben</button>
+                  <p class="jitsi-note" style="margin:8px 0 0">Öffnet einen echten Mehrpersonen-Video-Chat (Jitsi, Open Source, kostenlos). Alle mit demselben Raum-Code sehen sich live. Kamera/Mikro im Browser erlauben.</p>
+                </div>
+                <div class="jitsi-wrap" id="jitsi-wrap" style="display:none"></div>
+                <div id="vc-status" class="jitsi-note" style="margin-top:8px"></div>
+                <div id="vc-actions" style="display:none;margin-top:12px">
+                  <button class="btn primary block" id="vc-round">🎲 Neue Runde für alle auslosen</button>
+                  <p class="jitsi-note" style="margin:8px 0 0">Eine:r löst aus — Spieler & Orakel werden zufällig aus dem Call bestimmt und bei allen synchron angezeigt.</p>
+                </div>
+                <div class="card" id="vc-roundcard" style="display:none;margin-top:12px;padding:13px;background:var(--surface-2)">
+                  <div class="eyebrow" id="vc-eb"></div>
+                  <div id="vc-task" style="font-weight:800;margin:6px 0;font-size:1.02rem"></div>
+                  <div id="vc-roleinfo" class="jitsi-note" style="margin-bottom:8px"></div>
+                  <div id="vc-oracle" style="display:none"><div class="opts"><button class="btn primary" id="vc-ok">✅ Erfüllt</button><button class="btn ghost" id="vc-no">❌ Nicht erfüllt</button></div></div>
+                  <div class="result" id="vc-result" style="display:none"></div>
+                </div>
+                <button class="btn ghost block" id="vc-leave" style="display:none;margin-top:10px">Videocall verlassen</button>
+              </div>
+
               <div class="row" style="margin-top:12px">
-                <button class="btn ghost sm" id="grp-reroll">🎲 Rollen neu würfeln</button>
                 <span class="spacer"></span>
                 <button class="btn ghost sm" id="grp-close">Schließen</button>
               </div>
@@ -533,7 +583,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     getUser:function(id){return load().users.filter(function(x){return x.id===id;})[0]||null;},
     byEmail:function(e){e=(e||'').trim().toLowerCase();return load().users.filter(function(x){return x.email.toLowerCase()===e;})[0]||null;},
     matches:function(){var d=load();var m=seedMatches();var old={};(d.matches||[]).forEach(function(x){old[x.id]=x;});d.matches=m;save(d);return m;},
-    match:function(id){return DB.matches().filter(function(m){return m.id===id;})[0]||null;},
+    match:function(id){if(id==='free')return{id:'free',stage:'Freies Spiel',home:'Team Grün',hf:'🟢',away:'Team Blau',af:'🔵',kick:'',venue:'Freies Spiel · jederzeit',live:KL,inLobby:['lena','jonas','mara']};return DB.matches().filter(function(m){return m.id===id;})[0]||null;},
     league:function(){return load().league;},
     addResult:function(id,o){o=o||{};var d=load();var x=d.users.filter(function(z){return z.id===id;})[0];if(!x)return null;
       x.points=(x.points||0)+(o.points||0);x.xp=(x.xp||0)+(o.xp||0);x.coins=(x.coins||0)+(o.coins||0);
@@ -644,7 +694,14 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   function authShow(w){var l=w==='login';tL.classList.toggle('active',l);tR.classList.toggle('active',!l);fL.style.display=l?'':'none';fR.style.display=l?'none':'';}
   tL.onclick=function(){authShow('login');};tR.onclick=function(){authShow('register');};
   fL.onsubmit=function(e){e.preventDefault();var r=MQ.Auth.login($('login-email').value,$('login-pw').value);if(r.ok)go('app');else $('login-error').textContent=r.error;};
-  fR.onsubmit=function(e){e.preventDefault();var r=MQ.Auth.register($('reg-name').value,$('reg-email').value,$('reg-pw').value);if(r.ok){go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Viel Erfolg bei deinen Challenges','lime');}else $('reg-error').textContent=r.error;};
+  fR.onsubmit=function(e){e.preventDefault();
+    var email=$('reg-email').value.trim(),pw=$('reg-pw').value,pw2=$('reg-pw2').value;
+    var name=$('reg-name').value.trim()||(email.split('@')[0]||'Fan');
+    if(!email||!pw){$('reg-error').textContent='Bitte E-Mail und Passwort eingeben.';return;}
+    if(pw.length<4){$('reg-error').textContent='Passwort muss mindestens 4 Zeichen haben.';return;}
+    if(pw!==pw2){$('reg-error').textContent='Die Passwörter stimmen nicht überein.';return;}
+    var r=MQ.Auth.register(name,email,pw);
+    if(r.ok){go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Kein E-Mail-Versand — du bist direkt drin','lime');}else $('reg-error').textContent=r.error;};
 
   /* ---- app enter ---- */
   function enterApp(){user=MQ.Auth.current();if(!user){go('login');return;}syncStatus();showView('matches');renderMatches();renderLiveView();startTicker();}
@@ -657,7 +714,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   function showView(name){document.querySelectorAll('#page-app .view').forEach(function(v){v.classList.remove('active');});var v=$('view-'+name);if(v)v.classList.add('active');
     document.querySelectorAll('.tabbar button[data-view]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===name);});
     if(name==='rank')renderBoard(currentBoard);if(name==='profile')renderProfile();if(name==='live')renderLiveView();
-    if(name!=='live'){stopCam();grp.token++;if($('group-card')){$('group-card').style.display='none';$('grp-start').style.display='';}}}
+    if(name!=='live'){stopCam();grp.token++;try{leaveCall();}catch(e){}if($('group-card')){$('group-card').style.display='none';$('grp-start').style.display='';}}}
 
   /* ---- status bar / gamification ---- */
   function level(xp){return Math.floor((xp||0)/100)+1;}
@@ -769,7 +826,9 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
 
   function openGroup(){tm.next=clr(tm.next);$('next-timer').textContent='';stopCam();
     $('bet-card').style.display='none';$('vid-card').style.display='none';$('skip-challenge').style.display='none';$('grp-start').style.display='none';
-    grp.players=grpParticipants();$('group-card').style.display='';rollGroup();}
+    grp.players=grpParticipants();$('group-card').style.display='';
+    if(!$('vc-room').value)$('vc-room').value=defaultRoom();
+    setGroupMode('sim');}
   function rollGroup(){grp.token++;var tok=grp.token;stopCam();$('grp-result').style.display='none';
     var ids=grp.players.map(function(p){return p.id;});if(!ids.length)return;
     var pi=Math.floor(Math.random()*ids.length),oi;do{oi=Math.floor(Math.random()*ids.length);}while(oi===pi&&ids.length>1);
@@ -812,7 +871,75 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     var act=$('grp-action');act.innerHTML='<button class="btn primary block" id="grp-again">🎲 Nächste Runde (neu auslosen)</button>';
     document.getElementById('grp-again').onclick=function(){$('grp-result').style.display='none';rollGroup();};}
   function grpRes(kind,txt){var b=$('grp-result');b.className='result '+kind;b.textContent=txt;b.style.display='';}
-  function closeGroup(){grp.token++;stopCam();$('group-card').style.display='none';$('grp-start').style.display='';startLobby();}
+  function closeGroup(){grp.token++;stopCam();try{leaveCall();}catch(e){}$('group-card').style.display='none';$('grp-start').style.display='';startLobby();}
+
+  /* ---- Freies Spiel (Live-Challenges ohne Spiel-Termin) ---- */
+  function startFreeplay(){st.matchId='free';showView('live');startLobby();UI.toast('🎥','Freies Spiel gestartet','Live-Challenges & echter Videocall — ohne Spiel-Termin','lime');}
+  var fp1=$('freeplay-btn'),fp2=$('freeplay-btn2');if(fp1)fp1.onclick=startFreeplay;if(fp2)fp2.onclick=startFreeplay;
+
+  /* ---- Gruppen-Modus: Simulation <-> echter Videocall ---- */
+  function defaultRoom(){return 'MatchQuestAH2026-'+(st.matchId||'lobby');}
+  function setGroupMode(mode){var live=mode==='live';
+    $('mode-sim').classList.toggle('active',!live);$('mode-live').classList.toggle('active',live);
+    $('grp-sim').style.display=live?'none':'';$('grp-live').style.display=live?'':'none';$('grp-timer').textContent='';
+    if(live){grp.token++;stopCam();if(!$('vc-room').value)$('vc-room').value=defaultRoom();}
+    else{try{leaveCall();}catch(e){}if(!grp.playerId||!grp.players.length){grp.players=grpParticipants();rollGroup();}}}
+  $('mode-sim').onclick=function(){setGroupMode('sim');};
+  $('mode-live').onclick=function(){setGroupMode('live');};
+
+  /* ---- Echter Mehrpersonen-Videocall via Jitsi (Open Source, meet.jit.si) ---- */
+  var jitsi={api:null,me:null,round:null};
+  function loadJitsi(cb){if(window.JitsiMeetExternalAPI){cb(true);return;}
+    var s=document.createElement('script');s.src='https://meet.jit.si/external_api.js';s.async=true;
+    s.onload=function(){cb(!!window.JitsiMeetExternalAPI);};s.onerror=function(){cb(false);};document.head.appendChild(s);}
+  $('vc-copy').onclick=function(){var code=$('vc-room').value||defaultRoom();var txt='MatchQuest Videocall — Raum-Code: '+code+'  (in der App unter Live → Gruppen-Challenge → Echter Videocall eingeben)';
+    if(navigator.share){navigator.share({title:'MatchQuest Videocall',text:txt}).catch(function(){});}
+    else if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){UI.toast('📋','Code kopiert',code);},function(){UI.toast('📋','Raum-Code',code);});}
+    else{UI.toast('📋','Raum-Code',code);}};
+  $('vc-join').onclick=function(){joinCall();};
+  $('vc-leave').onclick=function(){leaveCall();};
+  $('vc-round').onclick=function(){startRoundForAll();};
+  $('vc-ok').onclick=function(){oracleDecideLive(true);};
+  $('vc-no').onclick=function(){oracleDecideLive(false);};
+
+  function joinCall(){var room=($('vc-room').value||defaultRoom()).replace(/[^A-Za-z0-9\-_]/g,'');
+    if(room.length<4){UI.toast('⚠️','Raum-Code zu kurz','Bitte mind. 4 Zeichen');return;}
+    $('vc-room').value=room;$('vc-status').textContent='⏳ Videocall wird geladen…';
+    loadJitsi(function(loaded){
+      if(!loaded){$('vc-status').innerHTML='⚠️ Der Videocall-Dienst ist hier blockiert (z. B. in dieser Vorschau). Bitte die auf IONOS gehostete Version <b>https://…/matchquest/</b> nutzen — dort funktioniert der echte Videocall. Solange klappt der 🤖 Simulations-Modus.';return;}
+      $('vc-prejoin').style.display='none';$('jitsi-wrap').style.display='';$('jitsi-wrap').innerHTML='';
+      try{
+      jitsi.api=new JitsiMeetExternalAPI('meet.jit.si',{roomName:room,parentNode:$('jitsi-wrap'),userInfo:{displayName:user.name},
+        configOverwrite:{prejoinPageEnabled:false,startWithAudioMuted:false,disableDeepLinking:true},
+        interfaceConfigOverwrite:{MOBILE_APP_PROMO:false,SHOW_JITSI_WATERMARK:false,SHOW_CHROME_EXTENSION_BANNER:false,TOOLBAR_BUTTONS:['microphone','camera','desktop','tileview','hangup','fullscreen']}});
+      jitsi.api.addEventListener('videoConferenceJoined',function(e){jitsi.me=e.id;$('vc-status').textContent='✅ Verbunden als '+user.name+'. Teile den Raum-Code — alle mit demselben Code sehen sich live.';$('vc-actions').style.display='';$('vc-leave').style.display='';});
+      jitsi.api.addEventListener('endpointTextMessageReceived',function(ev){try{var d=JSON.parse(ev.data.eventData.text);if(d&&d.mq==='round')applyRound(d);else if(d&&d.mq==='result')showLiveResult(d);}catch(e){}});
+      jitsi.api.addEventListener('readyToClose',function(){leaveCall();});
+      }catch(err){$('vc-status').textContent='⚠️ Videocall konnte nicht gestartet werden. Bitte die IONOS-Version nutzen.';$('vc-prejoin').style.display='';$('jitsi-wrap').style.display='none';}
+    });}
+  function leaveCall(){try{if(jitsi.api)jitsi.api.dispose();}catch(e){}jitsi.api=null;jitsi.me=null;jitsi.round=null;
+    if($('jitsi-wrap')){$('jitsi-wrap').style.display='none';$('jitsi-wrap').innerHTML='';}
+    if($('vc-prejoin'))$('vc-prejoin').style.display='';if($('vc-actions'))$('vc-actions').style.display='none';
+    if($('vc-leave'))$('vc-leave').style.display='none';if($('vc-roundcard'))$('vc-roundcard').style.display='none';if($('vc-status'))$('vc-status').textContent='';}
+  function callParts(){try{var info=jitsi.api.getParticipantsInfo()||[];var list=info.map(function(p){return{id:p.participantId,name:p.displayName||'Gast'};});
+    if(jitsi.me&&!list.some(function(x){return x.id===jitsi.me;}))list.push({id:jitsi.me,name:user.name});return list;}catch(e){return jitsi.me?[{id:jitsi.me,name:user.name}]:[];}}
+  function startRoundForAll(){var parts=callParts();if(!parts.length){UI.toast('👥','Noch niemand im Call','Tritt zuerst dem Videocall bei');return;}
+    if(parts.length<2)UI.toast('👥','Allein im Call','Warte auf Freunde (gleicher Raum-Code) — Runde läuft trotzdem zum Testen.');
+    var pi=Math.floor(Math.random()*parts.length),oi;do{oi=Math.floor(Math.random()*parts.length);}while(oi===pi&&parts.length>1);
+    var task=GT[Math.floor(Math.random()*GT.length)];if(!MQC.ok(task))task='Zeig ein Daumen-hoch für alle!';
+    var payload={mq:'round',playerId:parts[pi].id,playerName:parts[pi].name,oracleId:parts[oi].id,oracleName:parts[oi].name,task:task};
+    applyRound(payload);if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}}
+  function applyRound(d){jitsi.round=d;$('vc-roundcard').style.display='';$('vc-result').style.display='none';
+    var iP=d.playerId===jitsi.me,iO=d.oracleId===jitsi.me;
+    $('vc-eb').textContent=iP?'🎯 Du bist dran!':iO?'👁️ Du bist das Orakel':'👀 Du schaust zu';
+    $('vc-task').textContent=d.task;
+    $('vc-roleinfo').textContent='Spieler: '+d.playerName+' · Orakel: '+d.oracleName+(iP?' — führ es jetzt vor der Kamera vor!':iO?' — bewerte '+d.playerName+' fair.':' — feuere die Gruppe an!');
+    $('vc-oracle').style.display=iO?'':'none';}
+  function oracleDecideLive(okr){if(!jitsi.round)return;var d=jitsi.round;var payload={mq:'result',ok:okr,playerId:d.playerId,playerName:d.playerName,oracleName:d.oracleName};
+    if(jitsi.api)try{jitsi.api.executeCommand('sendEndpointTextMessage','',JSON.stringify(payload));}catch(e){}showLiveResult(payload);}
+  function showLiveResult(d){$('vc-oracle').style.display='none';var iP=jitsi.round&&d.playerId===jitsi.me;var b=$('vc-result');b.style.display='';
+    if(d.ok){b.className='result ok';b.textContent='✅ '+d.playerName+' hat die Challenge gemeistert! (bestätigt von '+d.oracleName+')';if(iP){reward({points:35,xp:40,coins:25,challengeDone:true,streakInc:true});UI.confetti();UI.toast('🎥','Gemeistert!','+35 Punkte','lime');}}
+    else{b.className='result bad';b.textContent='😕 '+d.playerName+' — diesmal nicht bestätigt.';if(iP)reward({streakReset:true});}}
 
   /* ---- leaderboard ---- */
   var currentBoard='friends';
