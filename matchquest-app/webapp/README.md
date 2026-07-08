@@ -83,6 +83,14 @@ sofort Live-Challenges (Wette + Live-Video), unabhängig von einem WM-Spiel.
   Für den Dauerbetrieb später **eigene Jitsi-Instanz** oder anderen Open-Source-Dienst hosten (DSGVO-freundlicher).
   Der Server lässt sich im Code leicht austauschen (`meet.jit.si` → eigene Domain).
 
+## Echt gemeinsam spielen (optionales Backend)
+
+Für **geräteübergreifend geteilte** Konten, Punkte, Ranglisten und Team-Battle gibt es ein schlankes
+PHP+MySQL-Backend unter [`../backend/`](../backend/README.md) (läuft auf eurem IONOS-Webspace).
+Aktivieren: in `index.html` die Konstante `BACKEND_URL` auf die API-URL setzen
+(z. B. `https://www.altenau-harz.de/matchquest-api/api.php`). Leer = Lokal-Modus.
+Der **echte Videocall + die Gruppen-Jury** laufen bereits ohne Backend live über den Call.
+
 ## Hinweis: Demo vs. Live-Backend
 
 Aktuell laufen Konten, Punkte und Ranglisten **client-seitig im Browser** (`localStorage`), d. h. pro Gerät

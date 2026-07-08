@@ -676,7 +676,12 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     getTeam:function(id){return DB.teams().filter(function(t){return t.id===id;})[0]||null;},
     joinTeam:function(userId,teamId){var d=load();(d.teams||[]).forEach(function(t){t.members=(t.members||[]).filter(function(m){return m!==userId;});if(t.id===teamId&&t.members.indexOf(userId)===-1)t.members.push(userId);});var x=d.users.filter(function(z){return z.id===userId;})[0];if(x)x.teamId=teamId;save(d);return x;},
     teamStandings:function(){var d=load();return (d.teams||[]).map(function(t){var pts=0,mc=0;(t.members||[]).forEach(function(mid){var mu=d.users.filter(function(x){return x.id===mid;})[0];if(mu){pts+=(mu.points||0);mc++;}});return{id:t.id,name:t.name,emoji:t.emoji,members:mc,points:pts};}).sort(function(a,b){return b.points-a.points;});},
-    setConsent:function(userId){var d=load();var x=d.users.filter(function(z){return z.id===userId;})[0];if(x){x.consent={v:1,at:new Date().toISOString()};save(d);}return x;}
+    setConsent:function(userId){var d=load();var x=d.users.filter(function(z){return z.id===userId;})[0];if(x){x.consent={v:1,at:new Date().toISOString()};save(d);}return x;},
+    // Server-Nutzer lokal spiegeln (für synchrones Gameplay), Consent erhalten
+    upsertServerUser:function(u){var d=load();var ex=d.users.filter(function(x){return x.id===u.id;})[0];
+      var f={name:u.name,email:u.email,points:u.points||0,xp:u.xp||0,coins:u.coins||0,correctBets:u.correctBets||0,challengesDone:u.challengesDone||0,streak:u.streak||0,teamId:u.teamId||null,ach:u.ach||[]};
+      if(ex){for(var k in f)ex[k]=f[k];}else{d.users.push(Object.assign({id:u.id,password:'',friends:[]},f));}
+      save(d);return DB.getUser(u.id);}
   };
   var Auth={
     register:function(name,email,pw){name=(name||'').trim();email=(email||'').trim().toLowerCase();
@@ -693,7 +698,26 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     logout:function(){g.localStorage.removeItem(SS);}
   };
   function reset(){g.localStorage.removeItem(LS);g.localStorage.removeItem(SS);load();return 'reset';}
-  g.MQ={DB:DB,Auth:Auth,reset:reset};
+
+  /* ===== Optionales Backend (IONOS PHP+MySQL) — für echt geteilte Konten/Punkte/Ranglisten =====
+     BACKEND_URL leer lassen = reiner Lokal-/Demo-Modus (wie bisher). Zum Aktivieren die IONOS-API-URL
+     eintragen, z.B. 'https://www.altenau-harz.de/matchquest-api/api.php' (oder per localStorage
+     'mqpro_backend' setzen). */
+  var BACKEND_URL='';
+  function backendUrl(){try{return BACKEND_URL||g.localStorage.getItem('mqpro_backend')||'';}catch(e){return BACKEND_URL;}}
+  function api(action,data){var url=backendUrl();if(!url)return Promise.reject('no-backend');
+    return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action:action,token:(function(){try{return g.localStorage.getItem('mqpro_token')||'';}catch(e){return '';}})()},data||{}))}).then(function(r){return r.json();});}
+  var Net={
+    enabled:function(){return !!backendUrl();},
+    setToken:function(t){try{g.localStorage.setItem('mqpro_token',t||'');}catch(e){}},
+    register:function(name,email,pw){return api('register',{name:name,email:email,password:pw});},
+    login:function(email,pw){return api('login',{email:email,password:pw});},
+    submit:function(u){return api('submit',{name:u.name,points:u.points,xp:u.xp,coins:u.coins,correctBets:u.correctBets,challengesDone:u.challengesDone,streak:u.streak,teamId:u.teamId,ach:u.ach});},
+    joinTeam:function(tid){return api('joinTeam',{teamId:tid});},
+    leaderboard:function(){return api('leaderboard');},
+    teams:function(){return api('teams');}
+  };
+  g.MQ={DB:DB,Auth:Auth,Net:Net,reset:reset};
 })(window);
 
 /* ===================== Challenge engine + guardrails ===================== */
@@ -775,13 +799,18 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   function resetForms(){try{fL.reset();fR.reset();}catch(e){}$('login-error').textContent='';$('reg-error').textContent='';authShow('login');}
   function authShow(w){var l=w==='login';tL.classList.toggle('active',l);tR.classList.toggle('active',!l);fL.style.display=l?'':'none';fR.style.display=l?'none':'';}
   tL.onclick=function(){authShow('login');};tR.onclick=function(){authShow('register');};
-  fL.onsubmit=function(e){e.preventDefault();var r=MQ.Auth.login($('login-email').value,$('login-pw').value);if(r.ok)go('app');else $('login-error').textContent=r.error;};
+  fL.onsubmit=function(e){e.preventDefault();var email=$('login-email').value,pw=$('login-pw').value;
+    if(MQ.Net.enabled()){$('login-error').textContent='… Anmeldung läuft';
+      MQ.Net.login(email,pw).then(function(r){if(!r.ok){$('login-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');}).catch(function(){$('login-error').textContent='Server nicht erreichbar';});return;}
+    var r=MQ.Auth.login(email,pw);if(r.ok)go('app');else $('login-error').textContent=r.error;};
   fR.onsubmit=function(e){e.preventDefault();
     var email=$('reg-email').value.trim(),pw=$('reg-pw').value,pw2=$('reg-pw2').value;
     var name=$('reg-name').value.trim()||(email.split('@')[0]||'Fan');
     if(!email||!pw){$('reg-error').textContent='Bitte E-Mail und Passwort eingeben.';return;}
     if(pw.length<4){$('reg-error').textContent='Passwort muss mindestens 4 Zeichen haben.';return;}
     if(pw!==pw2){$('reg-error').textContent='Die Passwörter stimmen nicht überein.';return;}
+    if(MQ.Net.enabled()){$('reg-error').textContent='… Konto wird erstellt';
+      MQ.Net.register(name,email,pw).then(function(r){if(!r.ok){$('reg-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Online-Konto erstellt','lime');}).catch(function(){$('reg-error').textContent='Server nicht erreichbar';});return;}
     var r=MQ.Auth.register(name,email,pw);
     if(r.ok){go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Kein E-Mail-Versand — du bist direkt drin','lime');}else $('reg-error').textContent=r.error;};
 
@@ -812,7 +841,8 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     UI.countUp($('sb-xp'),user.xp||0);UI.countUp($('sb-streak'),user.streak||0);UI.countUp($('sb-coins'),user.coins||0);
     $('sb-xpfill').style.width=into+'%';}
   function reward(o){var beforeLv=level(user.xp);user=MQ.DB.addResult(user.id,o);syncStatus();
-    var afterLv=level(user.xp);if(afterLv>beforeLv){levelUp(afterLv);}checkAch();}
+    var afterLv=level(user.xp);if(afterLv>beforeLv){levelUp(afterLv);}checkAch();syncServer();}
+  function syncServer(){if(MQ.Net.enabled()){try{MQ.Net.submit(MQ.DB.getUser(user.id)).catch(function(){});}catch(e){}}}
   var luTimer=null;
   function levelUp(lv){$('lu-level').textContent=lv;$('levelup').classList.add('show');UI.confetti();if(luTimer)clearTimeout(luTimer);luTimer=setTimeout(function(){$('levelup').classList.remove('show');},2800);}
   $('lu-close').onclick=function(){$('levelup').classList.remove('show');};
@@ -887,7 +917,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       el.innerHTML='<div class="row" style="gap:10px"><span style="font-size:1.3rem">'+t.emoji+'</span><div style="flex:1"><div style="font-weight:800">Dein Team: '+t.name+'</div><div class="jitsi-note">⚔️ Team-Battle · Platz '+rank+' · '+(mine?mine.points:0)+' Pkt</div></div><button class="btn sm ghost" data-view="rank">Battle ansehen</button></div>';}
     else{var btns=MQ.DB.teams().map(function(t){return '<button class="btn sm ghost tjoin" data-team="'+t.id+'">'+t.emoji+' '+t.name+'</button>';}).join(' ');
       el.innerHTML='<div style="font-weight:800;margin-bottom:6px">⚔️ Tritt einem Team bei — auch mitten in der Challenge</div><div class="row" style="gap:8px;flex-wrap:wrap">'+btns+'</div>';
-      Array.prototype.forEach.call(el.querySelectorAll('.tjoin'),function(b){b.onclick=function(){MQ.DB.joinTeam(user.id,b.getAttribute('data-team'));user=MQ.DB.getUser(user.id);renderTeamStrip();UI.toast('⚔️','Team beigetreten!','Deine Punkte zählen jetzt fürs Team','lime');};});}}
+      Array.prototype.forEach.call(el.querySelectorAll('.tjoin'),function(b){b.onclick=function(){doJoinTeam(b.getAttribute('data-team'));};});}}
   function startLobby(){renderLiveView();spawn();scheduleNext();}
   function scheduleNext(){tm.next=clr(tm.next);var r=25;tick();tm.next=setInterval(function(){r--;if(r<=0){spawn();r=25;}tick();},1000);function tick(){$('next-timer').textContent='⏳ Nächste Live-Challenge in '+fmt(r);}}
 
@@ -1098,20 +1128,30 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   $('seg-league').onclick=function(){currentBoard='league';seg();renderBoard('league');};
   $('seg-teams').onclick=function(){currentBoard='teams';seg();renderBoard('teams');};
   function seg(){$('seg-friends').classList.toggle('active',currentBoard==='friends');$('seg-league').classList.toggle('active',currentBoard==='league');$('seg-teams').classList.toggle('active',currentBoard==='teams');}
-  function renderTeamBattle(){var stt=MQ.DB.teamStandings();var me=MQ.DB.getUser(user.id);var host=$('lb-card');var max=Math.max(1,(stt[0]&&stt[0].points)||1);
-    var html='<div class="eyebrow" style="margin-bottom:10px">⚔️ Team-Battle</div>';
+  function doJoinTeam(tid){MQ.DB.joinTeam(user.id,tid);user=MQ.DB.getUser(user.id);renderTeamStrip();
+    if(MQ.Net.enabled()){MQ.Net.joinTeam(tid).then(function(){renderBoard('teams');}).catch(function(){});syncServer();}
+    UI.toast('⚔️','Team beigetreten','Punkte zählen jetzt fürs Team','lime');}
+  function renderTeamBattle(serverTeams){var stt=serverTeams||MQ.DB.teamStandings();var me=MQ.DB.getUser(user.id);var host=$('lb-card');var max=Math.max(1,(stt[0]&&stt[0].points)||1);
+    var html='<div class="eyebrow" style="margin-bottom:10px">⚔️ Team-Battle'+(MQ.Net.enabled()?' · live':'')+'</div>';
     if(stt.length>=2){var a=stt[0],b=stt[1];html+='<div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px">'+
       '<div style="text-align:center;flex:1"><div style="font-size:1.7rem">'+a.emoji+'</div><div style="font-weight:800">'+a.name+'</div><div style="font-weight:900;color:var(--lime)" class="tnum">'+a.points+'</div></div>'+
       '<div class="vs" style="font-size:1.1rem;padding-top:14px">VS</div>'+
       '<div style="text-align:center;flex:1"><div style="font-size:1.7rem">'+b.emoji+'</div><div style="font-weight:800">'+b.name+'</div><div style="font-weight:900;color:var(--lime)" class="tnum">'+b.points+'</div></div></div>';}
     html+=stt.map(function(t){var w=Math.round(t.points/max*100);var mine=me&&me.teamId===t.id;
       return '<div style="margin:10px 0"><div class="row" style="gap:8px"><span>'+t.emoji+'</span><b>'+t.name+(mine?' (dein Team)':'')+'</b><span class="spacer"></span><span class="tnum" style="font-weight:800;color:var(--lime)">'+t.points+' Pkt</span></div><div class="xpbar" style="margin-top:6px"><i style="width:'+w+'%"></i></div><div class="jitsi-note">'+t.members+' Mitglieder</div></div>';}).join('');
-    html+='<div class="jitsi-note" style="margin-top:12px">'+(me&&me.teamId?'Dein Team: <b>'+(MQ.DB.getTeam(me.teamId)?MQ.DB.getTeam(me.teamId).name:'—')+'</b>. Jede richtige Challenge bringt Punkte fürs Team.':'<b>Tritt einem Team bei und hol Punkte für dein Team:</b>')+'</div>';
+    html+='<div class="jitsi-note" style="margin-top:12px">'+(me&&me.teamId?'Dein Team: <b>'+((MQ.DB.getTeam(me.teamId)&&MQ.DB.getTeam(me.teamId).name)||me.teamId)+'</b>. Jede richtige Challenge bringt Punkte fürs Team.':'<b>Tritt einem Team bei und hol Punkte für dein Team:</b>')+'</div>';
     host.innerHTML=html;
     var row=document.createElement('div');row.className='row';row.style.cssText='gap:8px;margin-top:10px;flex-wrap:wrap';
-    MQ.DB.teams().forEach(function(t){var btn=document.createElement('button');btn.className='btn sm '+(me&&me.teamId===t.id?'primary':'ghost');btn.textContent=t.emoji+' '+t.name+(me&&me.teamId===t.id?' ✓':' beitreten');btn.onclick=function(){MQ.DB.joinTeam(user.id,t.id);user=MQ.DB.getUser(user.id);renderTeamBattle();UI.toast(t.emoji,'Team beigetreten',t.name,'lime');};row.appendChild(btn);});
+    stt.forEach(function(t){var btn=document.createElement('button');btn.className='btn sm '+(me&&me.teamId===t.id?'primary':'ghost');btn.textContent=t.emoji+' '+t.name+(me&&me.teamId===t.id?' ✓':' beitreten');btn.onclick=function(){doJoinTeam(t.id);};row.appendChild(btn);});
     host.appendChild(row);}
-  function renderBoard(which){if(which==='teams'){renderTeamBattle();return;}var rows=which==='league'?MQ.DB.leagueBoard(user.id):MQ.DB.friendsBoard(user.id);var host=$('lb-card');
+  function renderServerBoard(rows){var host=$('lb-card');var medal=function(r){return r===1?'🥇':r===2?'🥈':r===3?'🥉':r;};
+    var meName=(MQ.DB.getUser(user.id)||{}).name;var seenMe=false;
+    host.innerHTML='<div class="row" style="margin-bottom:10px"><span class="pill curated">🌍 Alle Spieler · live</span><span class="spacer"></span><span class="muted" style="font-size:.78rem">'+rows.length+' Spieler</span></div>'+
+      rows.map(function(r,i){var me=(!seenMe&&r.name===meName);if(me)seenMe=true;return '<div class="lb-row'+(me?' me':'')+'">'+
+        '<div class="lb-rank">'+medal(i+1)+'</div><div class="avatar sm">'+initials(r.name)+'</div>'+
+        '<div class="lb-name">'+(me?r.name+' <span class="muted">(du)</span>':r.name)+'<div class="lvl">Level '+r.level+'</div></div>'+
+        '<div class="lb-val"><b>'+r.correctBets+'</b><small>richtige Wetten</small></div></div>';}).join('');}
+  function renderLocalBoard(which){var rows=which==='league'?MQ.DB.leagueBoard(user.id):MQ.DB.friendsBoard(user.id);var host=$('lb-card');
     var head=which==='league'?'<div class="row" style="margin-bottom:10px"><span class="pill curated">🛡️ '+MQ.DB.league().name+'</span><span class="spacer"></span><span class="muted" style="font-size:.78rem">'+rows.length+' Mitglieder</span></div>':'';
     var medal=function(r){return r===1?'🥇':r===2?'🥈':r===3?'🥉':r;};
     host.innerHTML=head+rows.map(function(r){return '<div class="lb-row'+(r.me?' me':'')+'">'+
@@ -1119,6 +1159,11 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       '<div class="avatar sm '+(r.av||'')+'">'+initials(r.name)+'</div>'+
       '<div class="lb-name">'+(r.me?r.name+' <span class="muted">(du)</span>':r.name)+'<div class="lvl">Level '+r.level+'</div></div>'+
       '<div class="lb-val"><b>'+r.correctBets+'</b><small>richtige Wetten</small></div></div>';}).join('');}
+  function renderBoard(which){
+    if(MQ.Net.enabled()){
+      if(which==='teams'){$('lb-card').innerHTML='<div class="jitsi-note">Lade Team-Battle…</div>';MQ.Net.teams().then(function(r){renderTeamBattle((r&&r.teams)||[]);}).catch(function(){renderTeamBattle();});return;}
+      $('lb-card').innerHTML='<div class="jitsi-note">Lade Rangliste…</div>';MQ.Net.leaderboard().then(function(r){renderServerBoard((r&&r.rows)||[]);}).catch(function(){renderLocalBoard(which);});return;}
+    if(which==='teams'){renderTeamBattle();return;}renderLocalBoard(which);}
 
   /* ---- profile ---- */
   function renderProfile(){user=MQ.DB.getUser(user.id);var lv=level(user.xp),into=(user.xp||0)%100;

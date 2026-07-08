@@ -44,8 +44,14 @@ console.log('\n🎯 Bettor Ben — Wetten, Mehrheit, Rang');
   await p.locator('#match-list .card').last().locator('button').first().click(); await p.waitForTimeout(300);
   ok('Live-Ansicht aktiv', await p.locator('#view-live').evaluate(e=>e.classList.contains('active')));
   const coins0=parseInt(await p.textContent('#sb-coins'),10);
-  // get a bet
-  let bet=false; for(let i=0;i<8;i++){ if(await p.locator('#bet-card').isVisible()){bet=true;break;} await p.waitForTimeout(600);}
+  // get a bet (neu einsteigen erzeugt neue Zufalls-Challenge, bis Wette erscheint)
+  let bet=false;
+  for(let i=0;i<20 && !bet;i++){
+    if(await p.locator('#bet-card').isVisible()){bet=true;break;}
+    await p.click('.tabbar button[data-view=matches]'); await p.waitForTimeout(80);
+    await p.locator('#match-list .card').last().locator('button').first().click(); await p.waitForTimeout(150);
+    if(await p.locator('#bet-card').isVisible())bet=true;
+  }
   ok('Wett-Challenge erscheint', bet);
   if(bet){ await p.locator('#bet-opts .opt').first().click(); await p.waitForTimeout(120);
     ok('Bestätigungsphase (Mehrheit)', await p.locator('#bet-confirm').isVisible());
