@@ -1,5 +1,10 @@
 # MatchQuest — Interaktive Fußball-Challenges (Prototyp zur WM 2026)
 
+> **Aktuelle Version:** die Premium-Web-App liegt in **`webapp/`** (installierbare PWA, für IONOS-Hosting) —
+> Einzeldatei-Quelle: **`matchquest-pro.html`**. Konzept: **[../FACHKONZEPT.md](../FACHKONZEPT.md)** (lesbar auch als `fachkonzept.html`).
+> Die frühere schlichte Version (`index.html`, `login.html`, `app.html`, `matchquest.html`) bleibt als Referenz erhalten.
+
+
 MatchQuest verwandelt jedes Fußballspiel in ein interaktives Erlebnis: während des
 Spiels erscheinen **Live-Challenges** (Wetten aufs nächste Ereignis oder Mitmach-Aktionen),
 für die es **Punkte** gibt. Freunde vergleichen sich im **Leaderboard**.

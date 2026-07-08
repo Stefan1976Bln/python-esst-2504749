@@ -1,0 +1,317 @@
+<title>Fachkonzept — MatchQuest</title>
+<style>
+:root{
+  --paper:#fbfcfe; --paper-2:#f1f4fa; --card:#ffffff; --line:#e2e7f0;
+  --ink:#141a2b; --ink-2:#41506e; --muted:#6b7793;
+  --lime:#3f6d00; --lime-bg:#eef7d8; --gold:#8a6300; --gold-bg:#fbf0d0;
+  --live:#c11f48; --accent:#3f6d00;
+  --maxw:800px;
+}
+@media (prefers-color-scheme: dark){
+  :root{--paper:#080c17; --paper-2:#0e1424; --card:#111827; --line:#25304a;
+    --ink:#e9eefb; --ink-2:#b3c0dc; --muted:#8291b0;
+    --lime:#c8ff4d; --lime-bg:rgba(200,255,77,.10); --gold:#ffd15c; --gold-bg:rgba(255,209,92,.10);
+    --live:#ff6b8a; --accent:#c8ff4d;}
+}
+:root[data-theme="dark"]{--paper:#080c17;--paper-2:#0e1424;--card:#111827;--line:#25304a;--ink:#e9eefb;--ink-2:#b3c0dc;--muted:#8291b0;--lime:#c8ff4d;--lime-bg:rgba(200,255,77,.10);--gold:#ffd15c;--gold-bg:rgba(255,209,92,.10);--live:#ff6b8a;--accent:#c8ff4d;}
+:root[data-theme="light"]{--paper:#fbfcfe;--paper-2:#f1f4fa;--card:#ffffff;--line:#e2e7f0;--ink:#141a2b;--ink-2:#41506e;--muted:#6b7793;--lime:#3f6d00;--lime-bg:#eef7d8;--gold:#8a6300;--gold-bg:#fbf0d0;--live:#c11f48;--accent:#3f6d00;}
+
+*{box-sizing:border-box;}
+#doc{background:var(--paper);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.65;font-size:17px;padding:0 0 80px;}
+#doc .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;}
+#doc h1,#doc h2,#doc h3{line-height:1.2;letter-spacing:-.02em;text-wrap:balance;}
+
+/* header band */
+.band{background:linear-gradient(160deg,var(--paper-2),var(--paper));border-bottom:1px solid var(--line);padding:46px 0 30px;}
+.logo{display:inline-flex;align-items:center;gap:9px;font-weight:900;font-size:1.05rem;letter-spacing:-.02em;}
+.logo .b{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#c8ff4d,#8fd400);color:#07240a;font-size:1rem;}
+.logo b{color:var(--accent);}
+.band h1{font-size:clamp(2rem,6vw,2.9rem);font-weight:900;margin:18px 0 6px;}
+.band .tag{color:var(--ink-2);font-size:1.1rem;font-weight:600;}
+.meta{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:20px;}
+.meta span{font-size:.8rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--ink-2);font-weight:600;}
+.meta b{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin:26px 0;}
+.toc .eb{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.toc ol{margin:0;padding-left:1.2em;columns:2;column-gap:26px;}
+.toc a{color:var(--ink-2);text-decoration:none;font-size:.9rem;}
+.toc a:hover{color:var(--accent);text-decoration:underline;}
+@media(max-width:560px){.toc ol{columns:1;}}
+
+/* sections */
+section{padding-top:14px;margin-top:26px;border-top:1px solid var(--line);}
+section:first-of-type{border-top:none;}
+.eyebrow{font-size:.74rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);}
+h2{font-size:1.5rem;font-weight:800;margin:4px 0 12px;}
+h3{font-size:1.12rem;font-weight:800;margin:22px 0 6px;}
+p{margin:10px 0;color:var(--ink);}
+.lead{color:var(--ink-2);font-size:1.05rem;}
+ul,ol.body{margin:10px 0;padding-left:1.3em;} li{margin:5px 0;}
+strong{color:var(--ink);}
+blockquote{margin:14px 0;padding:12px 16px;border-left:3px solid var(--accent);background:var(--lime-bg);border-radius:0 12px 12px 0;color:var(--ink-2);}
+blockquote em{color:var(--ink);}
+.callout{background:var(--gold-bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0;}
+.callout .t{font-weight:800;color:var(--gold);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;}
+
+/* tables */
+.twrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:14px;}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:520px;}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top;}
+th{background:var(--paper-2);font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800;}
+tr:last-child td{border-bottom:none;}
+td b{color:var(--ink);}
+code{background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.86em;font-family:ui-monospace,Menlo,Consolas,monospace;}
+pre{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;overflow-x:auto;font-size:.82rem;line-height:1.5;}
+pre code{background:none;border:none;padding:0;}
+.pill{display:inline-block;font-size:.72rem;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--lime-bg);color:var(--accent);}
+.footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center;}
+</style>
+
+<div id="doc">
+  <div class="band"><div class="wrap">
+    <div class="logo"><span class="b">⚽</span> Match<b>Quest</b></div>
+    <h1>Fachkonzept</h1>
+    <div class="tag">Interaktive Live-Fußball-Challenges für Zuschauer:innen</div>
+    <div class="meta">
+      <span><b>Version</b> 1.0</span><span><b>Stand</b> 08.07.2026</span>
+      <span><b>Produkt</b> Web-App (PWA)</span><span><b>Status</b> Prototyp (Phase 1) umgesetzt</span>
+      <span><b>Verantwortlich</b> Stefan Wittenberg · HTW Berlin</span>
+    </div>
+  </div></div>
+
+  <div class="wrap">
+    <nav class="toc">
+      <div class="eb">Inhalt</div>
+      <ol>
+        <li><a href="#s1">Ausgangslage & Vision</a></li>
+        <li><a href="#s2">Zielgruppe & Rollen</a></li>
+        <li><a href="#s3">Produktüberblick & Scope</a></li>
+        <li><a href="#s4">User Storys</a></li>
+        <li><a href="#s5">Funktionale Anforderungen</a></li>
+        <li><a href="#s6">Nicht-funktionale Anforderungen</a></li>
+        <li><a href="#s7">UX/UI-Konzept</a></li>
+        <li><a href="#s8">Systemarchitektur</a></li>
+        <li><a href="#s9">Datenmodell</a></li>
+        <li><a href="#s10">Ablauf der Challenges</a></li>
+        <li><a href="#s11">KI & Guardrails</a></li>
+        <li><a href="#s12">Betrieb & Verteilung</a></li>
+        <li><a href="#s13">Recht & Datenschutz</a></li>
+        <li><a href="#s14">Roadmap</a></li>
+        <li><a href="#s15">Risiken</a></li>
+      </ol>
+    </nav>
+
+    <section id="s1"><div class="eyebrow">01 · Grundlage</div><h2>Ausgangslage & Vision</h2>
+      <p class="lead">Klassische Tipp-Apps verlieren nach dem Anpfiff ihren Reiz. <strong>MatchQuest</strong> hält Zuschauer:innen über die gesamte Spieldauer aktiv — durch interaktive Live-Challenges, Video-Duelle mit Freunden, Punkte, Level und Ranglisten.</p>
+      <blockquote><em>„Verwandle jedes Spiel — egal welche Liga — in ein gemeinsames, spannendes Erlebnis mit Freunden, vom Anpfiff bis zum Abpfiff."</em></blockquote>
+      <p>Das Prinzip funktioniert für jedes Fußballspiel (WM, Champions League, Bundesliga, Amateurfußball) und ist auf andere Sportarten übertragbar. <strong>Anlass der Erstveröffentlichung: die Fußball-WM 2026.</strong></p>
+    </section>
+
+    <section id="s2"><div class="eyebrow">02 · Nutzer</div><h2>Zielgruppe & Rollen</h2>
+      <p>Fußballbegeisterte Zuschauer:innen, die Spiele gemeinsam (vor Ort oder verteilt) verfolgen und spielerisch interagieren möchten; mobil-affin.</p>
+      <div class="twrap"><table>
+        <tr><th>Rolle</th><th>Beschreibung</th><th>Aufgaben</th></tr>
+        <tr><td><b>Nutzer</b></td><td>Zuschauer:in während der Sportveranstaltung</td><td>Registrieren, Lobby beitreten, an Challenges teilnehmen, Punkte sammeln, Ranglisten sehen</td></tr>
+        <tr><td><b>Orakel</b></td><td>Vertrauensvolle, akkreditierte Person <b>ohne eigenes wirtschaftliches Interesse</b></td><td>Bestätigt neutral das Eintreten eines Ereignisses bzw. die korrekte Ausführung einer Aktion</td></tr>
+        <tr><td><b>Admin/Betreiber</b> <span class="pill">Phase 2</span></td><td>Betreibt die App</td><td>Challenges kuratieren, Missbrauch moderieren, Ligen verwalten</td></tr>
+      </table></div>
+      <blockquote>Bei <strong>Gruppen-Videocall-Challenges</strong> wird das Orakel <strong>pro Runde zufällig</strong> aus den Teilnehmenden bestimmt (rotierendes Prinzip), sodass niemand dauerhaft Vor- oder Nachteile hat.</blockquote>
+    </section>
+
+    <section id="s3"><div class="eyebrow">03 · Umfang</div><h2>Produktüberblick & Scope</h2>
+      <h3>In Scope — Phase 1 (umgesetzt)</h3>
+      <ul>
+        <li>Schnelle Registrierung & Login; Spielliste (WM 2026) mit Countdown, Live-Link & Lobbys</li>
+        <li>Live-Challenges: <strong>Wett-Challenge</strong>, <strong>Live-Video-Challenge</strong>, <strong>Gruppen-Videocall-Challenge</strong></li>
+        <li>Orakel-Verifikation (menschliche Bestätigung)</li>
+        <li>Gamification: XP, Level, Streak, Coins, Erfolge/Badges</li>
+        <li>Social: Freunde, private Ligen, Live-Aktivitäts-Feed, Reaktionen; Freundes-Leaderboard; Profil & Statistik</li>
+        <li>Sicherheits-Guardrails; Auslieferung als installierbare <strong>PWA</strong>, hostbar auf IONOS</li>
+      </ul>
+      <h3>Out of Scope (Phase 1) → Phase 2</h3>
+      <ul>
+        <li>Serverseitiges Mehrspieler-Backend (gemeinsame Konten, Echtzeit-Ranking)</li>
+        <li>Echter geräteübergreifender Video-Chat (WebRTC) · echte KI-Generierung (serverseitig)</li>
+        <li>Auto-Auflösung der Wetten über Live-Datenfeed · Push-Benachrichtigungen · Belohnungs-Shop</li>
+      </ul>
+    </section>
+
+    <section id="s4"><div class="eyebrow">04 · Anforderungen</div><h2>User Storys & Akzeptanzkriterien</h2>
+      <h3>US1 — Registrieren, Einloggen, Lobby beitreten</h3>
+      <blockquote><em>Als Zuschauer:in möchte ich mich schnell registrieren/einloggen und vor dem Spiel einer Challenge-Lobby beitreten.</em></blockquote>
+      <ul><li>Registrierung/Login in wenigen Schritten; Login-Bereich mit Ranglisten</li>
+      <li>Spielliste mit <strong>Startzeitpunkt</strong> und <strong>Link zur Live-Übertragung</strong></li>
+      <li>Beitritt zur <strong>Challenge-Lobby</strong> vor jedem Spiel</li></ul>
+
+      <h3>US2 — Live-Challenges während des Spiels</h3>
+      <ul><li><strong>Alle 10 Minuten</strong> automatisch eine Challenge (im Prototyp beschleunigt) mit <strong>Zeitlimit</strong></li>
+      <li>Richtige Antworten → Punkte → Aufstieg im Live-Ranking; <strong>private Ligen</strong> in Echtzeit</li>
+      <li>Nach Spielende: Statistiken, Ranglisten, Erfolge; nutzbar für jedes Fußballspiel</li></ul>
+
+      <h3>US2a — Live-Video-Challenge (interaktiv)</h3>
+      <ul><li>Live-Kamerabild in der App (REC-Indikator, Zeitlimit); Live-Reaktionen</li>
+      <li>Ein <strong>Orakel</strong> verifiziert das Ergebnis <strong>live in Echtzeit</strong> (statt bloßem Upload)</li></ul>
+
+      <h3>US2b — Gruppen-Videocall-Challenge</h3>
+      <ul><li>Alle Teilnehmenden im <strong>integrierten Videocall</strong> (Kachel-Raster) sichtbar</li>
+      <li>Pro Runde <strong>genau 1 Spieler</strong> und <strong>genau 1 Orakel</strong>, <strong>zufällig</strong> bestimmt; Rest schaut zu</li>
+      <li>Nur der Spieler bekommt die Challenge; Rollen <strong>rotieren</strong> über die Runden</li></ul>
+
+      <h3>US3 — Leaderboard (Freunde)</h3>
+      <ul><li>Navigationspunkt <strong>„Leaderboard/Rang"</strong></li>
+      <li>Tabelle mit Spalten <strong>Platzierung · Name · Anzahl richtige Wetten</strong>, nur Freunde</li>
+      <li>Beim Öffnen wird die Liste <strong>aktualisiert</strong> und dargestellt</li></ul>
+    </section>
+
+    <section id="s5"><div class="eyebrow">05 · Features</div><h2>Funktionale Anforderungen</h2>
+      <div class="twrap"><table>
+        <tr><th>#</th><th>Feature</th><th>Beschreibung</th><th>Phase</th></tr>
+        <tr><td>F1</td><td>Registrierung/Login</td><td>E-Mail + Passwort, Session</td><td>1/2</td></tr>
+        <tr><td>F2</td><td>Spielliste & Lobby</td><td>Fixtures, Countdown, Live-Link, Teilnehmer-Avatare</td><td>1</td></tr>
+        <tr><td>F3</td><td>Wett-Challenge</td><td>Auswahl auf Spielereignis, Zeitlimit, Punkte</td><td>1</td></tr>
+        <tr><td>F4</td><td>Live-Video-Challenge</td><td>Kamera live, REC-Timer, Orakel-Echtzeit, Reaktionen</td><td>1</td></tr>
+        <tr><td>F5</td><td>Gruppen-Videocall</td><td>Videocall-Raster, Zufallsauslosung Spieler/Orakel</td><td>1</td></tr>
+        <tr><td>F6</td><td>Orakel-Verifikation</td><td>Menschliche Bestätigung (Freund im Raum/Call)</td><td>1</td></tr>
+        <tr><td>F7</td><td>Gamification</td><td>XP, Level, Streak, Coins, Erfolge, Konfetti</td><td>1</td></tr>
+        <tr><td>F8</td><td>Social</td><td>Freunde, private Ligen, Aktivitäts-Feed, Reaktionen</td><td>1</td></tr>
+        <tr><td>F9</td><td>Leaderboard</td><td>Freunde-Rangliste + Liga-Ansicht</td><td>1</td></tr>
+        <tr><td>F10</td><td>Profil & Statistik</td><td>Level-Fortschritt, Punkte, Wetten, Erfolge</td><td>1</td></tr>
+        <tr><td>F11</td><td>Guardrails</td><td>Inhaltsfilter für Challenges</td><td>1</td></tr>
+        <tr><td>F12</td><td>KI-Generierung</td><td>Stufe 1 kuratiert, Stufe 2 simuliert → echt</td><td>1/2</td></tr>
+        <tr><td>F13</td><td>PWA</td><td>„Zum Home-Bildschirm", Offline-Shell</td><td>1</td></tr>
+        <tr><td>F14</td><td>Echtzeit-Multiplayer</td><td>Gemeinsame Lobbys/Ranking serverseitig</td><td>2</td></tr>
+        <tr><td>F15</td><td>Echter Video-Chat</td><td>WebRTC zwischen Geräten + Signalisierung</td><td>2</td></tr>
+        <tr><td>F16</td><td>Auto-Auflösung Wetten</td><td>Live-Sportdatenfeed</td><td>2</td></tr>
+      </table></div>
+    </section>
+
+    <section id="s6"><div class="eyebrow">06 · Qualität</div><h2>Nicht-funktionale Anforderungen</h2>
+      <ul>
+        <li><strong>Usability:</strong> Mobile-first, native-App-Gefühl (Bottom-Navigation, Vollbild-PWA)</li>
+        <li><strong>Performance:</strong> Erststart &lt; 2 s; keine Build-Abhängigkeiten in Phase 1</li>
+        <li><strong>Barrierefreiheit:</strong> Kontraste, sichtbarer Fokus, <code>prefers-reduced-motion</code></li>
+        <li><strong>Kompatibilität:</strong> Safari iOS, Chrome Android; Kamera erfordert <strong>HTTPS</strong></li>
+        <li><strong>Datenschutz:</strong> DSGVO-konform; Kamerabild wird nicht gespeichert (Phase 1)</li>
+        <li><strong>Sicherheit:</strong> kein API-Key im Frontend; Guardrails serverseitig (Phase 2)</li>
+        <li><strong>Skalierbarkeit/Wartbarkeit:</strong> Datenzugriffe gekapselt (<code>MQ.DB</code>), Module getrennt</li>
+      </ul>
+    </section>
+
+    <section id="s7"><div class="eyebrow">07 · Gestaltung</div><h2>UX/UI-Konzept</h2>
+      <ul>
+        <li><strong>Design-System „Matchday unter Flutlicht":</strong> dunkles Midnight-Blau, Akzent Electric-Lime, Gold (Belohnungen), Magenta (LIVE), Cyan (Video); Glassmorphism, animierter Hintergrund</li>
+        <li><strong>Navigation:</strong> Bottom-Tab-Bar (Spiele · Live · Rang · Profil); Status-Leiste (Avatar, Level, XP, Streak, Coins)</li>
+        <li><strong>Kern-Screens:</strong> Landing → Login → App (Spiele/Lobby, Live-Challenge, Rang/Ligen, Profil)</li>
+        <li><strong>Feedback:</strong> Toasts, animierte Zähler, Level-Up-Moment, Konfetti</li>
+      </ul>
+    </section>
+
+    <section id="s8"><div class="eyebrow">08 · Technik</div><h2>Systemarchitektur</h2>
+      <h3>Phase 1 — Statische PWA (umgesetzt)</h3>
+<pre><code>[ Browser / PWA ]
+  index.html + CSS + JS   (UI, Challenge-Engine, Gamification)
+  localStorage            (Konten, Punkte, Ligen — pro Gerät)
+  getUserMedia            (lokale Kamera für Video-Challenges)
+  Service Worker          (Offline-Shell, Installierbarkeit)
+       |
+  Hosting: IONOS Webhosting (statische Dateien via FTP, HTTPS)</code></pre>
+      <p>Keine Serverlogik nötig — ideal für schnellen Start zur WM. Gruppen-Videocalls laufen als überzeugende Simulation auf einem Gerät.</p>
+      <h3>Phase 2 — Backend & Echtzeit (Ausbau)</h3>
+<pre><code>[ PWA Clients ] &lt;-&gt; [ REST/WebSocket-API ] &lt;-&gt; [ DB ]
+   Auth (gehashte Passwörter, Sessions/JWT)
+   Lobbys & Echtzeit-Ranking (WebSocket)
+   Challenge-Service + KI (+ serverseitige Guardrails)
+   Ereignis-Auflösung via Sport-Datenfeed
+   WebRTC: Peer-to-Peer-Video + Signalisierung (TURN/STUN)
+
+Hosting: IONOS PHP + MySQL (wie Fabio-Antunes-Projekt)
+         oder Node/Managed-Dienst für WebSocket/WebRTC</code></pre>
+    </section>
+
+    <section id="s9"><div class="eyebrow">09 · Daten</div><h2>Datenmodell (vereinfacht)</h2>
+      <div class="twrap"><table>
+        <tr><th>Entität</th><th>Felder</th></tr>
+        <tr><td><b>User</b></td><td>id, name, email, passwort(hash), avatar, friends[], points, correctBets, challengesDone, xp, coins, streak, achievements[]</td></tr>
+        <tr><td><b>Match</b></td><td>id, stage, home, away, kickoff, venue, liveUrl, lobby[]</td></tr>
+        <tr><td><b>Challenge</b></td><td>id, matchId, type(bet·video·group), text, options[], points, xp, coins, answerSeconds, source(curated·ki)</td></tr>
+        <tr><td><b>GroupRound</b></td><td>challengeId, participants[], playerId, oracleId, result</td></tr>
+        <tr><td><b>League</b></td><td>id, name, members[]</td></tr>
+        <tr><td><b>Result/Activity</b></td><td>userId, challengeId, correct, pointsDelta, timestamp</td></tr>
+      </table></div>
+    </section>
+
+    <section id="s10"><div class="eyebrow">10 · Abläufe</div><h2>Ablauf der Challenges</h2>
+      <p><strong>Wett-Challenge:</strong> erscheint → Zeitlimit → Nutzer wählt → Ergebnis (Phase 2: Datenfeed) → Punkte/XP/Streak.</p>
+      <p><strong>Live-Video-Challenge:</strong> Kamera starten → Aktion vorführen (REC-Timer) → Orakel bestätigt/lehnt live ab → Belohnung bzw. Streak-Reset.</p>
+      <h3>Gruppen-Videocall-Challenge (US2b)</h3>
+      <ol class="body">
+        <li>Alle Teilnehmenden im <strong>Videocall-Raster</strong> sichtbar.</li>
+        <li>Pro Runde <strong>zufällig</strong> 1 Spieler + 1 Orakel (verschiedene Personen).</li>
+        <li>Nur der Spieler führt die Challenge live vor; andere schauen zu und reagieren.</li>
+        <li>Orakel bewertet live (Bestätigen/Ablehnen).</li>
+        <li>Belohnung: Spieler voll bei Bestätigung; Orakel & Zuschauer erhalten Teilnahme-Boni.</li>
+        <li>Nächste Runde → neue Zufallsauslosung → Rollen rotieren.</li>
+      </ol>
+    </section>
+
+    <section id="s11"><div class="eyebrow">11 · KI & Sicherheit</div><h2>KI-Konzept & Guardrails</h2>
+      <p><strong>Zweistufig:</strong> Stufe 1 <em>(kuratiert)</em> — geprüfter Pool, immer passend. Stufe 2 <em>(KI-Überraschungsmodus)</em> — kombiniert Bausteine zu überraschenden Challenges (Prototyp: Simulation; Phase 2: echte KI serverseitig).</p>
+      <div class="callout"><div class="t">Guardrails — Pflicht für alle Stufen</div>
+      <p style="margin:6px 0 0">Jede Challenge durchläuft einen Inhaltsfilter. Verworfen werden Inhalte mit <strong>Gewalt, sexuellen Bezügen, Gefahr, Substanz-/Alkoholzwang, Diskriminierung oder Illegalem</strong>. Leitlinie: „verrückt, aber ethisch vertretbar, ungefährlich, kontextspezifisch". Das <strong>Orakel</strong> ist die menschliche Sicherheitsebene.</p></div>
+      <blockquote>In Phase 2 gehört der KI-API-Schlüssel <strong>ausschließlich auf den Server</strong>, nie ins öffentliche Frontend.</blockquote>
+    </section>
+
+    <section id="s12"><div class="eyebrow">12 · Betrieb</div><h2>Betrieb & Verteilung</h2>
+      <div class="callout"><div class="t">Finale Entscheidung</div>
+      <p style="margin:6px 0 0">MatchQuest wird als <strong>Web-App (PWA)</strong> ausgeliefert — <strong>kein App-Store, keine APK</strong>. Grund: hohe iPhone-Verbreitung und zu große Hürde/Aufwand für die Store-Einreichung.</p></div>
+      <h3>Hosting auf IONOS (wie Fabio-Antunes-Projekt)</h3>
+      <ol class="body">
+        <li>Ordner <code>webapp/</code> per <strong>FTP/SFTP</strong> ins IONOS-Webroot laden (reines HTML/CSS/JS).</li>
+        <li><strong>HTTPS/SSL</strong> aktivieren (im Tarif enthalten) — nötig für Kamera-Zugriff.</li>
+        <li>Unter eigener Domain (z. B. <code>matchquest.de</code>) erreichbar.</li>
+      </ol>
+      <h3>Verteilung — einfach & kostenlos</h3>
+      <ul>
+        <li><strong>Link teilen</strong> (WhatsApp/QR): alle öffnen dieselbe URL auf jedem Gerät.</li>
+        <li><strong>Installieren ohne Store:</strong> iPhone (Safari → „Zum Home-Bildschirm"), Android (Chrome → „App installieren").</li>
+        <li>Kein Sideloading, keine Store-Gebühr, kein Freigabeprozess.</li>
+      </ul>
+    </section>
+
+    <section id="s13"><div class="eyebrow">13 · Recht</div><h2>Recht & Datenschutz</h2>
+      <ul>
+        <li><strong>DSGVO:</strong> Datensparsamkeit, Einwilligung, Datenschutzerklärung & <strong>Impressum</strong> verpflichtend.</li>
+        <li><strong>Kamera/Video:</strong> ausdrückliche Einwilligung; Phase 1 speichert/überträgt nichts (nur lokale Anzeige).</li>
+        <li><strong>Bild-/Persönlichkeitsrechte:</strong> Beweisvideos nur mit Zustimmung, nicht öffentlich teilen.</li>
+        <li><strong>Kein Glücksspiel:</strong> Spiel mit <strong>Punkten</strong>, nicht um Geld — keine Geldeinsätze/-gewinne.</li>
+        <li><strong>Minderjährige:</strong> Alterskennzeichnung/Elternhinweis; Guardrails schützen zusätzlich.</li>
+        <li><strong>Marken/Ligarechte:</strong> Namen nur beschreibend, keine offiziellen Logos ohne Lizenz.</li>
+      </ul>
+    </section>
+
+    <section id="s14"><div class="eyebrow">14 · Planung</div><h2>Roadmap</h2>
+      <div class="twrap"><table>
+        <tr><th>Phase</th><th>Inhalt</th><th>Status</th></tr>
+        <tr><td><b>1 — Prototyp / WM-Launch</b></td><td>PWA, alle Challenge-Typen (simuliert), Gamification, IONOS-Hosting</td><td>✅ umgesetzt</td></tr>
+        <tr><td><b>2 — Multiplayer-Backend</b></td><td>Echte Konten, Echtzeit-Lobbys & -Ranking, WebRTC-Video, echte KI + Guardrails, Auto-Auflösung</td><td>geplant</td></tr>
+        <tr><td><b>3 — Ausbau</b></td><td>Push, Belohnungs-Shop, weitere Sportarten, Turniere/Events</td><td>Idee</td></tr>
+      </table></div>
+    </section>
+
+    <section id="s15"><div class="eyebrow">15 · Risiken</div><h2>Risiken & Annahmen</h2>
+      <ul>
+        <li><strong>Kamera/Browser:</strong> nur über HTTPS; Fallback auf Simulation vorhanden.</li>
+        <li><strong>Echtzeit-Video (Phase 2):</strong> WebRTC + TURN verursacht Betriebskosten → Anbieter prüfen.</li>
+        <li><strong>Ereignis-Auflösung:</strong> verlässlicher Live-Datenfeed nötig (Lizenz/Kosten) — sonst Orakel-basiert.</li>
+        <li><strong>Fairness/Missbrauch:</strong> Orakel-Rotation + Moderation (Phase 2).</li>
+        <li><strong>Annahme:</strong> Nutzer:innen schauen gemeinsam (Raum oder Call) — Grundlage der Orakel-Mechanik.</li>
+      </ul>
+    </section>
+
+    <div class="footer">MatchQuest · Fachkonzept v1.0 · 08.07.2026 — Prototyp umgesetzt, Phase 2 geplant</div>
+  </div>
+</div>
