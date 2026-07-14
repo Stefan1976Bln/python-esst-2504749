@@ -441,7 +441,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
               <!-- ECHTER VIDEOCALL (Jitsi · Open Source · Mehrpersonen) -->
               <div id="grp-live" style="display:none">
                 <div class="field" style="margin-bottom:10px">
-                  <label>Team-Raum-Code — dein Team teilt sich einen Call</label>
+                  <label>Raum-Code — alle mit demselben Code sind im selben Call</label>
                   <div class="row" style="gap:8px">
                     <input id="vc-room" type="text" autocomplete="off" spellcheck="false">
                     <button class="btn sm ghost" id="vc-copy">📋 Teilen</button>
@@ -1053,13 +1053,12 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   var fp1=$('freeplay-btn'),fp2=$('freeplay-btn2');if(fp1)fp1.onclick=startFreeplay;if(fp2)fp2.onclick=startFreeplay;
 
   /* ---- Gruppen-Modus: Simulation <-> echter Videocall ---- */
-  function defaultRoom(){var me=MQ.DB.getUser(user.id);var team=(me&&me.teamId)?('-'+me.teamId):'';return 'MatchQuestAH2026-'+(st.matchId||'lobby')+team;}
+  function defaultRoom(){return 'MatchQuest-'+(st.matchId||'lobby');} // gleicher Code für alle im selben Spiel
   function setGroupMode(mode){var live=mode==='live';
     $('mode-sim').classList.toggle('active',!live);$('mode-live').classList.toggle('active',live);
     $('grp-sim').style.display=live?'none':'';$('grp-live').style.display=live?'':'none';$('grp-timer').textContent='';
-    if(live){grp.token++;stopCam();$('vc-room').value=defaultRoom();
-      var me=MQ.DB.getUser(user.id);var tn=(me&&me.teamId&&MQ.DB.getTeam(me.teamId))?MQ.DB.getTeam(me.teamId).name:null;
-      $('vc-status').textContent=tn?('👥 Dies ist der Call von „'+tn+'". Dein Team teilt sich diesen Raum-Code; andere Teams haben ihren eigenen Call.'):'Tipp: Tritt einem Team bei (Rang → Teams) — dann bekommt jedes Team automatisch seinen eigenen Call.';}
+    if(live){grp.token++;stopCam();if(!$('vc-room').value)$('vc-room').value=defaultRoom();
+      $('vc-status').innerHTML='👉 So geht\'s: <b>alle tippen denselben Code ein</b> und dann „Beitreten". Wer dasselbe Spiel offen hat, hat schon denselben Code: <b>'+$('vc-room').value+'</b>';}
     else{try{leaveCall();}catch(e){}if(!grp.players.length)grp.players=grpParticipants();if(grp.performerIdx<0)nextGroupRound();else renderGroup();}}
   $('mode-sim').onclick=function(){setGroupMode('sim');};
   $('mode-live').onclick=function(){setGroupMode('live');};
@@ -1089,7 +1088,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
       jitsi.api=new JitsiMeetExternalAPI(JITSI_DOMAIN,{roomName:room,parentNode:$('jitsi-wrap'),userInfo:{displayName:user.name},
         configOverwrite:{prejoinPageEnabled:false,startWithAudioMuted:false,disableDeepLinking:true},
         interfaceConfigOverwrite:{MOBILE_APP_PROMO:false,SHOW_JITSI_WATERMARK:false,SHOW_CHROME_EXTENSION_BANNER:false,TOOLBAR_BUTTONS:['microphone','camera','desktop','tileview','hangup','fullscreen']}});
-      jitsi.api.addEventListener('videoConferenceJoined',function(e){jitsi.me=e.id;$('vc-status').textContent='✅ Verbunden als '+user.name+'. Teile den Raum-Code — alle mit demselben Code sehen sich live.';$('vc-actions').style.display='';$('vc-leave').style.display='';});
+      jitsi.api.addEventListener('videoConferenceJoined',function(e){jitsi.me=e.id;$('vc-status').innerHTML='✅ Verbunden als '+user.name+'. Raum-Code <b>'+room+'</b> — andere geben ihn ein und tippen „Beitreten", dann seht ihr euch.';$('vc-actions').style.display='';$('vc-leave').style.display='';});
       jitsi.api.addEventListener('endpointTextMessageReceived',function(ev){try{var d=JSON.parse(ev.data.eventData.text);if(d&&d.mq==='round')applyRound(d);else if(d&&d.mq==='score')onScoreLive(d);else if(d&&d.mq==='vresult')showLiveResultJury(d);}catch(e){}});
       jitsi.api.addEventListener('readyToClose',function(){leaveCall();});
       }catch(err){$('vc-status').textContent='⚠️ Videocall konnte nicht gestartet werden. Bitte die IONOS-Version nutzen.';$('vc-prejoin').style.display='';$('jitsi-wrap').style.display='none';}
