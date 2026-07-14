@@ -1,0 +1,3 @@
+# Datenbank-Datei niemals über das Web ausliefern
+Require all denied
+Deny from all

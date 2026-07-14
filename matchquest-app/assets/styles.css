@@ -1,0 +1,211 @@
+/* =========================================================
+   MatchQuest — gemeinsames Stylesheet (mobile-first)
+   Theme: Rasengrün + Nachtblau + Gold-Akzent
+   ========================================================= */
+
+:root {
+  --pitch: #0b8a4c;
+  --pitch-dark: #076b3a;
+  --night: #0a1128;
+  --night-2: #131a37;
+  --card: #1a2246;
+  --gold: #f2c037;
+  --gold-soft: #ffd968;
+  --ink: #eef2ff;
+  --muted: #9aa6d0;
+  --line: rgba(255, 255, 255, 0.10);
+  --ok: #35d07f;
+  --bad: #ff5d6c;
+  --radius: 16px;
+  --shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+  --maxw: 1040px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(11, 138, 76, 0.35), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(242, 192, 55, 0.10), transparent 55%),
+    var(--night);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+a { color: var(--gold-soft); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 18px; }
+
+/* ---------------- Header / Nav ---------------- */
+.site-header {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(10, 17, 40, 0.82);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav {
+  display: flex; align-items: center; gap: 18px;
+  height: 62px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 1.15rem; color: var(--ink);
+  letter-spacing: 0.2px;
+}
+.brand:hover { text-decoration: none; }
+.brand .ball { font-size: 1.4rem; }
+.brand b { color: var(--gold); }
+.nav-links { display: flex; gap: 6px; margin-left: auto; align-items: center; flex-wrap: wrap; }
+.nav-links a, .nav-btn {
+  color: var(--ink); font-weight: 600; font-size: 0.94rem;
+  padding: 8px 14px; border-radius: 999px; border: 1px solid transparent;
+  background: transparent; cursor: pointer;
+}
+.nav-links a:hover, .nav-btn:hover { background: rgba(255,255,255,0.06); text-decoration: none; }
+.nav-links a.active, .nav-btn.active {
+  background: var(--gold); color: #1a1200; border-color: var(--gold);
+}
+.nav .who { color: var(--muted); font-size: 0.88rem; }
+
+/* ---------------- Buttons ---------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-weight: 700; font-size: 1rem; cursor: pointer;
+  padding: 12px 20px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); transition: transform .06s ease, filter .15s ease;
+}
+.btn:hover { filter: brightness(1.08); text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: linear-gradient(135deg, var(--gold), var(--gold-soft)); color: #1a1200; border: none; }
+.btn.green { background: linear-gradient(135deg, var(--pitch), var(--pitch-dark)); color: #fff; border: none; }
+.btn.ghost { background: transparent; }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ---------------- Cards ---------------- */
+.card {
+  background: linear-gradient(180deg, var(--card), var(--night-2));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.grid { display: grid; gap: 16px; }
+@media (min-width: 720px) { .grid.cols-2 { grid-template-columns: 1fr 1fr; } }
+
+.section-title { font-size: 1.35rem; margin: 26px 0 12px; }
+.muted { color: var(--muted); }
+.pill {
+  display: inline-block; font-size: .74rem; font-weight: 800; letter-spacing: .4px;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+}
+.pill.live { background: var(--bad); color: #fff; }
+.pill.soon { background: var(--gold); color: #1a1200; }
+.pill.ki { background: #6a5cff; color: #fff; }
+.pill.curated { background: var(--pitch); color: #fff; }
+
+/* ---------------- Hero (Landing) ---------------- */
+.hero {
+  padding: 64px 0 40px;
+  text-align: center;
+}
+.hero h1 { font-size: clamp(2rem, 6vw, 3.4rem); margin: 12px 0 10px; line-height: 1.1; }
+.hero h1 b { color: var(--gold); }
+.hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 26px; }
+.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.kicker {
+  display: inline-block; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); font-size: .8rem;
+}
+.features { margin-top: 40px; }
+.feature h3 { margin: 6px 0; }
+.feature .ico { font-size: 1.8rem; }
+
+/* ---------------- Auth ---------------- */
+.auth-shell { max-width: 440px; margin: 48px auto; }
+.tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+.tabs button {
+  flex: 1; padding: 10px; border-radius: 999px; border: 1px solid var(--line);
+  background: transparent; color: var(--ink); font-weight: 700; cursor: pointer;
+}
+.tabs button.active { background: var(--gold); color: #1a1200; border-color: var(--gold); }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: .86rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+.field input, .field select {
+  width: 100%; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: rgba(0,0,0,0.25); color: var(--ink);
+  font-size: 1rem;
+}
+.field input:focus { outline: 2px solid var(--gold); }
+.form-error { color: var(--bad); font-weight: 600; min-height: 1.2em; margin: 4px 0 10px; }
+.demo-note { font-size: .85rem; color: var(--muted); margin-top: 14px; text-align: center; }
+
+/* ---------------- Match list ---------------- */
+.match {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.match .teams { font-size: 1.15rem; font-weight: 800; }
+.match .flag { font-size: 1.3rem; }
+.match .meta { color: var(--muted); font-size: .9rem; }
+.match .spacer { flex: 1; }
+.countdown { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--gold); }
+
+/* ---------------- Live Challenge ---------------- */
+.challenge-box { text-align: center; }
+.challenge-q { font-size: 1.35rem; font-weight: 800; margin: 10px 0 6px; }
+.timer-ring {
+  font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.1rem;
+  color: var(--gold);
+}
+.opts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+.opts .btn { min-width: 120px; }
+.opts .btn.selected { outline: 3px solid var(--gold); }
+.opts .btn.correct { background: var(--ok); color: #06210f; }
+.opts .btn.wrong { background: var(--bad); color: #2a060a; }
+
+.proof {
+  border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center;
+  margin: 14px 0;
+}
+.proof img, .proof video { max-width: 100%; border-radius: 10px; margin-top: 10px; }
+.oracle-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.result-banner {
+  margin-top: 14px; padding: 12px; border-radius: 12px; font-weight: 700; text-align: center;
+}
+.result-banner.ok { background: rgba(53, 208, 127, .16); color: var(--ok); }
+.result-banner.bad { background: rgba(255, 93, 108, .16); color: var(--bad); }
+
+.next-timer { text-align: center; color: var(--muted); margin-top: 8px; }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.switch { display: flex; align-items: center; gap: 8px; }
+.switch small { color: var(--muted); }
+
+/* ---------------- Leaderboard ---------------- */
+table.leaderboard { width: 100%; border-collapse: collapse; }
+table.leaderboard th, table.leaderboard td {
+  text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line);
+}
+table.leaderboard th { color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .4px; }
+table.leaderboard td.rank { font-weight: 800; color: var(--gold); width: 60px; }
+table.leaderboard tr.me td { background: rgba(242, 192, 55, .10); }
+table.leaderboard td .medal { margin-right: 6px; }
+
+/* ---------------- Views ---------------- */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ---------------- Stats ---------------- */
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.stat { text-align: center; }
+.stat .num { font-size: 1.8rem; font-weight: 800; color: var(--gold); }
+.stat .lbl { color: var(--muted); font-size: .85rem; }
+
+footer.site {
+  border-top: 1px solid var(--line); margin-top: 48px; padding: 24px 0;
+  color: var(--muted); font-size: .88rem; text-align: center;
+}
