@@ -785,7 +785,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   tL.onclick=function(){authShow('login');};tR.onclick=function(){authShow('register');};
   fL.onsubmit=function(e){e.preventDefault();var email=$('login-email').value,pw=$('login-pw').value;
     if(MQ.Net.enabled()){$('login-error').textContent='… Anmeldung läuft';
-      MQ.Net.login(email,pw).then(function(r){if(!r.ok){$('login-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');}).catch(function(){$('login-error').textContent='Server nicht erreichbar';});return;}
+      MQ.Net.login(email,pw).then(function(r){if(!r.ok){$('login-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');}).catch(function(){var lr=MQ.Auth.login(email,pw);if(lr.ok){go('app');}else{$('login-error').textContent='Server nicht erreichbar — offline nur mit auf diesem Gerät angelegtem Konto.';}});return;}
     var r=MQ.Auth.login(email,pw);if(r.ok)go('app');else $('login-error').textContent=r.error;};
   fR.onsubmit=function(e){e.preventDefault();
     var email=$('reg-email').value.trim(),pw=$('reg-pw').value,pw2=$('reg-pw2').value;
@@ -794,7 +794,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     if(pw.length<4){$('reg-error').textContent='Passwort muss mindestens 4 Zeichen haben.';return;}
     if(pw!==pw2){$('reg-error').textContent='Die Passwörter stimmen nicht überein.';return;}
     if(MQ.Net.enabled()){$('reg-error').textContent='… Konto wird erstellt';
-      MQ.Net.register(name,email,pw).then(function(r){if(!r.ok){$('reg-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Online-Konto erstellt','lime');}).catch(function(){$('reg-error').textContent='Server nicht erreichbar';});return;}
+      MQ.Net.register(name,email,pw).then(function(r){if(!r.ok){$('reg-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Online-Konto erstellt','lime');}).catch(function(){var lr=MQ.Auth.register(name,email,pw);if(lr.ok){go('app');UI.toast('👋','Willkommen, '+lr.user.name+'!','Offline-Modus (Server nicht erreichbar)','gold');}else{$('reg-error').textContent=lr.error;}});return;}
     var r=MQ.Auth.register(name,email,pw);
     if(r.ok){go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Kein E-Mail-Versand — du bist direkt drin','lime');}else $('reg-error').textContent=r.error;};
 

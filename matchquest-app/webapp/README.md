@@ -22,8 +22,8 @@ einem Unterordner.
 2. Mit einem FTP-Programm (z. B. **FileZilla**) verbinden.
 3. Im Webroot (dort, wo die bestehende `index.html` von altenau-harz.de liegt) einen **neuen Ordner**
    `matchquest` anlegen. **Nichts Bestehendes löschen oder überschreiben.**
-4. Den **gesamten Inhalt dieses Ordners** — `index.html`, `manifest.webmanifest`, `service-worker.js`
-   und den Ordner `icons/` — in `…/matchquest/` hochladen.
+4. Den **gesamten Inhalt dieses Ordners** — `index.html`, `manifest.webmanifest`, `service-worker.js`,
+   den Ordner `icons/` **und den Ordner `api/`** (Backend) — in `…/matchquest/` hochladen.
 5. **HTTPS/SSL** muss aktiv sein (bei IONOS kostenlos im Tarif). ⚠️ Die **Kamera** (Live-/Video-Challenges)
    funktioniert nur über **https**, nicht über http.
 6. Fertig — Aufruf unter **`https://www.altenau-harz.de/matchquest/`**. Link (oder QR-Code) an Freunde
@@ -83,13 +83,15 @@ sofort Live-Challenges (Wette + Live-Video), unabhängig von einem WM-Spiel.
   Für den Dauerbetrieb später **eigene Jitsi-Instanz** oder anderen Open-Source-Dienst hosten (DSGVO-freundlicher).
   Der Server lässt sich im Code leicht austauschen (`meet.jit.si` → eigene Domain).
 
-## Echt gemeinsam spielen (optionales Backend)
+## Echt gemeinsam spielen — ein Ordner, kein Setup
 
-Für **geräteübergreifend geteilte** Konten, Punkte, Ranglisten und Team-Battle gibt es ein schlankes
-PHP+MySQL-Backend unter [`../backend/`](../backend/README.md) (läuft auf eurem IONOS-Webspace).
-Aktivieren: in `index.html` die Konstante `BACKEND_URL` auf die API-URL setzen
-(z. B. `https://www.altenau-harz.de/matchquest-api/api.php`). Leer = Lokal-Modus.
-Der **echte Videocall + die Gruppen-Jury** laufen bereits ohne Backend live über den Call.
+Das Backend liegt **in diesem Ordner** unter [`api/`](api/README.md). Beim Hochladen von `webapp/`
+findet die App das Backend **automatisch** (`./api/api.php`) und teilt Konten, Punkte, Ranglisten und
+Team-Battle **über alle Geräte** — **ohne** URL-Editieren und **ohne** Datenbank-Setup (SQLite-Standard).
+Ist das Backend am Host nicht erreichbar, läuft alles automatisch im **Lokal-Modus** weiter.
+Der **echte Videocall + die Gruppen-Jury** laufen ohnehin live über den Call.
+
+> `index.html` wird aus `../matchquest-pro.html` gebaut: `node ../build-webapp.js`.
 
 ## Hinweis: Demo vs. Live-Backend
 

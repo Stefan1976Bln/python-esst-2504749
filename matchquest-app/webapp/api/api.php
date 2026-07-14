@@ -1,7 +1,7 @@
 <?php
-// MatchQuest Backend — einzelne JSON-API (POST {action, ...}). Geteilte Konten, Punkte, Ranglisten, Teams.
+// MatchQuest Backend — JSON-API (POST {action, ...}). Geteilte Konten, Punkte, Ranglisten, Teams.
 require __DIR__ . '/db.php';
-$cfg = require __DIR__ . '/config.php';
+$cfg = mq_cfg();
 
 header('Access-Control-Allow-Origin: ' . ($cfg['allow_origin'] ?? '*'));
 header('Access-Control-Allow-Headers: Content-Type');
@@ -31,6 +31,8 @@ try {
   $in = body();
   $a = $in['action'] ?? '';
 
+  if ($a === 'ping') { out(['ok' => true]); }
+
   if ($a === 'register') {
     $name = trim($in['name'] ?? '');
     $email = strtolower(trim($in['email'] ?? ''));
@@ -56,7 +58,6 @@ try {
   }
 
   $me = userByToken($pdo, $in['token'] ?? '');
-
   if ($a === 'me') { if (!$me) out(['ok' => false, 'error' => 'auth']); out(['ok' => true, 'user' => pub($me)]); }
 
   if ($a === 'submit') {
@@ -79,7 +80,7 @@ try {
   }
 
   if ($a === 'leaderboard') {
-    $rows = $pdo->query("SELECT name,points,correct_bets,xp,team_id FROM users ORDER BY correct_bets DESC, points DESC LIMIT 200")->fetchAll(PDO::FETCH_ASSOC);
+    $rows = $pdo->query("SELECT name,points,correct_bets,xp,team_id FROM users ORDER BY correct_bets DESC, points DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
     out(['ok' => true, 'rows' => array_map(function ($r) {
       return ['name' => $r['name'], 'points' => (int)$r['points'], 'correctBets' => (int)$r['correct_bets'], 'level' => intdiv((int)$r['xp'], 100) + 1, 'teamId' => $r['team_id']];
     }, $rows)]);

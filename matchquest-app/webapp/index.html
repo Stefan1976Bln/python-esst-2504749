@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MatchQuest — Live-Fußball-Challenges</title>
+<meta name="description" content="Interaktive Live-Challenges, Video-Duelle mit Freunden, XP und Ranglisten zu jedem Fußballspiel.">
 <meta name="theme-color" content="#060913">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32">
@@ -15,6 +16,15 @@
 <style>html,body{margin:0;padding:0;background:#060913;}</style>
 </head>
 <body>
+<script>
+/* Backend automatisch finden: gehostet (http/https, nicht claude.ai) -> ./api/api.php.
+   So genügt EIN Ordner-Upload; ohne erreichbares Backend fällt die App automatisch auf Lokal-Modus zurück. */
+(function(){try{
+  if(location.protocol.indexOf('http')===0 && !/claude\.ai/.test(location.host) && !localStorage.getItem('mqpro_backend')){
+    localStorage.setItem('mqpro_backend', new URL('api/api.php', location.href).href);
+  }
+}catch(e){}})();
+</script>
 <style>
 /* =========================================================
    MatchQuest PRO — Premium Live-Sport-Gaming (Ein-Datei-Build)
@@ -801,7 +811,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   tL.onclick=function(){authShow('login');};tR.onclick=function(){authShow('register');};
   fL.onsubmit=function(e){e.preventDefault();var email=$('login-email').value,pw=$('login-pw').value;
     if(MQ.Net.enabled()){$('login-error').textContent='… Anmeldung läuft';
-      MQ.Net.login(email,pw).then(function(r){if(!r.ok){$('login-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');}).catch(function(){$('login-error').textContent='Server nicht erreichbar';});return;}
+      MQ.Net.login(email,pw).then(function(r){if(!r.ok){$('login-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');}).catch(function(){var lr=MQ.Auth.login(email,pw);if(lr.ok){go('app');}else{$('login-error').textContent='Server nicht erreichbar — offline nur mit auf diesem Gerät angelegtem Konto.';}});return;}
     var r=MQ.Auth.login(email,pw);if(r.ok)go('app');else $('login-error').textContent=r.error;};
   fR.onsubmit=function(e){e.preventDefault();
     var email=$('reg-email').value.trim(),pw=$('reg-pw').value,pw2=$('reg-pw2').value;
@@ -810,7 +820,7 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
     if(pw.length<4){$('reg-error').textContent='Passwort muss mindestens 4 Zeichen haben.';return;}
     if(pw!==pw2){$('reg-error').textContent='Die Passwörter stimmen nicht überein.';return;}
     if(MQ.Net.enabled()){$('reg-error').textContent='… Konto wird erstellt';
-      MQ.Net.register(name,email,pw).then(function(r){if(!r.ok){$('reg-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Online-Konto erstellt','lime');}).catch(function(){$('reg-error').textContent='Server nicht erreichbar';});return;}
+      MQ.Net.register(name,email,pw).then(function(r){if(!r.ok){$('reg-error').textContent=r.error||'Fehler';return;}MQ.Net.setToken(r.token);MQ.DB.upsertServerUser(r.user);MQ.Auth.set(r.user.id);go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Online-Konto erstellt','lime');}).catch(function(){var lr=MQ.Auth.register(name,email,pw);if(lr.ok){go('app');UI.toast('👋','Willkommen, '+lr.user.name+'!','Offline-Modus (Server nicht erreichbar)','gold');}else{$('reg-error').textContent=lr.error;}});return;}
     var r=MQ.Auth.register(name,email,pw);
     if(r.ok){go('app');UI.toast('👋','Willkommen, '+r.user.name+'!','Kein E-Mail-Versand — du bist direkt drin','lime');}else $('reg-error').textContent=r.error;};
 
