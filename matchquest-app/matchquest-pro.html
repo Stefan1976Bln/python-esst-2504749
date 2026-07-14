@@ -607,11 +607,11 @@ h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;}
   'use strict';
   var LS='mqpro_v1', SS='mqpro_session';
   var KL='https://www.kicker.de/fussball-international/wettbewerbe';
-  // Restspiele WM 2026 — Viertelfinale ist vorbei. Halbfinale/Finale mit echten Terminen (CEST).
-  // Teamnamen: bitte die echten Halbfinalisten unten eintragen (home/away). Datum/Ort sind der offizielle Spielplan.
+  // Restspiele WM 2026 — Viertelfinale ist vorbei. Halbfinale-Paarungen recherchiert (Stand 14.07.2026):
+  // HF1 Frankreich–Spanien (Dallas), HF2 England–Argentinien (Atlanta). Anstoß 3pm ET = 21:00 CEST.
   function seedMatches(){return[
-    {id:'hf1',stage:'Halbfinale 1 · WM 2026',home:'Halbfinalist 1',hf:'⚽',away:'Halbfinalist 2',af:'⚽',kick:'2026-07-14T21:00:00+02:00',venue:'AT&T Stadium, Dallas',live:KL,inLobby:['lena','jonas','mara']},
-    {id:'hf2',stage:'Halbfinale 2 · WM 2026',home:'Halbfinalist 3',hf:'⚽',away:'Halbfinalist 4',af:'⚽',kick:'2026-07-15T21:00:00+02:00',venue:'Mercedes-Benz Stadium, Atlanta',live:KL,inLobby:['lena','mara']},
+    {id:'hf1',stage:'Halbfinale 1 · WM 2026',home:'Frankreich',hf:'🇫🇷',away:'Spanien',af:'🇪🇸',kick:'2026-07-14T21:00:00+02:00',venue:'AT&T Stadium, Dallas',live:KL,inLobby:['lena','jonas','mara']},
+    {id:'hf2',stage:'Halbfinale 2 · WM 2026',home:'England',hf:'🏴',away:'Argentinien',af:'🇦🇷',kick:'2026-07-15T21:00:00+02:00',venue:'Mercedes-Benz Stadium, Atlanta',live:KL,inLobby:['lena','mara']},
     {id:'p3',stage:'Spiel um Platz 3 · WM 2026',home:'Verlierer HF1',hf:'🥉',away:'Verlierer HF2',af:'🥉',kick:'2026-07-18T22:00:00+02:00',venue:'Hard Rock Stadium, Miami',live:KL,inLobby:['jonas','mara']},
     {id:'fin',stage:'🏆 Finale · WM 2026',home:'Sieger HF1',hf:'🏆',away:'Sieger HF2',af:'🏆',kick:'2026-07-19T21:00:00+02:00',venue:'MetLife Stadium, New York/New Jersey',live:KL,inLobby:['lena','jonas','mara']}
   ];}
